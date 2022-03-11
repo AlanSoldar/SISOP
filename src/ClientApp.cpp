@@ -4,7 +4,7 @@
 #include <unistd.h>
 #include "Client.cpp"
 using namespace std;
-
+// gcc -pthread -o ClientApp ClientApp.cpp -lstdc++
 void* testeThread(void* arg){
 	char *letra = (char *) arg;
 	for(int i=0; i< 10; i++){
