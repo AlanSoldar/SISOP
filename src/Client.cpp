@@ -41,13 +41,16 @@ void *Client::commandThread(void* arg) {
 		input = getchar();
 		command += input;
 		// 10 is the code for LF
+		//cout << "input: " << input << "command: " << command << '\n';
 	} while(input != 10 && input != ' ');
+	//remove 'space' from command
+	command.pop_back();
 
 	if(command == "FOLLOW"){
 		cin >> commandParameter;
 		user->follow(commandParameter);
 	} else if(command == "SEND") {
-		cin >> commandParameter;
+		getline(cin, commandParameter);
 		user->sendNotification(commandParameter);
 	} else {
 		cout << "This is not a valid command please use <FOLLOW> <userName> || <SEND> <yourMessage>\n";
