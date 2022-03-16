@@ -1,4 +1,4 @@
-#include "Client.hpp"
+#include "../libraries/Client.hpp""
 
 using namespace std;
 Client::Client(string userName, string serverAddress, int serverPort) {
