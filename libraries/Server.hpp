@@ -46,45 +46,31 @@ public:
     string ip; 
     int port;
 
-    bool try_to_start_session(string user, host_address address);
-    void follow_user(string user, string user_to_follow);
-    void create_notification(string user, string body, time_t timestamp);
-    void close_session(string user, host_address address);
-    void retrieve_notifications_from_offline_period(string user, host_address addr);
-    void read_notifications(host_address addr, vector<notification>* notifications);
-
+    bool openSession(string user, host_address address);
+    void closeSession(string user, host_address address);
+    
     static void *communicationHandler(void *handlerArgs);
     static void *readCommandsHandler(void *handlerArgs);
-    static void *sendNotificationsHandler(void *handlerArgs);
-
-
-    void print_users_unread_notifications();
-    void print_sessions();
-    void print_active_notifications();
-    void print_active_users_unread_notifications();
-    void print_followers();
-
     
 private: 
-    pthread_mutex_t mutex_session;
-    pthread_mutex_t follow_mutex;
-    pthread_mutex_t follower_count_mutex;
+    pthread_mutex_t mutexSession;
+    pthread_mutex_t followMutex;
+    pthread_mutex_t followerCountMutex;
 
-    pthread_cond_t 	cond_notification_empty, cond_notification_full;
-    pthread_mutex_t mutex_notification_sender;
+    pthread_cond_t 	condNotificationEmpty, condNotificationFull;
+    pthread_mutex_t mutexNotificationSender;
 
-    uint32_t notification_id_counter;
+    uint32_t notificationIdCounter;
 
-    map<string, sem_t> user_sessions_semaphore;
+    map<string, sem_t> userSessionsSemaphore;
     map< string, list< host_address > > sessions; // {user, [<ip, port>]}
-    map< string, list< uint32_t > > users_unread_notifications; // {user, [notification]]}
+    map< string, list< uint32_t > > usersUnreadNotifications; // {user, [notification]]}
     map< string, list<string> > followers;
-    vector<notification> active_notifications;
+    vector<notification> activeNotifications;
     map< host_address, priority_queue< uint32_t, vector<uint32_t>, greater<uint32_t> > > active_users_pending_notifications; // {<ip, port>, min_heap[notification]]}
 
-    bool user_exists(string user);
-    bool user_is_active(string user);
-    void assign_notification_to_active_sessions(uint32_t notification_id, list<string> followers);
+    bool userExists(string user);
+    bool isUserActive(string user);
 
 
 };
