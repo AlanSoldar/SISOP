@@ -10,6 +10,7 @@
 
 int main(int argc, char *argv[])
 {
+	printf("running");
 	int sockfd, newsockfd, n;
 	socklen_t clilen;
 	char buffer[256];
