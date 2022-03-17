@@ -1,5 +1,6 @@
 using namespace std;
 
+#include <string>
 
 class Client{
 public:
