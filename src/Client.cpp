@@ -1,5 +1,6 @@
 #include "../libraries/Client.hpp"
 #include "../libraries/Defines.hpp"
+#include <iostream>
 
 using namespace std;
 Client::Client(string userName, string serverAddress, int serverPort) {

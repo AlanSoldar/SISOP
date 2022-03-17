@@ -1,4 +1,4 @@
-#include "avg.h"
+#include "avg.x"
 #include <stdlib.h>
 #include <stdio.h>
 
