@@ -1,34 +1,28 @@
 #ifndef PACKET_TYPES
 #define PACKET_TYPES
 enum{
-    NOTIFICATION_PKT = 100,     // Notification sent by someone the user is following
-    MESSAGE_PKT,                // To communicate command errors and similar stuff 
-    COMMAND_FOLLOW_PKT,         // User wants to follow someone
-    COMMAND_SEND_PKT,           // User wants to send a notification
-    USER_INFO_PKT,              // Sends a username in the payload
-    SESSION_OPEN_SUCCEDED,      // When server could connect client to a session
-    SESSION_OPEN_FAILED         // When server could not connect client to a session
+    RECEIVE_NOTIFICATION = 100,// Packet type used when an user is recieving a notification
+    FOLLOW_USER,               // Packet type used when the user will follow other user
+    SEND_NOTIFICATION,         // Packet type used when the user wants to send a notification
+    OPEN_SESSION_SUCESS,       // Packet type used when the server connects the client to a session
+    OPEN_SESSION_FAIL          // Packet type used when the server couldn't connect the client to a session
 };
 #endif
 
 #ifndef PORT
-#define PORT 4000
+#define PORT 4040
 #endif
 
-#ifndef MAX_PAYLOAD_LENGTH
-#define MAX_PAYLOAD_LENGTH 256
+#ifndef PAYLOAD_MAX_SIZE
+#define PAYLOAD_MAX_SIZE 512
 #endif
 
-#ifndef MAX_AUTHOR_LENGTH
-#define MAX_AUTHOR_LENGTH 18
+#ifndef NOTIFICATION_MAX_SIZE
+#define NOTIFICATION_MAX_SIZE 128
 #endif
 
-#ifndef MAX_NOTIFICATION_LENGTH
-#define MAX_NOTIFICATION_LENGTH 128
-#endif
-
-#ifndef PKT_HEADER_BUFFER_LENGTH
-#define PKT_HEADER_BUFFER_LENGTH 4     
+#ifndef BUFFER_HEADER_SIZE
+#define BUFFER_HEADER_SIZE 4     
 #endif
 
 #ifndef CR
@@ -40,7 +34,7 @@ enum{
 #endif 
 
 #ifndef SERVER_ADDR
-#define SERVER_ADDR "127.0.0.1"
+#define SERVER_ADDR "128.0.0.1"
 #endif
 
 #ifndef MAX_TCP_CONNECTIONS

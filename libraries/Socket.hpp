@@ -18,16 +18,15 @@ typedef struct address {
 	string ipv4;
 	int port;
 
-    bool operator ==(address other) const {
-		return ipv4 == other.ipv4 && port == other.port;
+    bool operator < (const address& address) const {
+		return port < address.port;
 	}
 
-    bool operator <(const address& other) const {
-		return port < other.port;
+	bool operator == (address address) const {
+		return ipv4 == address.ipv4 && port == address.port;
 	}
     
 } host_address;
-
 
 
 class Socket
@@ -38,15 +37,13 @@ class Socket
 	public:
 		int getSocketfd();
 		
+		~Socket();
+		Socket();
+		Socket(int socketfd);
+
 		Packet* readPacket();
 		static Packet* readPacket(int socketfd);
         int sendPacket(Packet packet);
 		int sendPacket(Packet pkt, int socketfd);
-		
-		Socket();
-		Socket(int socketfd);
-		~Socket();
 };
-
-
 #endif
