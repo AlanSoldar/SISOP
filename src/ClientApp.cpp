@@ -2,7 +2,7 @@
 #include <iostream>
 #include <pthread.h>
 #include <unistd.h>
-#include "Client.cpp"
+#include "../libraries/Client.hpp"
 using namespace std;
 // gcc -pthread -o ClientApp ClientApp.cpp -lstdc++
 void* testeThread(void* arg){
