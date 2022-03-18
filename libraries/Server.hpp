@@ -78,7 +78,7 @@ private:
 
 struct communiction_handler_args {
 	Socket* connectedSocket;
-	host_address client_address; 
+	host_address clientAddress; 
 	string user;
     Server* server;
 };

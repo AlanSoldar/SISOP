@@ -7,7 +7,7 @@ SRC_FOLDER=./src/
 DBFLAGS=-ggdb3 -O0
 RELEASEFLAGS=-O2
 
-SERVER_SRC=$(SRC_FOLDER)Client.cpp $(SRC_FOLDER)Packet.cpp $(SRC_FOLDER)Server.cpp $(SRC_FOLDER)Socket.cpp $(SRC_FOLDER)app_server.cpp
+SERVER_SRC=$(SRC_FOLDER)Client.cpp $(SRC_FOLDER)Packet.cpp $(SRC_FOLDER)Server.cpp $(SRC_FOLDER)Socket.cpp $(SRC_FOLDER)ServerApp.cpp
 CLIENT_SRC=$(SRC_FOLDER)Client.cpp $(SRC_FOLDER)Packet.cpp $(SRC_FOLDER)Server.cpp $(SRC_FOLDER)Socket.cpp $(SRC_FOLDER)ClientApp.cpp
 
 SERVER_OBJ=$(addprefix $(BIN_FOLDER),$(notdir $(SERVER_SRC:.cpp=.o)))
