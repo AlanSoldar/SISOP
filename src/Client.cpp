@@ -15,7 +15,7 @@ Client::Client(string userName, string serverAddress, int serverPort) {
 
 void Client::connect() {
 	this->socket.connectToServer(this->getServerAddress().c_str(), this->getServerPort());
-	Packet userConnect = Packet(USER_INFO_PKT, this->getUserName().c_str());
+	Packet userConnect = Packet(USER_CONNECT, this->getUserName().c_str());
 	this->socket.sendPacket(userConnect);
 
 	Packet *answer;
@@ -24,9 +24,9 @@ void Client::connect() {
 	if(answer != NULL) {
 		cout << answer->getPayload() << "\n";
 
-		if(answer->getType() == SESSION_OPEN_SUCCEDED)
+		if(answer->getType() == OPEN_SESSION_SUCCESS)
 			return;
-		if(answer->getType() == SESSION_OPEN_FAILED)
+		if(answer->getType() == OPEN_SESSION_FAIL)
 			exit(1);
 	}
 	else {
@@ -54,7 +54,7 @@ void Client::follow(string userName) {
 }
 
 void Client::sendNotification(string message) {
-	int answer = this->socket.sendPacket(Packet(COMMAND_SEND_PKT, message.c_str()));
+	int answer = this->socket.sendPacket(Packet(SEND_NOTIFICATION, message.c_str()));
 	if(answer<0) {
 		exit(1);
 	}
