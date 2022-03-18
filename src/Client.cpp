@@ -20,19 +20,16 @@ void ClientSocket::connectToServer(const char* serverAddress, int serverPort) {
 	}
 }
 
-
-
-
-
-
 Client::Client(string userName, string serverAddress, int serverPort) {
 	this->userName = userName;
 	this->serverAddress = serverAddress;
 	this->serverPort = serverPort;
+	cout << "a";
 	this->connect();
-
+	cout << "a";
 	pthread_mutex_init(&mutex_command,NULL);
-
+	pthread_mutex_init(&mutex_receive_notification,NULL);
+	pthread_mutex_init(&mutex_main,NULL);
 }
 
 void Client::connect() {
@@ -70,9 +67,16 @@ int Client::getServerPort() {
 }
 
 void Client::follow(string userName) {
-	if(userName.find(' ') != string::npos || userName.find('@') == string::npos){
-		cout << "invalid userName please remove any whitespace or add a @ at the beginning\n";
+	if(userName.find(' ') != string::npos){
+		cout << "invalid username please remove any whitespace\n";
+		return;
 	}
+	if(userName[0] != '@') {
+		cout << "invalid username, note that usernames start with @\n";
+		return;
+	}
+	cout << "following: " << userName << "\n\n";
+	//this->socket.sendPacket(Packet(FOLLOW_USER, userName.substr(0, userName.size()-1).c_str()));
 }
 
 void Client::sendNotification(string message) {
@@ -82,36 +86,92 @@ void Client::sendNotification(string message) {
 	}
 }
 
+void *Client::mainThread(void* arg) {
+	Client *user = (Client*) arg;
+
+	fd_set rfds, save_rfds;
+	struct timeval tv;
+	int retval;
+	FD_ZERO(&rfds);
+	FD_SET(0, &rfds);
+	save_rfds = rfds;
+	tv.tv_sec = 0;
+	tv.tv_usec = 0;
+
+	while(true) {
+		pthread_mutex_lock(&(user->mutex_main));
+		rfds = save_rfds;
+		retval = select(1, &rfds, NULL, NULL, &tv);
+
+		if(retval) {
+			pthread_mutex_unlock(&(user->mutex_main));
+			pthread_mutex_unlock(&(user->mutex_command));
+			sleep(2);
+
+			pthread_mutex_lock(&(user->mutex_main));
+		}
+
+		pthread_mutex_unlock(&(user->mutex_main));
+	}
+
+}
+
 void *Client::commandThread(void* arg) {
 	Client *user = (Client*) arg;
 
 	cout << "user started a command\n";
 
-	//lock mutex for user input
-	
-	string command = "";
-	char input;
-	string commandParameter = "";
-	do {
-		input = getchar();
-		command += input;
-	} while(input != 10 && input != ' ');
-	//remove 'space' from command
-	command.pop_back();
+	while(true) {
 
-	if(command == "FOLLOW"){
-		cin >> commandParameter;
-		user->follow(commandParameter);
-	} else if(command == "SEND") {
-		//getline(cin, commandParameter);
+		pthread_mutex_lock(&(user->mutex_command));
+		pthread_mutex_lock(&(user->mutex_main));
+		pthread_mutex_lock(&(user->mutex_receive_notification));
+
+		string command = "";
+		char input;
+		string commandParameter = "";
 		do {
 			input = getchar();
-			commandParameter += input;
-		}while(input != 10);
-		user->sendNotification(commandParameter.substr(0,128));
-	} else {
-		cout << "This is not a valid command please use <FOLLOW> <userName> || <SEND> <yourMessage>\n";
-	}
+			command += input;
+		} while(input != 10 && input != ' ');
+		//remove 'space' from command
+		command.pop_back();
 
-	//unlock mutex
+		if(command == "FOLLOW"){
+			cin >> commandParameter;
+			user->follow(commandParameter);
+		} else if(command == "SEND") {
+			do {
+				input = getchar();
+				commandParameter += input;
+			}while(input != 10);
+			user->sendNotification(commandParameter.substr(0,128));
+		} else {
+			cout << "This is not a valid command please use <FOLLOW> <userName> || <SEND> <yourMessage>\n";
+		}
+
+		pthread_mutex_lock(&(user->mutex_main));
+		pthread_mutex_lock(&(user->mutex_receive_notification));
+	}
+}
+
+void *Client::receiveNotificationThread(void* arg) {
+	Client *user = (Client*) arg;
+	Packet* notification;
+	int i;
+	while(true) {
+		i++;
+		
+		notification = user->socket.readPacket();
+		if(notification == NULL) {
+			exit(1);
+		}
+
+		pthread_mutex_lock(&(user->mutex_receive_notification));
+		
+		if(notification->getType() == RECEIVE_NOTIFICATION) {
+			cout << "New Tweet: " << notification->getPayload() << '\n';
+		}
+		pthread_mutex_unlock(&(user->mutex_receive_notification));
+	}
 }

@@ -21,9 +21,12 @@ public:
 
 
 	static void *commandThread(void* arg);
-	//static void *notifyThread(void* arg);
+	static void *receiveNotificationThread(void* arg);
+	static void *mainThread(void* arg);
 
 	pthread_mutex_t mutex_command;
+	pthread_mutex_t mutex_receive_notification;
+	pthread_mutex_t mutex_main;
 	
 
 private:
@@ -33,5 +36,5 @@ private:
 
 		void connect();
 	void sendNotification(string message);
-	void follow(string message);
+	void follow(string userName);
 };
