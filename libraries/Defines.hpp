@@ -4,8 +4,9 @@ enum{
     RECEIVE_NOTIFICATION = 100,// Packet type used when an user is recieving a notification
     FOLLOW_USER,               // Packet type used when the user will follow other user
     SEND_NOTIFICATION,         // Packet type used when the user wants to send a notification
-    OPEN_SESSION_SUCESS,       // Packet type used when the server connects the client to a session
-    OPEN_SESSION_FAIL          // Packet type used when the server couldn't connect the client to a session
+    OPEN_SESSION_SUCCESS,      // Packet type used when the server connects the client to a session
+    OPEN_SESSION_FAIL,         // Packet type used when the server couldn't connect the client to a session
+    ERROR                      // Packet type used when we need to comunicate errors
 };
 #endif
 

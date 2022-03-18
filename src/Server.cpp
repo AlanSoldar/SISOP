@@ -121,11 +121,11 @@ void ServerSocket::connectNewClient(pthread_t *threadID, Server* server){
     
     Packet sessionResultPkt;
     if (!sessionAvailable){
-        sessionResultPkt = Packet(SESSION_OPEN_FAILED, "Unable to connect to server: no sessions available.");
+        sessionResultPkt = Packet(OPEN_SESSION_FAIL, "Unable to connect to server: no sessions available.");
         newClientSocket->sendPacket(sessionResultPkt);
         return; // destructor automatically closes the socket
     } else{
-        sessionResultPkt = Packet(SESSION_OPEN_SUCCEDED, "Connection succeded! Session established.");
+        sessionResultPkt = Packet(OPEN_SESSION_SUCCESS, "Connection succeded! Session established.");
         newClientSocket->sendPacket(sessionResultPkt);
     }
     
@@ -184,17 +184,17 @@ void *Server::readCommandsHandler(void *handlerArgs){
 
         switch(receivedPacket->getType()){
 
-            case COMMAND_FOLLOW_PKT:
+            case FOLLOW_USER:
                 userToFollow = receivedPacket->getPayload();
                 response = "Followed "+userToFollow+"!";
 
                 printf("test follow");
-                args->connectedSocket->sendPacket(Packet(MESSAGE_PKT, response.c_str()));
+                args->connectedSocket->sendPacket(Packet(ERROR, response.c_str()));
                 break;
 
-            case COMMAND_SEND_PKT:
+            case SEND_NOTIFICATION:
                 printf("test send");
-                args->connectedSocket->sendPacket(Packet(MESSAGE_PKT, "Notification sent!"));
+                args->connectedSocket->sendPacket(Packet(ERROR, "Notification sent!"));
                 break;
 
             default:
