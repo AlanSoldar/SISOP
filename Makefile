@@ -13,8 +13,8 @@ CLIENT_SRC=$(SRC_FOLDER)Client.cpp $(SRC_FOLDER)Packet.cpp $(SRC_FOLDER)Server.c
 SERVER_OBJ=$(addprefix $(BIN_FOLDER),$(notdir $(SERVER_SRC:.cpp=.o)))
 CLIENT_OBJ=$(addprefix $(BIN_FOLDER),$(notdir $(CLIENT_SRC:.cpp=.o)))
 
-SERVER_EXE=./bin/app_server
-CLIENT_EXE=./bin/app_client
+SERVER_EXE=./bin/server
+CLIENT_EXE=./bin/client
 
 server: $(SERVER_OBJ)
 	g++ -pthread -o $(SERVER_EXE) $(SERVER_OBJ)  
@@ -28,3 +28,6 @@ client: $(CLIENT_OBJ)
 
 clean:
 	rm -f $(BIN_FOLDER)*.o
+
+run_server:
+	./bin/server
