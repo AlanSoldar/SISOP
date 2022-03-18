@@ -5,7 +5,7 @@ using namespace std;
 
 class ClientSocket : public Socket {
 	public:
-		void connectToServer();
+		//void connectToServer();
 		void connectToServer(const char* serverAddress, int serverPort);
 };
 
