@@ -1,6 +1,7 @@
 #include "../libraries/Client.hpp"
 #include "../libraries/Defines.hpp"
 #include <iostream>
+#include <string.h>
 
 using namespace std;
 
@@ -24,9 +25,7 @@ Client::Client(string userName, string serverAddress, int serverPort) {
 	this->userName = userName;
 	this->serverAddress = serverAddress;
 	this->serverPort = serverPort;
-	cout << "a";
 	this->connect();
-	cout << "a";
 	pthread_mutex_init(&mutex_command,NULL);
 	pthread_mutex_init(&mutex_receive_notification,NULL);
 	pthread_mutex_init(&mutex_main,NULL);
@@ -75,8 +74,7 @@ void Client::follow(string userName) {
 		cout << "invalid username, note that usernames start with @\n";
 		return;
 	}
-	cout << "following: " << userName << "\n\n";
-	//this->socket.sendPacket(Packet(FOLLOW_USER, userName.substr(0, userName.size()-1).c_str()));
+	this->socket.sendPacket(Packet(FOLLOW_USER, userName.c_str()));
 }
 
 void Client::sendNotification(string message) {
@@ -128,30 +126,25 @@ void *Client::commandThread(void* arg) {
 		pthread_mutex_lock(&(user->mutex_receive_notification));
 
 		string command = "";
-		char input;
 		string commandParameter = "";
-		do {
-			input = getchar();
-			command += input;
-		} while(input != 10 && input != ' ');
+
+		cin >> command;
 		//remove 'space' from command
-		command.pop_back();
+		//command.pop_back();
 
 		if(command == "FOLLOW"){
 			cin >> commandParameter;
 			user->follow(commandParameter);
 		} else if(command == "SEND") {
-			do {
-				input = getchar();
-				commandParameter += input;
-			}while(input != 10);
+			cin >> commandParameter;
 			user->sendNotification(commandParameter.substr(0,128));
 		} else {
-			cout << "This is not a valid command please use <FOLLOW> <userName> || <SEND> <yourMessage>\n";
+			cout << "This is not a valid command please use <FOLLOW> <userName> || <SEND> <yourMessage>" << command << endl;
 		}
 
-		pthread_mutex_lock(&(user->mutex_main));
-		pthread_mutex_lock(&(user->mutex_receive_notification));
+		pthread_mutex_unlock(&(user->mutex_command));
+		pthread_mutex_unlock(&(user->mutex_main));
+		pthread_mutex_unlock(&(user->mutex_receive_notification));
 	}
 }
 
@@ -160,18 +153,12 @@ void *Client::receiveNotificationThread(void* arg) {
 	Packet* notification;
 	int i;
 	while(true) {
-		i++;
-		
 		notification = user->socket.readPacket();
 		if(notification == NULL) {
 			exit(1);
 		}
 
 		pthread_mutex_lock(&(user->mutex_receive_notification));
-		
-		if(notification->getType() == RECEIVE_NOTIFICATION) {
-			cout << "New Tweet: " << notification->getPayload() << '\n';
-		}
 		pthread_mutex_unlock(&(user->mutex_receive_notification));
 	}
 }

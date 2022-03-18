@@ -4,16 +4,18 @@
 
 using namespace std;
 
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[])
+{
 
 	pthread_t commandThread, receiveNotificationThread, mainThread;
 
-	if(argc < 4) {
-		cout << "Erro: Verifique se inseriu: <username> <server_adress> e <serverport>\n";
+	if (argc < 4)
+	{
+		cout << "Erro: Verifique se inseriu: <username> <server_adress> e <serverport>" << endl;
 		return 0;
 	}
-	
-	Client *user = (Client *) malloc(sizeof(Client));
+
+	Client *user = (Client *)malloc(sizeof(Client));
 	user = new Client(argv[1], argv[2], stoi(argv[3]));
 
 	//cout<< user->getUserName() << ' ' << user->getServerAdress() << ' ' << user->getServerPort() << '\n';

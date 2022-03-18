@@ -100,7 +100,7 @@ void *Server::readCommandsHandler(void *handlerArgs){
             args->server->closeSession(args->user, args->clientAddress);
             return NULL;
         }
-        cout << receivedPacket->getPayload() << "\n\n";
+        cout << receivedPacket->getPayload() << receivedPacket->getType() << endl;
 
         switch(receivedPacket->getType()){
 
@@ -108,12 +108,11 @@ void *Server::readCommandsHandler(void *handlerArgs){
                 userToFollow = receivedPacket->getPayload();
                 response = "Followed "+userToFollow+"!";
 
-                printf("test follow");
                 args->connectedSocket->sendPacket(Packet(ERROR, response.c_str()));
                 break;
 
             case SEND_NOTIFICATION:
-                printf("test send");
+                cout << "test notification" << endl;
                 args->connectedSocket->sendPacket(Packet(ERROR, "Notification sent!"));
                 break;
 
@@ -203,5 +202,5 @@ void ServerSocket::bindAndListen(){
     }
 	
 	listen(this->getSocketfd(), MAX_TCP_CONNECTIONS);
-	std::cout << "Listening..." << "\n\n";
+	std::cout << sizeof(this->serv_addr) << endl ;
 }
