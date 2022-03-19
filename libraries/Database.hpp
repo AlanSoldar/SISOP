@@ -3,6 +3,7 @@
 #include <list>
 #include <iostream>
 #include <fstream>
+#include "Notification.hpp"
 
 using namespace std;
 

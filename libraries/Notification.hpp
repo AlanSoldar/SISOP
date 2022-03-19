@@ -23,27 +23,27 @@ private:
     time_t timestamp;                    // Notification timestamp
     uint16_t length;                     // Notification LENGHT
     uint16_t pending;                    // Number of users pending to receive the notification
-    char senderId[SENDER_ID_SIZE];       // Sender Id
-    char message[NOTIFICATION_MAX_SIZE]; // Content of the notification message
+    string senderId;       // Sender Id
+    string message; // Content of the notification message
 
 public:
     Notification();
-    Notification(char const *senderId, char const *message);
-    Notification(uint32_t id, time_t timestamp, uint16_t length, uint16_t pending, char const *senderId, char const *message);
+    Notification(string const senderId, string const message);
+    Notification(uint32_t id, time_t timestamp, uint16_t length, uint16_t pending, string const senderId, string const message);
 
     uint32_t getId();
     time_t getTimestamp();
     uint16_t getLength();
     uint16_t getPending();
-    char *getSenderId();
-    char *getMessage();
+    string getSenderId();
+    string getMessage();
 
     void setTimestamp(time_t timestamp);
-    void setSenderId(char *senderId);
-    void setMessage(char *message);
+    void setSenderId(string senderId);
+    void setMessage(string message);
     void setPending(uint16_t pending);
     string toString();
-    Notification fromString(string stringObject);
+    static Notification fromString(string stringObject);
 };
 
 #endif

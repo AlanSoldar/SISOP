@@ -6,10 +6,10 @@ Notification::Notification()
 {
 }
 
-Notification::Notification(char const *senderId, char const *message)
+Notification::Notification(string const senderId, string const message)
 {
 
-    uint32_t messageSize = strlen(message);
+    uint32_t messageSize = message.length();
     if (messageSize > NOTIFICATION_MAX_SIZE)
     {
         std::cout << "ERROR Occured !! The message has exceeded his maximum size\n"
@@ -17,7 +17,7 @@ Notification::Notification(char const *senderId, char const *message)
         exit(1);
     }
 
-    uint32_t senderIdSize = strlen(senderId);
+    uint32_t senderIdSize = senderId.length();
     if (senderIdSize > SENDER_ID_SIZE)
     {
         std::cout << "ERROR Occured !! The sender id has exceeded his maximum size\n"
@@ -30,14 +30,14 @@ Notification::Notification(char const *senderId, char const *message)
 
     this->id = *(uint32_t *)&uuid;
     this->timestamp = time(NULL);
-    strcpy(this->senderId, senderId);
-    strcpy(this->message, message);
+    this->senderId.assign(senderId);
+    this->message.assign(message);
 }
 
-Notification::Notification(uint32_t id, time_t timestamp, uint16_t length, uint16_t pending, char const *senderId, char const *message)
+Notification::Notification(uint32_t id, time_t timestamp, uint16_t length, uint16_t pending, string const senderId, string const message)
 {
 
-    uint32_t messageSize = strlen(message);
+    uint32_t messageSize = message.length();
     if (messageSize > NOTIFICATION_MAX_SIZE)
     {
         std::cout << "ERROR Occured !! The message has exceeded his maximum size\n"
@@ -45,7 +45,7 @@ Notification::Notification(uint32_t id, time_t timestamp, uint16_t length, uint1
         exit(1);
     }
 
-    uint32_t senderIdSize = strlen(senderId);
+    uint32_t senderIdSize = senderId.length();
     if (senderIdSize > SENDER_ID_SIZE)
     {
         std::cout << "ERROR Occured !! The sender id has exceeded his maximum size\n"
@@ -57,8 +57,8 @@ Notification::Notification(uint32_t id, time_t timestamp, uint16_t length, uint1
     this->timestamp = timestamp;
     this->length = length;
     this->pending = pending;
-    strcpy(this->senderId, senderId);
-    strcpy(this->message, message);
+    this->senderId.assign(senderId);
+    this->message.assign(message);
 }
 
 uint32_t Notification::getId()
@@ -76,7 +76,7 @@ uint16_t Notification::getPending()
     return this->pending;
 }
 
-char *Notification::getSenderId()
+string Notification::getSenderId()
 {
     return this->senderId;
 }
@@ -86,7 +86,7 @@ time_t Notification::getTimestamp()
     return this->timestamp;
 }
 
-char *Notification::getMessage()
+string Notification::getMessage()
 {
     return this->message;
 }
@@ -101,10 +101,10 @@ void Notification::setPending(uint16_t pending)
     this->pending = pending;
 }
 
-void Notification::setMessage(char *const message)
+void Notification::setMessage(string const message)
 {
 
-    uint16_t messageSize = strlen(message);
+    uint16_t messageSize = message.length();
     if (messageSize > NOTIFICATION_MAX_SIZE)
     {
         std::cout << "ERROR Occured !! The message has exceeded his maximum size\n"
@@ -112,14 +112,14 @@ void Notification::setMessage(char *const message)
         exit(1);
     }
 
-    strcpy(this->message, message);
+    this->message.assign(message);
     this->length = messageSize;
 }
 
-void Notification::setSenderId(char *const senderId)
+void Notification::setSenderId(string const senderId)
 {
 
-    uint16_t senderIdSize = strlen(senderId);
+    uint16_t senderIdSize = senderId.length();
     if (senderIdSize > SENDER_ID_SIZE)
     {
         std::cout << "ERROR Occured !! The sender id has exceeded his maximum size\n"
@@ -127,7 +127,7 @@ void Notification::setSenderId(char *const senderId)
         exit(1);
     }
 
-    strcpy(this->senderId, senderId);
+    this->senderId.assign(senderId);
 }
 
 string Notification::toString()
@@ -142,44 +142,6 @@ string Notification::toString()
     string str_timestamp = ss.str();
 
     return str_id + ";" + str_timestamp + ";" + str_length + ";" + str_pending + ";" + this->getSenderId() + ";" + this->getMessage();
-}
-
-Notification Notification::fromString(string stringObject)
-{
-    vector<string> results = split(stringObject, ';');
-
-    uint32_t input_id;
-    time_t input_timestamp;
-    uint16_t input_length;
-    uint16_t input_pending;
-    char const *input_senderId;
-    char const *input_message;
-
-    //converting numbers from string to correct type.
-    input_id = strtoul(results[0].c_str(), NULL, 10);
-    input_length = strtoul(results[2].c_str(), NULL, 10);
-    input_pending = strtoul(results[3].c_str(), NULL, 10);
-
-    //converting timestamp from string to correct type.
-    int yy, month, dd, hh, mm, ss;
-    struct tm whenStart;
-    const char *zStart = results[1].c_str();
-    sscanf(zStart, "%d/%d/%d %d:%d:%d", &yy, &month, &dd, &hh, &mm, &ss);
-    whenStart.tm_year = yy - 1900;
-    whenStart.tm_mon = month - 1;
-    whenStart.tm_mday = dd;
-    whenStart.tm_hour = hh;
-    whenStart.tm_min = mm;
-    whenStart.tm_sec = ss;
-    whenStart.tm_isdst = -1;
-
-    input_timestamp = mktime(&whenStart);
-
-    //converting char const * from string to correct type
-    input_senderId = results[4].c_str();
-    input_message = results[5].c_str();
-
-    return Notification(input_id, input_timestamp, input_length, input_pending, input_senderId, input_message);
 }
 
 vector<string> split(string stringObject, char delimiter)
@@ -228,3 +190,42 @@ vector<string> split(string stringObject, char delimiter)
 
     return brokedString;
 }
+
+Notification Notification::fromString(string stringObject)
+{
+    vector<string> results = split(stringObject, ';');
+
+    uint32_t input_id;
+    time_t input_timestamp;
+    uint16_t input_length;
+    uint16_t input_pending;
+    string input_senderId;
+    string input_message;
+
+    //converting numbers from string to correct type.
+    input_id = strtoul(results[0].c_str(), NULL, 10);
+    input_length = strtoul(results[2].c_str(), NULL, 10);
+    input_pending = strtoul(results[3].c_str(), NULL, 10);
+
+    //converting timestamp from string to correct type.
+    int yy, month, dd, hh, mm, ss;
+    struct tm whenStart;
+    char const *zStart = results[1].c_str();
+    sscanf(zStart, "%d/%d/%d %d:%d:%d", &yy, &month, &dd, &hh, &mm, &ss);
+    whenStart.tm_year = yy - 1900;
+    whenStart.tm_mon = month - 1;
+    whenStart.tm_mday = dd;
+    whenStart.tm_hour = hh;
+    whenStart.tm_min = mm;
+    whenStart.tm_sec = ss;
+    whenStart.tm_isdst = -1;
+
+    input_timestamp = mktime(&whenStart);
+
+    //converting char const * from string to correct type
+    input_senderId.assign(results[4].c_str());
+    input_message.assign(results[5].c_str());
+
+    return Notification(input_id, input_timestamp, input_length, input_pending, input_senderId, input_message);
+}
+

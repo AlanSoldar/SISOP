@@ -11,6 +11,7 @@ Database::Database()
     this->notifications = {};
 
     this->loadUsers();
+    this->loadNotifications();
 }
 
 Database::Database(string name)
@@ -57,11 +58,14 @@ void Database::saveNewFollow(string followerId, string userId)
 
 void Database::saveNotification(string senderId, string message)
 {
+
+    Notification notification = Notification(senderId, message);
+
     ofstream notificationFile;
     notificationFile.open("tables/Notification.txt");
-    //notificationFile << followerId << " " << userId;
+    notificationFile << notification.toString() << endl;
     notificationFile.close();
-    //cout << followerId << " is now following: " << userId << endl;
+    cout << senderId << " has posted a new notification: " << message << endl;
 }
 
 
@@ -69,6 +73,7 @@ void Database::loadUsers() {
     ifstream userFile;
     userFile.open("tables/User.txt");
     string line;
+    cout << "loading users:" << endl;
     while(getline(userFile, line)) {
         cout << line << endl;
     }
@@ -78,6 +83,7 @@ void Database::loadFollows() {
     ifstream followFile;
     followFile.open("tables/Follower.txt");
     string line;
+    cout << "loading follows:" << endl;
     while(getline(followFile, line)) {
         cout << line << endl;
     }
@@ -87,7 +93,11 @@ void Database::loadNotifications() {
     ifstream notificationFile;
     notificationFile.open("tables/Notification.txt");
     string line;
+    cout << "loading notifications:" << endl;
     while(getline(notificationFile, line)) {
+        Notification notification = Notification::fromString(line);
         cout << line << endl;
+        cout << notification.getTimestamp() << endl;
+        cout << notification.getMessage() << endl;
     }
 }
