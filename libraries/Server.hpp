@@ -12,6 +12,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "Socket.hpp"
+#include "Database.hpp"
 using namespace std;
 
 
@@ -64,10 +65,7 @@ private:
 
     map<string, sem_t> userSessionsSemaphore;
     map< string, list< host_address > > sessions; // {user, [<ip, port>]}
-    map< string, list< uint32_t > > usersUnreadNotifications; // {user, [notification]]}
-    map< string, list<string> > followers;
-    vector<notification> activeNotifications;
-    map< host_address, priority_queue< uint32_t, vector<uint32_t>, greater<uint32_t> > > active_users_pending_notifications; // {<ip, port>, min_heap[notification]]}
+    Database database;
 
     bool userExists(string user);
     bool isUserActive(string user);

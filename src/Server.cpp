@@ -4,6 +4,7 @@ using namespace std;
 
 Server::Server()
 {
+    this->database = Database();
     this->notificationIdCounter = 0;
     mutexSession = PTHREAD_MUTEX_INITIALIZER;
     followMutex = PTHREAD_MUTEX_INITIALIZER;
@@ -16,6 +17,7 @@ Server::Server()
 
 Server::Server(host_address address)
 {
+    this->database = Database();
     this->notificationIdCounter = 0;
 	this->ip = address.ipv4;
 	this->port = address.port;
@@ -41,15 +43,15 @@ bool Server::openSession(string user, host_address address)
         sem_init(&num_sessions, 0, 2);
         userSessionsSemaphore.insert({user, num_sessions}); // user is created with 2 sessions available
         sessions.insert({user, list<host_address>()});
-        followers.insert(pair<string, list<string>>(user, list<string>()));
-        usersUnreadNotifications.insert({user, list<uint32_t>()});
+        //followers.insert(pair<string, list<string>>(user, list<string>()));
+        //usersUnreadNotifications.insert({user, list<uint32_t>()});
     } 
     
     int session_started = sem_trywait(&(userSessionsSemaphore[user])); // try to consume a session resource
     if(session_started == 0) // 0 if session started, -1 if not
     { 
         sessions[user].push_back(address);
-        active_users_pending_notifications.insert({address, priority_queue<uint32_t, vector<uint32_t>, greater<uint32_t>>()});
+        //active_users_pending_notifications.insert({address, priority_queue<uint32_t, vector<uint32_t>, greater<uint32_t>>()});
     }
     pthread_mutex_unlock(&mutexSession); // Fim SC
     return session_started == 0; 
@@ -64,7 +66,7 @@ void Server::closeSession(string user, host_address address)
     if(it != sessions[user].end()) // remove address from sessions map and < (ip, port), notification to send > 
     {
         sessions[user].erase(it);
-        active_users_pending_notifications.erase(address);
+        //active_users_pending_notifications.erase(address);
 
         // signal semaphore
         sem_post(&(userSessionsSemaphore[user]));
@@ -107,6 +109,8 @@ void *Server::readCommandsHandler(void *handlerArgs){
             case FOLLOW_USER:
                 userToFollow = receivedPacket->getPayload();
                 response = "Followed "+userToFollow+"!";
+
+                args->server->database.saveNewFollow(args->user, userToFollow);
 
                 args->connectedSocket->sendPacket(Packet(ERROR, response.c_str()));
                 break;
