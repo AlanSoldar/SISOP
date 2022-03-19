@@ -31,6 +31,10 @@ uint16_t Notification::getLength(){
     return this->length;
 }
 
+uint16_t Notification::getPending(){
+    return this->pending;
+}
+
 char* Notification::getSenderId(){
     return this->senderId;
 }
@@ -45,6 +49,10 @@ char* Notification::getMessage(){
 
 void Notification::setTimestamp(time_t timestamp){
     this->timestamp = timestamp;
+}
+
+void Notification::setPending(uint16_t pending){
+    this->pending = pending;
 }
 
 void Notification::setMessage(char* const message){
