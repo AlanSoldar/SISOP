@@ -94,6 +94,7 @@ void *Server::readCommandsHandler(void *handlerArgs){
 	struct communiction_handler_args *args = (struct communiction_handler_args *)handlerArgs;
 
     string userToFollow;
+    string message;
     string response;
 
     while(1){
@@ -116,7 +117,9 @@ void *Server::readCommandsHandler(void *handlerArgs){
                 break;
 
             case SEND_NOTIFICATION:
-                cout << "test notification" << endl;
+                message = receivedPacket->getPayload();
+                args->server->database.saveNotification(args->user, message);
+
                 args->connectedSocket->sendPacket(Packet(ERROR, "Notification sent!"));
                 break;
 
@@ -206,5 +209,5 @@ void ServerSocket::bindAndListen(){
     }
 	
 	listen(this->getSocketfd(), MAX_TCP_CONNECTIONS);
-	std::cout << sizeof(this->serv_addr) << endl ;
+	std::cout << "Server is running" << endl ;
 }

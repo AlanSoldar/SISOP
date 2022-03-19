@@ -9,6 +9,8 @@ Database::Database()
     this->users = {};
     this->followers = {};
     this->notifications = {};
+
+    this->loadUsers();
 }
 
 Database::Database(string name)
@@ -60,4 +62,32 @@ void Database::saveNotification(string senderId, string message)
     //notificationFile << followerId << " " << userId;
     notificationFile.close();
     //cout << followerId << " is now following: " << userId << endl;
+}
+
+
+void Database::loadUsers() {
+    ifstream userFile;
+    userFile.open("tables/User.txt");
+    string line;
+    while(getline(userFile, line)) {
+        cout << line << endl;
+    }
+}
+
+void Database::loadFollows() {
+    ifstream followFile;
+    followFile.open("tables/Follower.txt");
+    string line;
+    while(getline(followFile, line)) {
+        cout << line << endl;
+    }
+}
+
+void Database::loadNotifications() {
+    ifstream notificationFile;
+    notificationFile.open("tables/Notification.txt");
+    string line;
+    while(getline(notificationFile, line)) {
+        cout << line << endl;
+    }
 }

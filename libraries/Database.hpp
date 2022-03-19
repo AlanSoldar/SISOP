@@ -25,4 +25,8 @@ private:
     map<string, string> users;
     map<string, list<string>> followers;
     map<string, list<string>> notifications;
+
+    void loadUsers();
+    void loadNotifications();
+    void loadFollows();
 };
