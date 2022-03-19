@@ -1,4 +1,5 @@
 #include "../libraries/Socket.hpp"
+#include <stdlib.h>
 
 int Socket::getSocketfd(){
     return this->socketfd;
@@ -6,11 +7,11 @@ int Socket::getSocketfd(){
 
 Socket::~Socket(){
     std::cout << "Closing socketfd...\n";
-    close(this->socketfd);
+    close(socketfd);
 }
 
 Socket::Socket(){
-    if ((this->socketfd = socket(AF_INET, SOCK_STREAM, 0)) <= 0) {
+    if ((this->socketfd = socket(AF_INET, SOCK_DGRAM, 0)) <= 0) {
         std::cout << "ERROR opening the socket\n" << std::endl;
         exit(1);
     }
