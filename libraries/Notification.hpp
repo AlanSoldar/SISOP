@@ -19,12 +19,12 @@ class Notification
 {
 
 private:
-    uint32_t id;                         // Notification identifier
-    time_t timestamp;                    // Notification timestamp
-    uint16_t length;                     // Notification LENGHT
-    uint16_t pending;                    // Number of users pending to receive the notification
-    string senderId;       // Sender Id
-    string message; // Content of the notification message
+    uint32_t id;      // Notification identifier
+    time_t timestamp; // Notification timestamp
+    uint16_t length;  // Notification LENGHT
+    uint16_t pending; // Number of users pending to receive the notification
+    string senderId;  // Sender Id
+    string message;   // Content of the notification message
 
 public:
     Notification();
