@@ -9,6 +9,8 @@ namespace udp_client_server
 
     // This function initializes the UDP client object
     // The port is expected to be a host side port number (i.e. 59200).
+    // addr should be an IPv4 or IPv6 textual address, it can represents a host name or an address defined 
+    // only with numbers, if the address cannot be resolved the constructor will throw an error. 
     udp_client::udp_client(const std::string &addr, int port)
         : f_port(port), f_addr(addr)
     {
