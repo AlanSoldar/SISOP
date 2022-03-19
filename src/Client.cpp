@@ -1,7 +1,5 @@
 #include "../libraries/Client.hpp"
 #include "../libraries/Defines.hpp"
-#include <iostream>
-#include <string.h>
 
 using namespace std;
 
@@ -32,8 +30,6 @@ Client::Client(string userName, string serverAddress, int serverPort)
 	pthread_mutex_init(&mutex_command, NULL);
 	pthread_mutex_init(&mutex_receive_notification, NULL);
 	pthread_mutex_init(&mutex_main, NULL);
-
-	pthread_mutex_lock(&mutex_receive_notification);
 }
 
 void Client::connect()

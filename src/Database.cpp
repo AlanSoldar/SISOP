@@ -1,5 +1,6 @@
 #include "../libraries/Database.hpp"
 
+
 using namespace std;
 
 Database::Database()
@@ -35,13 +36,28 @@ list<string> Database::getNotificationsByUserId(string id)
 
 void Database::saveUser(string id)
 {
+    ofstream userFile;
+    userFile.open("tables/User.txt");
+    //userFile << followerId << " " << userId;
+    userFile.close();
+    //cout << followerId << " is now following: " << userId << endl;
 }
 
 void Database::saveNewFollow(string followerId, string userId)
 {
+    ofstream followerFile;
+    followerFile.open("tables/Follower.txt");
+    followerFile << followerId << " " << userId;
+    followerFile.close();
     cout << followerId << " is now following: " << userId << endl;
+
 }
 
 void Database::saveNotification(string senderId, string message)
 {
+    ofstream notificationFile;
+    notificationFile.open("tables/Notification.txt");
+    //notificationFile << followerId << " " << userId;
+    notificationFile.close();
+    //cout << followerId << " is now following: " << userId << endl;
 }

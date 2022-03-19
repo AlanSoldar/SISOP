@@ -1,5 +1,7 @@
 #include "Socket.hpp"
 #include <pthread.h>
+#include <iostream>
+#include <string.h>
 
 using namespace std;
 
