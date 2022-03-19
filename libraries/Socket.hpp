@@ -14,36 +14,38 @@
 #include "Packet.hpp"
 using namespace std;
 
-typedef struct address {
+typedef struct address
+{
 	string ipv4;
 	int port;
 
-    bool operator < (const address& address) const {
+	bool operator<(const address &address) const
+	{
 		return port < address.port;
 	}
 
-	bool operator == (address address) const {
+	bool operator==(address address) const
+	{
 		return ipv4 == address.ipv4 && port == address.port;
 	}
-    
-} host_address;
 
+} host_address;
 
 class Socket
 {
-	private:
-		int socketfd;
+private:
+	int socketfd;
 
-	public:
-		int getSocketfd();
-		
-		~Socket();
-		Socket();
-		Socket(int socketfd);
+public:
+	int getSocketfd();
 
-		Packet* readPacket();
-		static Packet* readPacket(int socketfd);
-        int sendPacket(Packet packet);
-		int sendPacket(Packet pkt, int socketfd);
+	~Socket();
+	Socket();
+	Socket(int socketfd);
+
+	Packet *readPacket();
+	static Packet *readPacket(int socketfd);
+	int sendPacket(Packet packet);
+	int sendPacket(Packet pkt, int socketfd);
 };
 #endif
