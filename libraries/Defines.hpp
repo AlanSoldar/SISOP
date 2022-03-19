@@ -27,6 +27,10 @@ enum{
 #define BUFFER_HEADER_SIZE 4     
 #endif
 
+#ifndef SENDER_ID_SIZE
+#define SENDER_ID_SIZE 100     
+#endif
+
 #ifndef CR
 #define CR 13
 #endif 
