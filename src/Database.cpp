@@ -1,6 +1,5 @@
 #include "../libraries/Database.hpp"
 
-
 using namespace std;
 
 Database::Database()
@@ -21,6 +20,13 @@ string Database::getUserByid(string id)
     return this->users.find(id)->second;
 }
 
+bool Database::userExists(string userId)
+{
+    loadUsers();
+    map<string, string>::iterator it = users.find(userId);
+    return it != users.end();
+}
+
 list<string> Database::getFollowersByUserId(string id)
 {
     loadFollows();
@@ -36,10 +42,10 @@ list<string> Database::getNotificationsByUserId(string id)
 void Database::saveUser(string id)
 {
     ofstream userFile;
-    userFile.open("tables/User.txt");
-    //userFile << followerId << " " << userId;
+    userFile.open("tables/User.txt", ios_base::app);
+    userFile << id << endl;
     userFile.close();
-    //cout << followerId << " is now following: " << userId << endl;
+    cout << id << " was created as a new user " << endl;
 }
 
 void Database::saveNewFollow(string followerId, string userId)
@@ -49,7 +55,6 @@ void Database::saveNewFollow(string followerId, string userId)
     followerFile << followerId << " " << userId;
     followerFile.close();
     cout << followerId << " is now following: " << userId << endl;
-
 }
 
 void Database::saveNotification(string senderId, string message)
@@ -69,33 +74,38 @@ void Database::saveNotification(string senderId, string message)
     cout << senderId << " has posted a new notification: " << message << endl;
 }
 
-
-void Database::loadUsers() {
+void Database::loadUsers()
+{
     ifstream userFile;
     userFile.open("tables/User.txt");
     string line;
     cout << "loading users:" << endl;
-    while(getline(userFile, line)) {
-        cout << line << endl;
+    while (getline(userFile, line))
+    {
+        users.insert(pair<string, string>(line, line));
     }
 }
 
-void Database::loadFollows() {
+void Database::loadFollows()
+{
     ifstream followFile;
     followFile.open("tables/Follower.txt");
     string line;
     cout << "loading follows:" << endl;
-    while(getline(followFile, line)) {
+    while (getline(followFile, line))
+    {
         cout << line << endl;
     }
 }
 
-void Database::loadNotifications() {
+void Database::loadNotifications()
+{
     ifstream notificationFile;
     notificationFile.open("tables/Notification.txt");
     string line;
     cout << "loading notifications:" << endl;
-    while(getline(notificationFile, line)) {
+    while (getline(notificationFile, line))
+    {
         Notification notification = Notification::fromString(line);
         cout << line << endl;
         cout << notification.getTimestamp() << endl;

@@ -17,29 +17,6 @@
 using namespace std;
 
 
-
-typedef struct __notification {
-
-    __notification();
-    __notification(uint32_t new_id, string new_author, time_t new_timestamp, string new_body, uint16_t new_length, uint16_t new_pending) :
-        id(new_id), author(new_author), timestamp(new_timestamp), body(new_body), length(new_length), pending(new_pending) {}
-
-    uint32_t id; //Identificador da notificação (sugere-se um identificador único)
-    string author; 
-    time_t timestamp; //Timestamp da notificação
-    string body; //Mensagem
-    uint16_t length; //Tamanho da mensagem
-    uint16_t pending; //Quantidade de leitores pendentes
-
-    bool operator ==(__notification other) const {
-		return id == other.id;
-	}
-
-} notification;
-
-
-
-
 class Server
 {
 public:
@@ -48,9 +25,7 @@ public:
     string ip; 
     int port;
 
-    bool openSession(string user, host_address address);
-    void closeSession(string user, host_address address);
-    
+    void login(string user);
     static void *communicationHandler(void *handlerArgs);
     
 private: 

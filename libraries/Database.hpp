@@ -14,6 +14,7 @@ public:
     Database(string name);
 
     string getUserByid(string id);
+    bool userExists(string userId);
     list<string> getNotificationsByUserId(string id);
     list<string> getFollowersByUserId(string id);
 

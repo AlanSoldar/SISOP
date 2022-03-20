@@ -18,7 +18,7 @@ int main(){
 	pthread_create(&threadConnection, NULL, Server::communicationHandler, (void *)args);
 	pthread_join(threadConnection, NULL);
 
-	cout << "test main end" << endl;
+	cout << "main end" << endl;
 
 	return 0; 
 }

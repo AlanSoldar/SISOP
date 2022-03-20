@@ -35,22 +35,23 @@ int Client::getServerPort()
 	return this->serverPort;
 }
 
-void Client::follow(string userName)
+void Client::follow(string userToFollow)
 {
-	if (userName.find(' ') != string::npos)
+	cout << userToFollow << endl;
+	if (userToFollow.find(' ') != string::npos)
 	{
 		cout << "Invalid username please remove any whitespace\n";
 		return;
 	}
-	if (userName[0] != '@')
+	if (userToFollow[0] != '@')
 	{
 		cout << "Invalid username, note that usernames start with @\n";
 		return;
 	}
-	this->socket.sendPacket(Packet(this->userName, FOLLOW_USER, userName.c_str()));
+	this->socket.sendPacket(Packet(this->userName, FOLLOW_USER, userToFollow.c_str()));
 }
 
-void Client::sendNotification(char *message)
+void Client::sendNotification(string message)
 {
 	Notification notification = Notification(userName, message);
 	int answer = this->socket.sendPacket(Packet(this->userName, SEND_NOTIFICATION, notification.toString()));
@@ -109,20 +110,20 @@ void *Client::commandThread(void *arg)
 		pthread_mutex_lock(&(user->mutex_receive_notification));
 
 		string command = "";
-		char commandParameter[NOTIFICATION_MAX_SIZE];
+		string commandParameter;
 		cin >> command;
 
 		if (command == "FOLLOW")
 		{
 			cout << "Request received for a FOLLOW command:\n" << endl;
-			cin.getline(commandParameter,NOTIFICATION_MAX_SIZE);
-			user->follow(commandParameter);
+			getline(cin, commandParameter);
+			user->follow(commandParameter.erase(0,1));
 		}
 		else if (command == "SEND")
 		{
 			cout << "Request received for a SEND command:\n" << endl;
-			cin.getline(commandParameter,NOTIFICATION_MAX_SIZE);
-			user->sendNotification(commandParameter);
+			getline(cin, commandParameter);
+			user->sendNotification(commandParameter.erase(0,1));
 		}
 		else
 		{
