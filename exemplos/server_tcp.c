@@ -13,7 +13,7 @@ int main(int argc, char *argv[])
 	printf("running");
 	int sockfd, newsockfd, n;
 	socklen_t clilen;
-	char buffer[PAYLOAD_MAX_SIZE];
+	char buffer[256];
 	struct sockaddr_in serv_addr, cli_addr;
 	
 	if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) == -1) 

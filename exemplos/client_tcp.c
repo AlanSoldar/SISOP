@@ -15,7 +15,7 @@ int main(int argc, char *argv[])
     struct sockaddr_in serv_addr;
     struct hostent *server;
 	
-    char buffer[PAYLOAD_MAX_SIZE];
+    char buffer[256];
     if (argc < 2) {
 		fprintf(stderr,"usage %s hostname\n", argv[0]);
 		exit(0);

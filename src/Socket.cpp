@@ -60,7 +60,7 @@ Packet *ClientSocket::readPacket()
     Packet *pkt = new Packet();
     memset(pkt, 0, sizeof(Packet));
 
-    int buffer = recvfrom(socketfd, buf, 256, 0, (struct sockaddr *)&serv_addr, &clilen);
+    int buffer = recvfrom(socketfd, buf, PAYLOAD_MAX_SIZE, 0, (struct sockaddr *)&serv_addr, &clilen);
 
     if (buffer < 0)
     {
@@ -119,7 +119,7 @@ Packet *ServerSocket::readPacket()
     Packet *pkt = new Packet();
     memset(pkt, 0, sizeof(Packet));
 
-    int buffer = recvfrom(socketfd, buf, 256, 0, (struct sockaddr *)&cli_addr, &clilen);
+    int buffer = recvfrom(socketfd, buf, PAYLOAD_MAX_SIZE, 0, (struct sockaddr *)&cli_addr, &clilen);
 
     if (buffer < 0)
     {

@@ -14,7 +14,7 @@ int main(int argc, char *argv[])
 	int sockfd, n;
 	socklen_t clilen;
 	struct sockaddr_in serv_addr, cli_addr;
-	char buf[PAYLOAD_MAX_SIZE];
+	char buf[256];
 		
     if ((sockfd = socket(AF_INET, SOCK_DGRAM, 0)) == -1) 
 		printf("ERROR opening socket");

@@ -109,19 +109,19 @@ void *Client::commandThread(void *arg)
 		pthread_mutex_lock(&(user->mutex_receive_notification));
 
 		string command = "";
-		char commandParameter[128];
+		char commandParameter[NOTIFICATION_MAX_SIZE];
 		cin >> command;
 
 		if (command == "FOLLOW")
 		{
 			cout << "Request received for a FOLLOW command:\n" << endl;
-			cin.getline(commandParameter,128);
+			cin.getline(commandParameter,NOTIFICATION_MAX_SIZE);
 			user->follow(commandParameter);
 		}
 		else if (command == "SEND")
 		{
 			cout << "Request received for a SEND command:\n" << endl;
-			cin.getline(commandParameter,128);
+			cin.getline(commandParameter,NOTIFICATION_MAX_SIZE);
 			user->sendNotification(commandParameter);
 		}
 		else
