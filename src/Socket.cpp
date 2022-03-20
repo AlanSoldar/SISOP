@@ -1,39 +1,72 @@
 #include "../libraries/Socket.hpp"
 #include <stdlib.h>
 
-int Socket::getSocketfd(){
-    return this->socketfd;
-} 
-
-Socket::~Socket(){
+ClientSocket::~ClientSocket()
+{
     std::cout << "Closing socketfd...\n";
     close(socketfd);
 }
 
-Socket::Socket(){
-    if ((this->socketfd = socket(AF_INET, SOCK_DGRAM, 0)) <= 0) {
-        std::cout << "ERROR opening the socket\n" << std::endl;
+ClientSocket::ClientSocket()
+{
+    if ((this->socketfd = socket(AF_INET, SOCK_DGRAM, 0)) <= 0)
+    {
+        std::cout << "ERROR opening the socket\n"
+                  << std::endl;
         exit(1);
     }
 }
 
-Socket::Socket(int socketfd){
+ClientSocket::ClientSocket(int socketfd)
+{
     this->socketfd = socketfd;
 }
 
-// returns a pointer that points to the read Packet or NULL if the connection was closed
-Packet* Socket::readPacket(int socketfd){
+void ClientSocket::connectToServer(const char *serverAddress, int serverPort)
+{
+	struct hostent *server;
+	int sockfd;
+	server = gethostbyname(serverAddress);
 
-    Packet* pkt = new Packet();
-    memset(pkt, 0, sizeof (Packet));
+	serv_addr.sin_family = AF_INET;
+	serv_addr.sin_port = htons(serverPort);
+	serv_addr.sin_addr = *((struct in_addr *)server->h_addr);
+	bzero(&(serv_addr.sin_zero), 8);
+
+	if ((sockfd = socket(AF_INET, SOCK_DGRAM, 0)) == -1) {
+		("ERROR on tentative to stablish a connection with server.\n");
+		exit(1);
+	}
+
+	// if (connect(this->getSocketfd(), (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0)
+	// {
+	// 	cout << 
+	// 	exit(1);
+	// }
+}
+
+int ClientSocket::getSocketfd()
+{
+    return this->socketfd;
+}
+
+
+// returns a pointer that points to the read Packet or NULL if the connection was closed
+Packet *ClientSocket::readPacket(int socketfd)
+{
+
+    Packet *pkt = new Packet();
+    memset(pkt, 0, sizeof(Packet));
     int buffer = read(socketfd, pkt, sizeof(Packet));
-    
-    if (buffer < 0){
-        std::cout << "ERROR reading from socket: " << socketfd  << std::endl;
+
+    if (buffer < 0)
+    {
+        std::cout << "ERROR reading from socket: " << socketfd << std::endl;
         return NULL;
     }
 
-    else if(buffer == 0){
+    else if (buffer == 0)
+    {
         std::cout << "Connection closed." << std::endl;
         return NULL;
     }
@@ -41,18 +74,21 @@ Packet* Socket::readPacket(int socketfd){
     return pkt;
 }
 
-Packet* Socket::readPacket(){
+Packet *ClientSocket::readPacket()
+{
 
-    Packet* pkt = new Packet();
-    memset(pkt, 0, sizeof (Packet));
+    Packet *pkt = new Packet();
+    memset(pkt, 0, sizeof(Packet));
     int buffer = read(this->socketfd, pkt, sizeof(Packet));
 
-    if (buffer<0){
-        std::cout << "ERROR reading from socket: " << this->socketfd  << std::endl;
+    if (buffer < 0)
+    {
+        std::cout << "ERROR reading from socket: " << this->socketfd << std::endl;
         return NULL;
     }
 
-    else if(buffer == 0){
+    else if (buffer == 0)
+    {
         std::cout << "Connection closed." << std::endl;
         return NULL;
     }
@@ -61,22 +97,117 @@ Packet* Socket::readPacket(){
 }
 
 // overloading for non-initialized Socket object
-int Socket::sendPacket(Packet pkt, int socketfd){
+int ClientSocket::sendPacket(Packet pkt, int socketfd)
+{
     int buffer = send(socketfd, &pkt, sizeof(pkt), MSG_NOSIGNAL);
 
-    if (buffer < 0) {
+    if (buffer < 0)
+    {
         std::cout << "ERROR writing to socket: " << this->socketfd << std::endl;
         std::cout << "Connection closed." << std::endl;
     }
-    
+
     return buffer;
 }
 
 // return the buffer value from send primitive
-int Socket::sendPacket(Packet pkt){
-    int buffer = send(this->socketfd, &pkt, sizeof(pkt), MSG_NOSIGNAL); 
+int ClientSocket::sendPacket(Packet pkt, sockaddr address)
+{
+    char buffer[256];
+    //int buffer = send(this->socketfd, &pkt, sizeof(pkt), MSG_NOSIGNAL);
+    int response = sendto(this->socketfd, buffer, strlen(buffer), 0, (const struct sockaddr *)&address, sizeof(struct sockaddr_in));
 
-    if (buffer < 0) 
+    if (response < 0)
         std::cout << "ERROR writing to socket: " << this->socketfd << std::endl;
-    return buffer;
+    return response;
+}
+
+
+
+ServerSocket::ServerSocket() {
+    
+    this->serv_addr.sin_family = AF_INET;
+	this->serv_addr.sin_port = htons(PORT);
+	this->serv_addr.sin_addr.s_addr = INADDR_ANY;
+	bzero(&(this->serv_addr.sin_zero), 8);
+
+}
+
+// void ServerSocket::connectNewClient(pthread_t *threadID, Server* server){
+
+// 	socklen_t clientLen;
+// 	struct sockaddr_in clientAddressIn;
+//     host_address clientAddress;
+//     string user;
+    
+//     // Wait for connection to socket
+//     clientLen = sizeof(struct sockaddr_in);
+//     if ((*newsockfd = accept(this->getSocketfd(), (struct sockaddr *) &clientAddressIn, &clientLen)) == -1) {
+//         std::cout << "Could not complete connection" << std::endl;
+//         return;
+//     }
+
+//     std::cout << "Connectet to socket: " << *newsockfd << std::endl;
+
+//     Packet *userPacket = newClientSocket->readPacket();
+
+//     if (userPacket == NULL){
+//         std::cout << "Could not receive user information. Closing connection." << std::endl;
+//         return; 
+//     } else 
+//         user = userPacket->getPayload();
+    
+
+//     clientAddress.ipv4 = inet_ntoa(clientAddressIn.sin_addr);
+//     clientAddress.port = ntohs(clientAddressIn.sin_port);
+//     bool sessionAvailable = server->openSession(user, clientAddress);
+
+    
+//     Packet resultPacket;
+//     if (!sessionAvailable){
+//         resultPacket = Packet(OPEN_SESSION_FAIL, "Could not connect to server.");
+//         newClientSocket->sendPacket(resultPacket);
+//         return; // destructor automatically closes the socket
+//     } else{
+//         resultPacket = Packet(OPEN_SESSION_SUCCESS, "Connection Successful.");
+//         newClientSocket->sendPacket(resultPacket);
+//     }
+    
+//     communiction_handler_args *args = (communiction_handler_args *) calloc(1, sizeof(communiction_handler_args));
+//     args->clientAddress = clientAddress;
+//     args->connectedSocket = newClientSocket;
+//     args->user = user;
+//     args->server = server;
+
+//     pthread_create(threadID, NULL, Server::communicationHandler, (void *)args);
+// }
+
+
+void ServerSocket::bindAndListen(){
+
+    int n;
+    char buf[256];
+    socklen_t clilen;
+    struct sockaddr_in cli_addr;
+
+    if (bind(this->getSocketfd(), (struct sockaddr *) &serv_addr, sizeof(struct sockaddr)) < 0) {
+		printf("ERROR on binding");
+        exit(1);
+    }
+
+    while (1) {
+		/* receive from socket */
+		n = recvfrom(this->getSocketfd(), buf, 256, 0, (struct sockaddr *) &cli_addr, &clilen);
+		if (n < 0) 
+			printf("ERROR on recvfrom");
+		printf("Received a datagram: %s\n", buf);
+		
+		/* send to socket */
+		n = sendto(this->getSocketfd(), "Got your message\n", 17, 0,(struct sockaddr *) &cli_addr, sizeof(struct sockaddr));
+		if (n  < 0) 
+			printf("ERROR on sendto");
+	}
+    
+	//listen(this->getSocketfd(), MAX_TCP_CONNECTIONS);
+	//std::cout << "Server is running" << endl ;
 }

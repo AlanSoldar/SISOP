@@ -3,23 +3,6 @@
 
 using namespace std;
 
-void ClientSocket::connectToServer(const char *serverAddress, int serverPort)
-{
-	struct sockaddr_in serv_addr;
-	struct hostent *server;
-	server = gethostbyname(serverAddress);
-
-	serv_addr.sin_family = AF_INET;
-	serv_addr.sin_port = htons(serverPort);
-	serv_addr.sin_addr = *((struct in_addr *)server->h_addr);
-	bzero(&(serv_addr.sin_zero), 8);
-
-	if (connect(this->getSocketfd(), (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0)
-	{
-		cout << ("ERROR on tentative to stablish a connection with server.\n");
-		exit(1);
-	}
-}
 
 Client::Client(string userName, string serverAddress, int serverPort)
 {
@@ -175,11 +158,11 @@ void *Client::receiveNotificationThread(void *arg)
 	int i;
 	while (true)
 	{
-		notification = user->socket.readPacket();
-		if (notification == NULL)
-		{
-			exit(1);
-		}
+		// notification = user->socket.readPacket();
+		// if (notification == NULL)
+		// {
+		// 	exit(1);
+		// }
 
 		pthread_mutex_lock(&(user->mutex_receive_notification));
 		pthread_mutex_unlock(&(user->mutex_receive_notification));

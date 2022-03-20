@@ -5,11 +5,14 @@
 
 using namespace std;
 
-class ClientSocket : public Socket
+class ClientSocket
 {
 public:
 	//void connectToServer();
 	void connectToServer(const char *serverAddress, int serverPort);
+	int sendPacket(Packet pkt);
+	int sendPacket(Packet packet, sockaddr address);
+	struct sockaddr_in serv_addr;
 };
 
 class Client

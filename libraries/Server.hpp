@@ -75,19 +75,8 @@ private:
 
 
 struct communiction_handler_args {
-	Socket* connectedSocket;
+	ServerSocket* connectedSocket;
 	host_address clientAddress; 
 	string user;
     Server* server;
-};
-
-class ServerSocket : public Socket {
-	
-	public:
-		struct sockaddr_in serv_addr;
-
-		void bindAndListen();
-		void connectNewClient(pthread_t *threadID, Server *server);
-
-		ServerSocket();
 };
