@@ -29,7 +29,7 @@ client: $(CLIENT_OBJ)
 	$(CC) -o $@ $< $(CFLAGS) $(RELEASEFLAGS)
 
 clean:
-	rm -f $(BIN_FOLDER)*.o client server
+	rm -f $(BIN_FOLDER)*.o $(BIN_FOLDER)client $(BIN_FOLDER)server
 
 run_server:
 	./bin/server
