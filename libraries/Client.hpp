@@ -29,6 +29,6 @@ private:
 	int serverPort;
 
 	void connect();
-	void sendNotification(string message);
+	void sendNotification(char *message);
 	void follow(string userName);
 };
