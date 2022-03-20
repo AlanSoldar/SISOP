@@ -119,12 +119,15 @@ Packet *ServerSocket::readPacket()
     Packet *pkt = new Packet();
     memset(pkt, 0, sizeof(Packet));
 
+    cout << "tst" << endl;
+
     int buffer = recvfrom(socketfd, buf, 256, 0, (struct sockaddr *)&cli_addr, &clilen);
-    buffer = recvfrom(socketfd, buf, 256, 0, (struct sockaddr *)&cli_addr, &clilen);
+
+    cout << "tst2" << endl;
 
     if (buffer < 0)
     {
-        //cout << "ERROR reading from socket: " << socketfd << endl;
+        cout << "ERROR reading from socket: " << socketfd << endl;
         return NULL;
     }
 
