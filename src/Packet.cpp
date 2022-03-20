@@ -117,22 +117,6 @@ string Packet::toString()
     return str_type + ";" + this->getPayload();
 }
 
-Packet Packet::fromString(string stringObject)
-{
-    vector<string> results = split(stringObject, ';');
-
-    uint16_t input_type;
-    string input_payload;
-
-    //converting numbers from string to correct type.
-    input_type = strtoul(results[0].c_str(), NULL, 10);
-
-    //converting from string to correct type
-    input_payload.assign(results[1].c_str());
-
-    return Packet(input_type, input_payload);
-}
-
 vector<string> split(string stringObject, char delimiter)
 {
     vector<string> brokedString;
@@ -178,4 +162,20 @@ vector<string> split(string stringObject, char delimiter)
     }
 
     return brokedString;
+}
+
+Packet Packet::fromString(string stringObject)
+{
+    vector<string> results = split(stringObject, ';');
+
+    uint16_t input_type;
+    string input_payload;
+
+    //converting numbers from string to correct type.
+    input_type = strtoul(results[0].c_str(), NULL, 10);
+
+    //converting from string to correct type
+    input_payload.assign(results[1].c_str());
+
+    return Packet(input_type, input_payload);
 }

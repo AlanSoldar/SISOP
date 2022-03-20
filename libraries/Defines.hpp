@@ -50,7 +50,3 @@ enum{
 #ifndef SERVER_ADDRESS
 #define SERVER_ADDRESS "localhost"
 #endif
-
-#ifndef MAX_TCP_CONNECTIONS
-#define MAX_TCP_CONNECTIONS 256
-#endif

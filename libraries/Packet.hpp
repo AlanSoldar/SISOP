@@ -1,6 +1,7 @@
 #ifndef PACKET_HEADER
 #define PACKET_HEADER
 
+#include <stdio.h>
 #include <iostream>
 #include <algorithm>
 #include <stdint.h>
