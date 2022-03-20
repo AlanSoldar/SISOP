@@ -1,12 +1,14 @@
 #include "../libraries/Packet.hpp"
 
+using namespace std;
+
 Packet::Packet(){
     
 }
 
-Packet::Packet(uint16_t type, char const *payload){
+Packet::Packet(uint16_t type, string payload){
 
-    uint16_t payloadSize = strlen(payload);
+    uint16_t payloadSize = payload.length();
     if (payloadSize > PAYLOAD_MAX_SIZE) {
         std::cout << "ERROR Occured !! The payload has exceeded his maximum size\n" << payload << std::endl;
         exit(1);
@@ -16,13 +18,13 @@ Packet::Packet(uint16_t type, char const *payload){
     this->seqn = 0; 
     this->length = payloadSize;
     this->timestamp = time(NULL);
-    strcpy(this->payload, payload);
+    this->payload = payload;
 }
 
 
-Packet::Packet(uint16_t type, time_t timestamp, char const *payload){
+Packet::Packet(uint16_t type, time_t timestamp, string payload){
 
-    uint16_t payloadSize = strlen(payload);
+    uint16_t payloadSize = payload.length();
     if (payloadSize > PAYLOAD_MAX_SIZE) {
         std::cout << "ERROR Occured !! The payload has exceeded his maximum size\n" << payload << std::endl;
         exit(1);
@@ -32,7 +34,7 @@ Packet::Packet(uint16_t type, time_t timestamp, char const *payload){
     this->seqn = 0;
     this->length = payloadSize;
     this->timestamp = timestamp;
-    strcpy(this->payload, payload);
+    this->payload = payload;
 }
 
 uint16_t Packet::getType(){
@@ -51,7 +53,7 @@ time_t Packet::getTimestamp(){
     return this->timestamp;
 }
 
-char* Packet::getPayload(){
+string Packet::getPayload(){
     return this->payload;
 }
 
@@ -67,14 +69,14 @@ void Packet::setTimestamp(time_t timestamp){
     this->timestamp = timestamp;
 }
 
-void Packet::setPayload(char* const payload){
+void Packet::setPayload(string payload){
 
-    uint16_t payloadSize = strlen(payload);
+    uint16_t payloadSize = payload.length();
     if (payloadSize > PAYLOAD_MAX_SIZE) {
         std::cout << "ERROR Occured !! The payload has exceeded his maximum size\n" << payload << std::endl;
         exit(1);
     } 
 
-    strcpy(this->payload, payload);
+    this->payload, payload;
     this->length = payloadSize;
 }

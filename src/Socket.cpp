@@ -1,4 +1,5 @@
 #include "../libraries/Socket.hpp"
+#include "../libraries/Defines.hpp"
 #include <stdlib.h>
 
 ClientSocket::~ClientSocket()
@@ -96,29 +97,16 @@ Packet *ClientSocket::readPacket()
     return pkt;
 }
 
-// overloading for non-initialized Socket object
-int ClientSocket::sendPacket(Packet pkt, int socketfd)
-{
-    int buffer = send(socketfd, &pkt, sizeof(pkt), MSG_NOSIGNAL);
-
-    if (buffer < 0)
-    {
-        std::cout << "ERROR writing to socket: " << this->socketfd << std::endl;
-        std::cout << "Connection closed." << std::endl;
-    }
-
-    return buffer;
-}
-
 // return the buffer value from send primitive
 int ClientSocket::sendPacket(Packet pkt)
 {
-    char buffer[256];
-    //int buffer = send(this->socketfd, &pkt, sizeof(pkt), MSG_NOSIGNAL);
-    int response = sendto(socketfd, "test", sizeof("test"), MSG_NOSIGNAL, (struct sockaddr *) &serv_addr, sizeof(struct sockaddr));
+    char buffer[PAYLOAD_MAX_SIZE];
+    strcpy(buffer,pkt.getPayload().c_str());
+    int response = sendto(socketfd, buffer, strlen(buffer), MSG_NOSIGNAL, (struct sockaddr *) &serv_addr, sizeof(struct sockaddr));
 
     if (response < 0)
         std::cout << "ERROR writing to socket: " << socketfd << std::endl;
+
     return response;
 }
 
@@ -252,7 +240,6 @@ int ServerSocket::sendPacket(Packet pkt)
 
 void ServerSocket::bindAndListen()
 {
-
     int n;
     char buf[256];
     socklen_t clilen;
@@ -263,16 +250,15 @@ void ServerSocket::bindAndListen()
         exit(1);
     }
 
-    cout << "test" << endl; 
-
     while (1)
     {   
-        cout << "starting to receive pack" << endl; 
+        cout << "Starting to receive messages:" << endl; 
         /* receive from socket */
         n = recvfrom(socketfd, buf, 256, 0, (struct sockaddr *)&cli_addr, &clilen);
         if (n < 0)
             cout << "ERROR on recvfrom" << endl;
-        cout << "Received a datagram" << endl;
+
+        cout << buf << endl;
 
         /* send to socket */
         n = sendto(socketfd, "Got your message\n", 17, 0, (struct sockaddr *)&cli_addr, sizeof(struct sockaddr));

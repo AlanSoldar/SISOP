@@ -3,7 +3,6 @@
 
 using namespace std;
 
-
 Client::Client(string userName, string serverAddress, int serverPort)
 {
 	this->userName = userName;
@@ -74,13 +73,15 @@ void Client::follow(string userName)
 
 void Client::sendNotification(string message)
 {
-	cout << "test" << endl;
 
-	int answer = this->socket.sendPacket(Packet(SEND_NOTIFICATION, message.c_str()));
+	int answer = this->socket.sendPacket(Packet(SEND_NOTIFICATION, message));
 	if (answer < 0)
 	{
+		cout << "Error trying to send your message, please try again." << endl;
 		exit(1);
 	}
+
+	cout << "Message Sent Successfully!" << endl;
 }
 
 void *Client::mainThread(void *arg)
@@ -119,7 +120,7 @@ void *Client::commandThread(void *arg)
 {
 	Client *user = (Client *)arg;
 
-	cout << "User started a command\n";
+	cout << "User " + user->userName + " started a list of commands:" << endl;
 
 	while (true)
 	{
@@ -134,11 +135,13 @@ void *Client::commandThread(void *arg)
 
 		if (command == "FOLLOW")
 		{
+			cout << "Request received for a FOLLOW command:\n" << endl;
 			cin >> commandParameter;
 			user->follow(commandParameter);
 		}
 		else if (command == "SEND")
 		{
+			cout << "Request received for a SEND command:\n" << endl;
 			cin >> commandParameter;
 			user->sendNotification(commandParameter.substr(0, 128));
 		}
