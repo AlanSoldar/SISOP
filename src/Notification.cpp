@@ -46,6 +46,26 @@ Notification::Notification(string const senderId, string input_message)
 
 Notification::Notification(uint32_t id, string timestamp, uint16_t length, uint16_t pending, string senderId, string input_message)
 {
+    uint32_t messageSize = input_message.length();
+    if (messageSize > NOTIFICATION_MAX_SIZE)
+    {
+        std::cout << "ERROR Occured !! The message has exceeded his maximum size\n"
+                  << input_message << std::endl;
+        exit(1);
+    }
+
+    uint32_t senderIdSize = senderId.length();
+    if (senderIdSize > SENDER_ID_SIZE)
+    {
+        std::cout << "ERROR Occured !! The sender id has exceeded his maximum size\n"
+                  << senderId << std::endl;
+        exit(1);
+    }
+
+    //remove end of file markers from the input payload.
+    input_message.erase(std::remove(input_message.begin(), input_message.end(), '\0'), input_message.end());
+    input_message.erase(std::remove(input_message.begin(), input_message.end(), '\n'), input_message.end());
+
     this->id = id;
     this->length = length;
     this->pending = pending;
@@ -129,20 +149,35 @@ string Notification::toString()
     string str_length = to_string(this->getLength());
     string str_pending = to_string(this->getPending());
 
-    return str_id + "&" + this->getTimestamp() + "&" + str_pending + "&" + this->getSenderId() + "&" + this->getMessage() + "CU";
+    return str_id + "&" + this->getTimestamp() + "&" + str_pending + "&" + this->getSenderId() + "&" + this->getMessage();
 }
 
-vector<string> splitNotification(string stringObject, char delimiter)
+vector<string> splitNotification(string s, char delimiter)
 {
-
+    // size_t pos = 0;
+    // string token;
     vector<string> brokedString;
-    stringstream ss(stringObject);
+    
+    // while ((pos = s.find(delimiter)) != string::npos)
+    // {
+    //     token = s.substr(0, pos);
+    //     brokedString.push_back(token);
+    //     s.erase(0, pos + delimiter.length());
+    // }
+
+    // cout << s << endl;
+
+    stringstream ss(s);
     string tmp;
 
     while(getline(ss, tmp, '&')){
         brokedString.push_back(tmp);
     }
 
+    brokedString.push_back("b");
+    brokedString.push_back("c");
+    brokedString.push_back("d");
+    brokedString.push_back("e");
     return brokedString;
 }
 
@@ -150,7 +185,8 @@ Notification Notification::fromString(string stringObject)
 {
     vector<string> results = splitNotification(stringObject, '&');
 
-    for (int i=0; i<sizeof(results);i++){
+    for (int i = 0; i < sizeof(results); i++)
+    {
         cout << "result[" << i << "]" << endl;
         cout << results[i] << endl;
     }
@@ -168,5 +204,5 @@ Notification Notification::fromString(string stringObject)
     input_senderId.assign(results[3]);
     input_message.assign(results[4]);
 
-    return Notification(input_id, input_timestamp, sizeof(input_message), input_pending, input_senderId, input_message);
+    return Notification(input_id, input_timestamp, input_message.length(), input_pending, input_senderId, input_message);
 }
