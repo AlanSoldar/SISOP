@@ -138,11 +138,12 @@ void *Client::commandThread(void *arg)
 void *Client::receiveNotificationThread(void *arg)
 {
 	Client *user = (Client *)arg;
+	ServerSocket serverSocket;
 	Packet *notification;
 	int i;
 	while (true)
 	{
-		notification = user->socket.readPacket();
+		notification = serverSocket.readPacket();
 		if (notification == NULL)
 		{
 			exit(1);

@@ -52,31 +52,6 @@ int ClientSocket::getSocketfd()
     return this->socketfd;
 }
 
-Packet *ClientSocket::readPacket()
-{
-
-    char buf[PAYLOAD_MAX_SIZE];
-    socklen_t clilen;
-    Packet *pkt = new Packet();
-    memset(pkt, 0, sizeof(Packet));
-
-    int buffer = recvfrom(socketfd, buf, PAYLOAD_MAX_SIZE, 0, (struct sockaddr *)&serv_addr, &clilen);
-
-    if (buffer < 0)
-    {
-        std::cout << "ERROR reading from client socket:" << this->socketfd << std::endl;
-        return NULL;
-    }
-
-    else if (buffer == 0)
-    {
-        std::cout << "Connection closed." << std::endl;
-        return NULL;
-    }
-
-    return pkt;
-}
-
 // return the buffer value from send primitive
 int ClientSocket::sendPacket(Packet pkt)
 {
@@ -119,25 +94,27 @@ Packet *ServerSocket::readPacket()
     Packet *pkt = new Packet();
     memset(pkt, 0, sizeof(Packet));
 
-    int buffer = recvfrom(socketfd, buf, PAYLOAD_MAX_SIZE, 0, (struct sockaddr *)&cli_addr, &clilen);
+    recvfrom(socketfd, buf, PAYLOAD_MAX_SIZE, 0, (struct sockaddr *)&cli_addr, &clilen);
 
     string response(buf);
 
     Packet packet = Packet::fromString(response);
 
-    cout << packet.getPayload() << endl;
+    pkt->setPayload(packet.getPayload());
 
-    if (buffer < 0)
+    if (packet.getPayload().length() < 0)
     {
         cout << "ERROR reading from server socket: " << socketfd << endl;
         return NULL;
     }
 
-    else if (buffer == 0)
+    else if (packet.getPayload().length() == 0)
     {
         std::cout << "Connection closed." << std::endl;
         return NULL;
     }
+
+    cout << pkt->getPayload() << endl;
 
     return pkt;
 }
