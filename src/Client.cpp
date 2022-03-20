@@ -1,5 +1,4 @@
 #include "../libraries/Client.hpp"
-#include "../libraries/Defines.hpp"
 
 using namespace std;
 
@@ -73,7 +72,8 @@ void Client::follow(string userName)
 
 void Client::sendNotification(char *message)
 {
-	int answer = this->socket.sendPacket(Packet(SEND_NOTIFICATION, message));
+	Notification notification = Notification(userName, message);
+	int answer = this->socket.sendPacket(Packet(SEND_NOTIFICATION, notification.toString()));
 	if (answer < 0)
 	{
 		cout << "Error trying to send your message, please try again." << endl;
