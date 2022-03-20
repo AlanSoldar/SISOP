@@ -51,12 +51,11 @@ public:
     void closeSession(string user, host_address address);
     
     static void *communicationHandler(void *handlerArgs);
-    static void *readCommandsHandler(void *handlerArgs);
     
 private: 
     pthread_mutex_t mutexSession;
     pthread_mutex_t followMutex;
-    pthread_mutex_t followerCountMutex;
+    pthread_mutex_t mutexCommunication;
 
     pthread_cond_t 	condNotificationEmpty, condNotificationFull;
     pthread_mutex_t mutexNotificationSender;

@@ -7,7 +7,6 @@ Client::Client(string userName, string serverAddress, int serverPort)
 	this->userName = userName;
 	this->serverAddress = serverAddress;
 	this->serverPort = serverPort;
-	//this->connect();
 	this->socket.connectToServer(serverAddress.c_str(), serverPort);
 	pthread_mutex_init(&mutex_command, NULL);
 	pthread_mutex_init(&mutex_receive_notification, NULL);
@@ -18,26 +17,7 @@ void Client::connect()
 {
 	cout << "trying to connect" << endl;
 	this->socket.connectToServer(this->getServerAddress().c_str(), this->getServerPort());
-	// Packet userConnect = Packet(USER_CONNECT, this->getUserName().c_str());
-	// this->socket.sendPacket(userConnect);
-	// Packet *answer;
-	// answer = this->socket.readPacket();
 
-	// if (answer != NULL)
-	// {
-	// 	cout << answer->getPayload() << "\n";
-
-	// 	if (answer->getType() == OPEN_SESSION_SUCCESS)
-	// 		return;
-	// 	if (answer->getType() == OPEN_SESSION_FAIL)
-	// 		exit(1);
-	// }
-	// else
-	// {
-	// 	cout << "No response received from the server"
-	// 		 << "\n";
-	// 	exit(1);
-	// }
 }
 
 string Client::getUserName()

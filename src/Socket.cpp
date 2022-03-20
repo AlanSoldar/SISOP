@@ -111,11 +111,6 @@ ServerSocket::~ServerSocket()
     close(socketfd);
 }
 
-int ServerSocket::getSocketfd()
-{
-    return this->socketfd;
-}
-
 Packet *ServerSocket::readPacket()
 {
 
@@ -125,12 +120,11 @@ Packet *ServerSocket::readPacket()
     memset(pkt, 0, sizeof(Packet));
 
     int buffer = recvfrom(socketfd, buf, 256, 0, (struct sockaddr *)&cli_addr, &clilen);
-
-    cout << buf << endl;
+    buffer = recvfrom(socketfd, buf, 256, 0, (struct sockaddr *)&cli_addr, &clilen);
 
     if (buffer < 0)
     {
-        std::cout << "ERROR reading from socket: " << this->socketfd << std::endl;
+        //cout << "ERROR reading from socket: " << socketfd << endl;
         return NULL;
     }
 

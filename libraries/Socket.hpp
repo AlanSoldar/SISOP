@@ -61,7 +61,6 @@ private:
 	struct sockaddr_in cli_addr;
 
 public:
-	int getSocketfd();
 	ServerSocket();
 	~ServerSocket();
 
