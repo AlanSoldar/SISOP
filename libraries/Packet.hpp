@@ -6,6 +6,9 @@
 #include <stdint.h>
 #include <string.h>
 #include <string>
+#include <vector>
+#include <time.h>
+#include <sstream>
 #include "Defines.hpp"
 
 using namespace std;
@@ -35,5 +38,7 @@ public:
     void setSeqn(uint16_t seqn);
     void setTimestamp(time_t timestamp);
     void setPayload(string payload);
+    string toString();
+    static Packet fromString(string stringObject);
 };
 #endif

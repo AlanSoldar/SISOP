@@ -22,6 +22,9 @@ Packet::Packet(uint16_t type, string input_payload)
     this->length = payloadSize;
     this->timestamp = time(NULL);
 
+    //remove extra empty space that was being putting at the first place of the input payload.
+    input_payload.erase(0, 1);
+    //remove end of file markers from the input payload.
     input_payload.erase(std::remove(input_payload.begin(), input_payload.end(), '\0'), input_payload.end());
     input_payload.erase(std::remove(input_payload.begin(), input_payload.end(), '\n'), input_payload.end());
 
@@ -44,6 +47,9 @@ Packet::Packet(uint16_t type, time_t timestamp, string input_payload)
     this->length = payloadSize;
     this->timestamp = timestamp;
 
+    //remove extra empty space that was being putting at the first place of the input payload.
+    input_payload.erase(0, 1);
+    //remove end of file markers from the input payload.
     input_payload.erase(std::remove(input_payload.begin(), input_payload.end(), '\0'), input_payload.end());
     input_payload.erase(std::remove(input_payload.begin(), input_payload.end(), '\n'), input_payload.end());
     this->payload = input_payload;
@@ -102,4 +108,74 @@ void Packet::setPayload(string payload)
 
     this->payload, payload;
     this->length = payloadSize;
+}
+
+string Packet::toString()
+{
+    string str_type = to_string(this->getType());
+
+    return str_type + ";" + this->getPayload();
+}
+
+Packet Packet::fromString(string stringObject)
+{
+    vector<string> results = split(stringObject, ';');
+
+    uint16_t input_type;
+    string input_payload;
+
+    //converting numbers from string to correct type.
+    input_type = strtoul(results[0].c_str(), NULL, 10);
+
+    //converting from string to correct type
+    input_payload.assign(results[1].c_str());
+
+    return Packet(input_type, input_payload);
+}
+
+vector<string> split(string stringObject, char delimiter)
+{
+    vector<string> brokedString;
+    if ((stringObject.find(delimiter) == string::npos) && (stringObject.find_first_not_of(delimiter) == string::npos))
+    {
+        throw nullptr;
+    }
+
+    else if ((stringObject.find(delimiter) == string::npos))
+        brokedString.push_back(stringObject);
+
+    else if (stringObject.find_first_not_of(delimiter) == string::npos)
+        brokedString.push_back(string(""));
+
+    else
+    {
+        unsigned i = 0;
+        string strstack;
+
+        while (stringObject[0] == delimiter)
+        {
+            stringObject.erase(0, 1);
+        }
+
+        reverse(stringObject.begin(), stringObject.end());
+
+        while (stringObject[0] == delimiter)
+        {
+            stringObject.erase(0, 1);
+        }
+
+        reverse(stringObject.begin(), stringObject.end());
+
+        while (!stringObject.empty())
+        {
+            brokedString.push_back(stringObject.substr(i, stringObject.find(delimiter)));
+            stringObject.erase(0, stringObject.find(delimiter));
+            while (stringObject[0] == delimiter)
+            {
+                stringObject.erase(0, 1);
+            }
+        }
+    }
+
+    return brokedString;
 }
