@@ -59,12 +59,13 @@ Packet *ClientSocket::readPacket()
     socklen_t clilen;
     Packet *pkt = new Packet();
     memset(pkt, 0, sizeof(Packet));
+    strcpy(buf, pkt->getPayload().c_str());
 
     int buffer = recvfrom(socketfd, buf, PAYLOAD_MAX_SIZE, 0, (struct sockaddr *)&serv_addr, &clilen);
 
     if (buffer < 0)
     {
-        std::cout << "ERROR reading from socket: " << this->socketfd << std::endl;
+        std::cout << "ERROR reading from client socket:" << this->socketfd << std::endl;
         return NULL;
     }
 
@@ -83,8 +84,6 @@ int ClientSocket::sendPacket(Packet pkt)
     char buffer[PAYLOAD_MAX_SIZE];
     strcpy(buffer, pkt.getPayload().c_str());
     int response = sendto(socketfd, buffer, PAYLOAD_MAX_SIZE, MSG_NOSIGNAL, (struct sockaddr *)&serv_addr, sizeof(struct sockaddr));
-
-    cout << Packet::fromString(buffer).getPayload() << " : " << pkt.getPayload();
 
     if (response < 0)
         std::cout << "ERROR writing to socket: " << socketfd << std::endl;
@@ -120,6 +119,7 @@ Packet *ServerSocket::readPacket()
     socklen_t clilen;
     Packet *pkt = new Packet();
     memset(pkt, 0, sizeof(Packet));
+    strcpy(buf, pkt->getPayload().c_str());
 
     int buffer = recvfrom(socketfd, buf, PAYLOAD_MAX_SIZE, 0, (struct sockaddr *)&cli_addr, &clilen);
 
@@ -131,7 +131,7 @@ Packet *ServerSocket::readPacket()
 
     if (buffer < 0)
     {
-        cout << "ERROR reading from socket: " << socketfd << endl;
+        cout << "ERROR reading from server socket: " << socketfd << endl;
         return NULL;
     }
 
@@ -147,6 +147,7 @@ Packet *ServerSocket::readPacket()
 int ServerSocket::sendPacket(Packet pkt)
 {
     char buffer[PAYLOAD_MAX_SIZE];
+    strcpy(buffer, pkt.getPayload().c_str());
     int response = sendto(this->socketfd, buffer, strlen(buffer), 0, (const struct sockaddr *)&serv_addr, sizeof(struct sockaddr_in));
 
     if (response < 0)

@@ -175,7 +175,7 @@ Packet Packet::fromString(string stringObject)
     input_type = strtoul(results[0].c_str(), NULL, 10);
 
     //converting from string to correct type
-    input_payload.assign(results[1].c_str());
+    input_payload.assign(results[5].c_str());
 
     return Packet(input_type, input_payload);
 }
