@@ -82,7 +82,9 @@ int ClientSocket::sendPacket(Packet pkt)
 {
     char buffer[PAYLOAD_MAX_SIZE];
     strcpy(buffer, pkt.getPayload().c_str());
-    int response = sendto(socketfd, buffer, strlen(buffer), MSG_NOSIGNAL, (struct sockaddr *)&serv_addr, sizeof(struct sockaddr));
+    int response = sendto(socketfd, buffer, PAYLOAD_MAX_SIZE, MSG_NOSIGNAL, (struct sockaddr *)&serv_addr, sizeof(struct sockaddr));
+
+    cout << Packet::fromString(buffer).getPayload() << " : " << pkt.getPayload();
 
     if (response < 0)
         std::cout << "ERROR writing to socket: " << socketfd << std::endl;
