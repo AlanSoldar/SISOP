@@ -56,7 +56,7 @@ int ClientSocket::getSocketfd()
 int ClientSocket::sendPacket(Packet pkt)
 {
     char buffer[PAYLOAD_MAX_SIZE];
-    strcpy(buffer, pkt.getPayload().c_str());
+    strcpy(buffer, pkt.toString().c_str());
     int response = sendto(socketfd, buffer, PAYLOAD_MAX_SIZE, MSG_NOSIGNAL, (struct sockaddr *)&serv_addr, sizeof(struct sockaddr));
 
     if (response < 0)
@@ -100,7 +100,7 @@ Packet *ServerSocket::readPacket()
 
     Packet packet = Packet::fromString(response);
 
-    pkt->setPayload(packet.getPayload());
+    pkt = &packet;
 
     if (packet.getPayload().length() < 0)
     {
@@ -113,8 +113,6 @@ Packet *ServerSocket::readPacket()
         std::cout << "Connection closed." << std::endl;
         return NULL;
     }
-
-    cout << pkt->getPayload() << endl;
 
     return pkt;
 }

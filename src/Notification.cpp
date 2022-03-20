@@ -6,14 +6,14 @@ Notification::Notification()
 {
 }
 
-Notification::Notification(string const senderId, string const message)
+Notification::Notification(string const senderId, string input_message)
 {
 
-    uint32_t messageSize = message.length();
+    uint32_t messageSize = input_message.length();
     if (messageSize > NOTIFICATION_MAX_SIZE)
     {
         std::cout << "ERROR Occured !! The message has exceeded his maximum size\n"
-                  << message << std::endl;
+                  << input_message << std::endl;
         exit(1);
     }
 
@@ -25,13 +25,18 @@ Notification::Notification(string const senderId, string const message)
         exit(1);
     }
 
+    input_message.erase(0, 1);
+    //remove end of file markers from the input payload.
+    input_message.erase(std::remove(input_message.begin(), input_message.end(), '\0'), input_message.end());
+    input_message.erase(std::remove(input_message.begin(), input_message.end(), '\n'), input_message.end());
+
     uuid_t uuid;
     uuid_generate(uuid);
 
     this->id = *(uint32_t *)&uuid;
     this->timestamp = time(NULL);
     this->senderId.assign(senderId);
-    this->message.assign(message);
+    this->message.assign(input_message);
 }
 
 Notification::Notification(uint32_t id, time_t timestamp, uint16_t length, uint16_t pending, string const senderId, string const message)
@@ -141,11 +146,12 @@ string Notification::toString()
     ss << time_input;
     string str_timestamp = ss.str();
 
-    return str_id + ";" + str_timestamp + ";" + str_length + ";" + str_pending + ";" + this->getSenderId() + ";" + this->getMessage();
+    return str_id + ";" + str_timestamp + ";" + str_pending + ";" + this->getSenderId() + ";" + this->getMessage();
 }
 
 vector<string> splitNotification(string stringObject, char delimiter)
 {
+
     vector<string> brokedString;
     if ((stringObject.find(delimiter) == string::npos) && (stringObject.find_first_not_of(delimiter) == string::npos))
     {
@@ -193,19 +199,22 @@ vector<string> splitNotification(string stringObject, char delimiter)
 
 Notification Notification::fromString(string stringObject)
 {
+    cout << "tst0" << endl;
     vector<string> results = splitNotification(stringObject, ';');
+
+    cout << "tst" << endl;
 
     uint32_t input_id;
     time_t input_timestamp;
-    uint16_t input_length;
     uint16_t input_pending;
     string input_senderId;
     string input_message;
 
     //converting numbers from string to correct type.
     input_id = strtoul(results[0].c_str(), NULL, 10);
-    input_length = strtoul(results[2].c_str(), NULL, 10);
-    input_pending = strtoul(results[3].c_str(), NULL, 10);
+    cout << "tst2" << endl;
+    input_pending = strtoul(results[2].c_str(), NULL, 10);
+    cout << "tst3" << endl;
 
     //converting timestamp from string to correct type.
     int yy, month, dd, hh, mm, ss;
@@ -220,12 +229,15 @@ Notification Notification::fromString(string stringObject)
     whenStart.tm_sec = ss;
     whenStart.tm_isdst = -1;
 
+    cout << "tst4" << endl;
+
     input_timestamp = mktime(&whenStart);
+    input_senderId.assign(results[3].c_str());
 
-    //converting char const * from string to correct type
-    input_senderId.assign(results[4].c_str());
-    input_message.assign(results[5].c_str());
+    cout << "tst5" << endl;
 
-    return Notification(input_id, input_timestamp, input_length, input_pending, input_senderId, input_message);
+    input_message.assign(results[4].c_str());
+    cout << "tst6" << endl;
+
+    return Notification(input_id, input_timestamp, sizeof(input_message), input_pending, input_senderId, input_message);
 }
-

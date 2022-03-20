@@ -55,7 +55,12 @@ void Database::saveNewFollow(string followerId, string userId)
 void Database::saveNotification(string senderId, string message)
 {
 
-    Notification notification = Notification(senderId, message);
+    Notification notification = Notification::fromString(message);
+
+    cout << notification.getId() << endl;
+    cout << notification.getMessage() << endl;
+    cout << notification.getSenderId() << endl;
+    cout << notification.getTimestamp() << endl;
 
     ofstream notificationFile;
     notificationFile.open("tables/Notification.txt");

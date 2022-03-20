@@ -47,13 +47,13 @@ void Client::follow(string userName)
 		cout << "Invalid username, note that usernames start with @\n";
 		return;
 	}
-	this->socket.sendPacket(Packet(FOLLOW_USER, userName.c_str()));
+	this->socket.sendPacket(Packet(this->userName, FOLLOW_USER, userName.c_str()));
 }
 
 void Client::sendNotification(char *message)
 {
 	Notification notification = Notification(userName, message);
-	int answer = this->socket.sendPacket(Packet(SEND_NOTIFICATION, notification.toString()));
+	int answer = this->socket.sendPacket(Packet(this->userName, SEND_NOTIFICATION, notification.toString()));
 	if (answer < 0)
 	{
 		cout << "Error trying to send your message, please try again." << endl;

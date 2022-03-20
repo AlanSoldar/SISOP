@@ -19,24 +19,25 @@ class Packet
 
 private:
     uint16_t type;    // Possible types of package declared at Defines.hpp
+    string user;      // Logged user sending the packet
     uint16_t seqn;    // Sequence number
     uint16_t length;  // Payload length
     time_t timestamp; // Data timestamp
     string payload;   // Content included at the payload
-    string user;      // Logged user sending the packet
 
 public:
     Packet();
-    Packet(uint16_t type, string payload);
+    Packet(string user, uint16_t type, string payload);
 
     uint16_t getType();
+    string getUser();
     uint16_t getSeqn();
     uint16_t getLength();
     time_t getTimestamp();
     string getPayload();
-    string getUser();
 
     void setType(uint16_t type);
+    void setUser(string user);
     void setSeqn(uint16_t seqn);
     void setTimestamp(time_t timestamp);
     void setPayload(string payload);

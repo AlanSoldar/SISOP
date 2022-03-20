@@ -6,7 +6,7 @@ Packet::Packet()
 {
 }
 
-Packet::Packet(uint16_t type, string input_payload)
+Packet::Packet(string user, uint16_t type, string input_payload)
 {
 
     uint16_t payloadSize = input_payload.length();
@@ -17,6 +17,7 @@ Packet::Packet(uint16_t type, string input_payload)
         exit(1);
     }
 
+    this->user.assign(user);
     this->type = type;
     this->seqn = 0;
     this->length = payloadSize;
@@ -34,6 +35,11 @@ Packet::Packet(uint16_t type, string input_payload)
 uint16_t Packet::getType()
 {
     return this->type;
+}
+
+string Packet::getUser()
+{
+    return this->user;
 }
 
 uint16_t Packet::getSeqn()
@@ -66,6 +72,11 @@ void Packet::setSeqn(uint16_t seqn)
     this->seqn = seqn;
 }
 
+void Packet::setUser(string user)
+{
+    this->user = user;
+}
+
 void Packet::setTimestamp(time_t timestamp)
 {
     this->timestamp = timestamp;
@@ -90,7 +101,7 @@ string Packet::toString()
 {
     string str_type = to_string(this->getType());
 
-    return this->getUser() + ";" + str_type + ";" + this->getPayload();
+    return this->getUser() + "&" + str_type + "&" + this->getPayload();
 }
 
 vector<string> split(string stringObject, char delimiter)
@@ -142,16 +153,19 @@ vector<string> split(string stringObject, char delimiter)
 
 Packet Packet::fromString(string stringObject)
 {
-    vector<string> results = split(stringObject, ';');
+    vector<string> results = split(stringObject, '&');
 
+    string input_user;
     uint16_t input_type;
     string input_payload;
 
     //converting numbers from string to correct type.
-    input_type = strtoul(results[0].c_str(), NULL, 10);
+    input_user.assign(results[0].c_str());
+
+    input_type = strtoul(results[1].c_str(), NULL, 10);
 
     //converting from string to correct type
-    input_payload.assign(results[5].c_str());
+    input_payload.assign(results[2].c_str());
 
-    return Packet(input_type, input_payload);
+    return Packet(input_user, input_type, input_payload);
 }
