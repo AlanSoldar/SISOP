@@ -210,6 +210,10 @@ Notification Notification::fromString(string stringObject)
 {
     vector<string> results = splitNotification(stringObject, '$');
 
+    for(int i = 0; i<sizeof(results); i++) {
+        cout << results[i] << endl;
+    }
+
     uint32_t input_id;
 
     uint16_t input_pending;

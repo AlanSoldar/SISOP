@@ -31,8 +31,8 @@ client: $(CLIENT_OBJ)
 clean:
 	rm -f $(BIN_FOLDER)*.o $(BIN_FOLDER)client $(BIN_FOLDER)server
 
-serverRun:
+serverrun:
 	./bin/server
 
-clientRun:
+clientrun:
 	./bin/client @gab localhost 4040

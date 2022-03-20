@@ -51,7 +51,7 @@ void Database::saveUser(string id)
 void Database::saveNewFollow(string followerId, string userId)
 {
     ofstream followerFile;
-    followerFile.open("tables/Follower.txt");
+    followerFile.open("tables/Follower.txt", ios_base::app);
     followerFile << followerId << " " << userId;
     followerFile.close();
     cout << followerId << " is now following: " << userId << endl;
@@ -68,7 +68,7 @@ void Database::saveNotification(string senderId, string message)
     cout << notification.getTimestamp() << endl;
 
     ofstream notificationFile;
-    notificationFile.open("tables/Notification.txt");
+    notificationFile.open("tables/Notification.txt", ios_base::app);
     notificationFile << notification.toString() << endl;
     notificationFile.close();
     cout << senderId << " has posted a new notification: " << message << endl;

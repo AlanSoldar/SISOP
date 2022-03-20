@@ -29,11 +29,11 @@ Packet::Packet(string user, uint16_t type, string input_payload)
     string str(s);
     this->timestamp = str;
 
-    //remove extra empty space that was being putting at the first place of the input payload.
-    input_payload.erase(0, 1);
     //remove end of file markers from the input payload.
     input_payload.erase(std::remove(input_payload.begin(), input_payload.end(), '\0'), input_payload.end());
     input_payload.erase(std::remove(input_payload.begin(), input_payload.end(), '\n'), input_payload.end());
+
+    cout << input_payload << endl;
 
     this->payload.assign(input_payload);
 }
@@ -165,7 +165,6 @@ Packet Packet::fromString(string stringObject)
     uint16_t input_type;
     string input_payload;
 
-    //converting numbers from string to correct type.
     input_user.assign(results[0].c_str());
 
     input_type = strtoul(results[1].c_str(), NULL, 10);

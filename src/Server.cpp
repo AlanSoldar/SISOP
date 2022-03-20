@@ -38,19 +38,19 @@ void *Server::communicationHandler(void *handlerArgs)
     string userToFollow;
     string message;
     string response;
+    string user;
+    int type;
+    string payload;
 
     cout << "starting to listen to messages" << endl;
 
     while (1)
     {
-        string user;
-        int type;
-        string payload;
         Packet *receivedPacket = args->connectedSocket->readPacket();
 
         if (receivedPacket)
         {
-            user = receivedPacket->getUser(); 
+            user = receivedPacket->getUser();
             type = receivedPacket->getType();
             payload = receivedPacket->getPayload();
 
