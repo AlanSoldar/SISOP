@@ -12,7 +12,7 @@ enum{
 #endif
 
 #ifndef PORT
-#define PORT 59200
+#define PORT 4040
 #endif
 
 #ifndef PAYLOAD_MAX_SIZE
@@ -48,7 +48,7 @@ enum{
 #endif 
 
 #ifndef SERVER_ADDRESS
-#define SERVER_ADDRESS "127.0.0.1"
+#define SERVER_ADDRESS "localhost"
 #endif
 
 #ifndef MAX_TCP_CONNECTIONS

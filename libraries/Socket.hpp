@@ -12,7 +12,6 @@
 #include <pthread.h>
 #include <string>
 #include "Packet.hpp"
-#include "Server.hpp"
 using namespace std;
 
 typedef struct address
@@ -34,30 +33,28 @@ typedef struct address
 
 class ClientSocket
 {
-	int getSocketfd();
-
-	~ClientSocket();
-	ClientSocket();
-	ClientSocket(int socketfd);
 
 private:
 	int socketfd;
 	struct sockaddr_in serv_addr;
 
 public:
+	int getSocketfd();
+
+	~ClientSocket();
+	ClientSocket();
+	ClientSocket(int socketfd);
+
 	void connectToServer(const char *serverAddress, int serverPort);
 	Packet *readPacket();
 	static Packet *readPacket(int socketfd);
 	int sendPacket(Packet pkt, int socketfd);
 	int sendPacket(Packet pkt);
-	int sendPacket(Packet packet, sockaddr address);
+
 };
 
 class ServerSocket
 {
-	int getSocketfd();
-	ServerSocket();
-	~ServerSocket();
 
 private:
 	int socketfd;
@@ -65,16 +62,16 @@ private:
 	struct sockaddr_in cli_addr;
 
 public:
-
-	struct sockaddr_in serv_addr;
+	int getSocketfd();
+	ServerSocket();
+	~ServerSocket();
 
 	void bindAndListen();
-	void connectNewClient(pthread_t *threadID, Server *server);
+	//void connectNewClient(pthread_t *threadID, Server *server);
 	Packet *readPacket();
 	static Packet *readPacket(int socketfd);
 	int sendPacket(Packet pkt, int socketfd);
 	int sendPacket(Packet pkt);
-	int sendPacket(Packet packet, sockaddr address);
 };
 
 #endif

@@ -5,13 +5,6 @@ using namespace std;
 
 Database::Database()
 {
-    this->name = "database";
-    this->users = {};
-    this->followers = {};
-    this->notifications = {};
-
-    this->loadUsers();
-    this->loadNotifications();
 }
 
 Database::Database(string name)

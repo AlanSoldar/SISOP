@@ -31,8 +31,6 @@ Server::Server(host_address address)
     pthread_mutex_init(&mutexNotificationSender, NULL);
 }
 
-
-// se não tiver um host_address, eu posso fazer e devolver um session_id
 bool Server::openSession(string user, host_address address)
 {
     pthread_mutex_lock(&mutexSession);
