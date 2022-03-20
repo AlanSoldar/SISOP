@@ -55,7 +55,7 @@ int ClientSocket::getSocketfd()
 Packet *ClientSocket::readPacket()
 {
 
-    char buf[256];
+    char buf[PAYLOAD_MAX_SIZE];
     socklen_t clilen;
     Packet *pkt = new Packet();
     memset(pkt, 0, sizeof(Packet));
@@ -114,7 +114,7 @@ ServerSocket::~ServerSocket()
 Packet *ServerSocket::readPacket()
 {
 
-    char buf[256];
+    char buf[PAYLOAD_MAX_SIZE];
     socklen_t clilen;
     Packet *pkt = new Packet();
     memset(pkt, 0, sizeof(Packet));
@@ -138,7 +138,7 @@ Packet *ServerSocket::readPacket()
 
 int ServerSocket::sendPacket(Packet pkt)
 {
-    char buffer[256];
+    char buffer[PAYLOAD_MAX_SIZE];
     int response = sendto(this->socketfd, buffer, strlen(buffer), 0, (const struct sockaddr *)&serv_addr, sizeof(struct sockaddr_in));
 
     if (response < 0)
@@ -149,7 +149,7 @@ int ServerSocket::sendPacket(Packet pkt)
 void ServerSocket::bindServer()
 {
     int n;
-    char buf[256];
+    char buf[PAYLOAD_MAX_SIZE];
     socklen_t clilen;
 
     if (bind(socketfd, (struct sockaddr *)&serv_addr, sizeof(struct sockaddr)) < 0)
