@@ -59,7 +59,6 @@ Packet *ClientSocket::readPacket()
     socklen_t clilen;
     Packet *pkt = new Packet();
     memset(pkt, 0, sizeof(Packet));
-    strcpy(buf, pkt->getPayload().c_str());
 
     int buffer = recvfrom(socketfd, buf, PAYLOAD_MAX_SIZE, 0, (struct sockaddr *)&serv_addr, &clilen);
 
@@ -119,7 +118,6 @@ Packet *ServerSocket::readPacket()
     socklen_t clilen;
     Packet *pkt = new Packet();
     memset(pkt, 0, sizeof(Packet));
-    strcpy(buf, pkt->getPayload().c_str());
 
     int buffer = recvfrom(socketfd, buf, PAYLOAD_MAX_SIZE, 0, (struct sockaddr *)&cli_addr, &clilen);
 
