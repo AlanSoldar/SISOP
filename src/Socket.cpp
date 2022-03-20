@@ -52,35 +52,15 @@ int ClientSocket::getSocketfd()
     return this->socketfd;
 }
 
-// returns a pointer that points to the read Packet or NULL if the connection was closed
-Packet *ClientSocket::readPacket(int socketfd)
-{
-
-    Packet *pkt = new Packet();
-    memset(pkt, 0, sizeof(Packet));
-    int buffer = read(socketfd, pkt, sizeof(Packet));
-
-    if (buffer < 0)
-    {
-        std::cout << "ERROR reading from socket: " << socketfd << std::endl;
-        return NULL;
-    }
-
-    else if (buffer == 0)
-    {
-        std::cout << "Connection closed." << std::endl;
-        return NULL;
-    }
-
-    return pkt;
-}
-
 Packet *ClientSocket::readPacket()
 {
 
+    char buf[256];
+    socklen_t clilen;
     Packet *pkt = new Packet();
     memset(pkt, 0, sizeof(Packet));
-    int buffer = read(this->socketfd, pkt, sizeof(Packet));
+
+    int buffer = recvfrom(socketfd, buf, 256, 0, (struct sockaddr *)&serv_addr, &clilen);
 
     if (buffer < 0)
     {
@@ -146,6 +126,8 @@ Packet *ServerSocket::readPacket()
 
     int buffer = recvfrom(socketfd, buf, 256, 0, (struct sockaddr *)&cli_addr, &clilen);
 
+    cout << buf << endl;
+
     if (buffer < 0)
     {
         std::cout << "ERROR reading from socket: " << this->socketfd << std::endl;
@@ -181,22 +163,6 @@ void ServerSocket::bindServer()
     {
         cout << "ERROR on binding" << endl;
         exit(1);
-    }
-
-    while (1)
-    {
-        
-        /* receive from socket */
-        n = recvfrom(socketfd, buf, 256, 0, (struct sockaddr *)&cli_addr, &clilen);
-        if (n < 0)
-            cout << "ERROR on recvfrom" << endl;
-
-        cout << buf << endl;
-
-        /* send to socket */
-        n = sendto(socketfd, "Got your message\n", 17, 0, (struct sockaddr *)&cli_addr, sizeof(struct sockaddr));
-        if (n < 0)
-            cout << "ERROR on sendto" << endl;
     }
 }
 
