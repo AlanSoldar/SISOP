@@ -1,4 +1,7 @@
 #include "Socket.hpp"
+#include "Defines.hpp"
+#include "Notification.hpp"
+
 #include <pthread.h>
 #include <iostream>
 #include <string.h>
