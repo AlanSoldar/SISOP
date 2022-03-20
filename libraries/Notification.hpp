@@ -11,6 +11,8 @@
 #include <time.h>
 #include <uuid/uuid.h>
 #include <sstream>
+#include <chrono>
+#include <ctime>
 #include "Defines.hpp"
 
 using namespace std;
@@ -20,7 +22,7 @@ class Notification
 
 private:
     uint32_t id;      // Notification identifier
-    time_t timestamp; // Notification timestamp
+    string timestamp; // Notification timestamp
     uint16_t length;  // Notification LENGHT
     uint16_t pending; // Number of users pending to receive the notification
     string senderId;  // Sender Id
@@ -28,17 +30,17 @@ private:
 
 public:
     Notification();
-    Notification(string const senderId, string const message);
-    Notification(uint32_t id, time_t timestamp, uint16_t length, uint16_t pending, string const senderId, string const message);
+    Notification(string senderId, string message);
+    Notification(uint32_t id, string timestamp, uint16_t length, uint16_t pending, string senderId, string message);
 
     uint32_t getId();
-    time_t getTimestamp();
+    string getTimestamp();
     uint16_t getLength();
     uint16_t getPending();
     string getSenderId();
     string getMessage();
 
-    void setTimestamp(time_t timestamp);
+    void setTimestamp(string timestamp);
     void setSenderId(string senderId);
     void setMessage(string message);
     void setPending(uint16_t pending);

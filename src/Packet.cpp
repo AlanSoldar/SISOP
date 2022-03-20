@@ -21,7 +21,13 @@ Packet::Packet(string user, uint16_t type, string input_payload)
     this->type = type;
     this->seqn = 0;
     this->length = payloadSize;
-    this->timestamp = time(NULL);
+
+    auto time = chrono::system_clock::now();
+    const time_t input_time = chrono::system_clock::to_time_t(time);
+
+    const char *s = ctime(&input_time);
+    string str(s);
+    this->timestamp = str;
 
     //remove extra empty space that was being putting at the first place of the input payload.
     input_payload.erase(0, 1);
@@ -52,7 +58,7 @@ uint16_t Packet::getLength()
     return this->length;
 }
 
-time_t Packet::getTimestamp()
+string Packet::getTimestamp()
 {
     return this->timestamp;
 }
@@ -77,7 +83,7 @@ void Packet::setUser(string user)
     this->user = user;
 }
 
-void Packet::setTimestamp(time_t timestamp)
+void Packet::setTimestamp(string timestamp)
 {
     this->timestamp = timestamp;
 }

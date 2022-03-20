@@ -10,6 +10,8 @@
 #include <vector>
 #include <time.h>
 #include <sstream>
+#include <chrono>
+#include <ctime>
 #include "Defines.hpp"
 
 using namespace std;
@@ -22,7 +24,7 @@ private:
     string user;      // Logged user sending the packet
     uint16_t seqn;    // Sequence number
     uint16_t length;  // Payload length
-    time_t timestamp; // Data timestamp
+    string timestamp; // Data timestamp
     string payload;   // Content included at the payload
 
 public:
@@ -33,13 +35,13 @@ public:
     string getUser();
     uint16_t getSeqn();
     uint16_t getLength();
-    time_t getTimestamp();
+    string getTimestamp();
     string getPayload();
 
     void setType(uint16_t type);
     void setUser(string user);
     void setSeqn(uint16_t seqn);
-    void setTimestamp(time_t timestamp);
+    void setTimestamp(string timestamp);
     void setPayload(string payload);
     string toString();
     static Packet fromString(string stringObject);
