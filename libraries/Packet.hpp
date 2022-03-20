@@ -27,7 +27,6 @@ private:
 public:
     Packet();
     Packet(uint16_t type, string payload);
-    Packet(uint16_t type, time_t timestamp, string payload);
 
     uint16_t getType();
     uint16_t getSeqn();
