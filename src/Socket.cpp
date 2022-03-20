@@ -121,6 +121,12 @@ Packet *ServerSocket::readPacket()
 
     int buffer = recvfrom(socketfd, buf, 256, 0, (struct sockaddr *)&cli_addr, &clilen);
 
+    string response(buf);
+
+    Packet packet = Packet::fromString(response);
+
+    cout << packet.getPayload() << endl;
+
     if (buffer < 0)
     {
         cout << "ERROR reading from socket: " << socketfd << endl;

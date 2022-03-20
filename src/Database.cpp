@@ -17,7 +17,7 @@ Database::Database(string name)
 
 string Database::getUserByid(string id)
 {
-    loadUsers;
+    loadUsers();
     return this->users.find(id)->second;
 }
 
@@ -29,7 +29,7 @@ list<string> Database::getFollowersByUserId(string id)
 
 list<string> Database::getNotificationsByUserId(string id)
 {
-    loadNotifications;
+    loadNotifications();
     return this->notifications.find(id)->second;
 }
 
