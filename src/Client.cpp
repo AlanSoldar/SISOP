@@ -163,11 +163,11 @@ void *Client::receiveNotificationThread(void *arg)
 	int i;
 	while (true)
 	{
-		// notification = user->socket.readPacket();
-		// if (notification == NULL)
-		// {
-		// 	exit(1);
-		// }
+		notification = user->socket.readPacket();
+		if (notification == NULL)
+		{
+			exit(1);
+		}
 
 		pthread_mutex_lock(&(user->mutex_receive_notification));
 		pthread_mutex_unlock(&(user->mutex_receive_notification));

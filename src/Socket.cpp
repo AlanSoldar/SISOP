@@ -101,8 +101,8 @@ Packet *ClientSocket::readPacket()
 int ClientSocket::sendPacket(Packet pkt)
 {
     char buffer[PAYLOAD_MAX_SIZE];
-    strcpy(buffer,pkt.getPayload().c_str());
-    int response = sendto(socketfd, buffer, strlen(buffer), MSG_NOSIGNAL, (struct sockaddr *) &serv_addr, sizeof(struct sockaddr));
+    strcpy(buffer, pkt.getPayload().c_str());
+    int response = sendto(socketfd, buffer, strlen(buffer), MSG_NOSIGNAL, (struct sockaddr *)&serv_addr, sizeof(struct sockaddr));
 
     if (response < 0)
         std::cout << "ERROR writing to socket: " << socketfd << std::endl;
@@ -136,59 +136,15 @@ int ServerSocket::getSocketfd()
     return this->socketfd;
 }
 
-// void ServerSocket::connectNewClient(pthread_t *threadID, Server* server){
-
-// 	socklen_t clientLen;
-// 	struct sockaddr_in clientAddressIn;
-//     host_address clientAddress;
-//     string user;
-
-//     // Wait for connection to socket
-//     clientLen = sizeof(struct sockaddr_in);
-//     if ((*newsockfd = accept(this->getSocketfd(), (struct sockaddr *) &clientAddressIn, &clientLen)) == -1) {
-//         std::cout << "Could not complete connection" << std::endl;
-//         return;
-//     }
-
-//     std::cout << "Connectet to socket: " << *newsockfd << std::endl;
-
-//     Packet *userPacket = newClientSocket->readPacket();
-
-//     if (userPacket == NULL){
-//         std::cout << "Could not receive user information. Closing connection." << std::endl;
-//         return;
-//     } else
-//         user = userPacket->getPayload();
-
-//     clientAddress.ipv4 = inet_ntoa(clientAddressIn.sin_addr);
-//     clientAddress.port = ntohs(clientAddressIn.sin_port);
-//     bool sessionAvailable = server->openSession(user, clientAddress);
-
-//     Packet resultPacket;
-//     if (!sessionAvailable){
-//         resultPacket = Packet(OPEN_SESSION_FAIL, "Could not connect to server.");
-//         newClientSocket->sendPacket(resultPacket);
-//         return; // destructor automatically closes the socket
-//     } else{
-//         resultPacket = Packet(OPEN_SESSION_SUCCESS, "Connection Successful.");
-//         newClientSocket->sendPacket(resultPacket);
-//     }
-
-//     communiction_handler_args *args = (communiction_handler_args *) calloc(1, sizeof(communiction_handler_args));
-//     args->clientAddress = clientAddress;
-//     args->connectedSocket = newClientSocket;
-//     args->user = user;
-//     args->server = server;
-
-//     pthread_create(threadID, NULL, Server::communicationHandler, (void *)args);
-// }
-
 Packet *ServerSocket::readPacket()
 {
 
+    char buf[256];
+    socklen_t clilen;
     Packet *pkt = new Packet();
     memset(pkt, 0, sizeof(Packet));
-    int buffer = read(this->socketfd, pkt, sizeof(Packet));
+
+    int buffer = recvfrom(socketfd, buf, 256, 0, (struct sockaddr *)&cli_addr, &clilen);
 
     if (buffer < 0)
     {
@@ -205,32 +161,9 @@ Packet *ServerSocket::readPacket()
     return pkt;
 }
 
-Packet *ServerSocket::readPacket(int socketfd)
-{
-
-    Packet *pkt = new Packet();
-    memset(pkt, 0, sizeof(Packet));
-    int buffer = read(socketfd, pkt, sizeof(Packet));
-
-    if (buffer < 0)
-    {
-        std::cout << "ERROR reading from socket: " << socketfd << std::endl;
-        return NULL;
-    }
-
-    else if (buffer == 0)
-    {
-        std::cout << "Connection closed." << std::endl;
-        return NULL;
-    }
-
-    return pkt;
-}
-
 int ServerSocket::sendPacket(Packet pkt)
 {
     char buffer[256];
-    //int buffer = send(this->socketfd, &pkt, sizeof(pkt), MSG_NOSIGNAL);
     int response = sendto(this->socketfd, buffer, strlen(buffer), 0, (const struct sockaddr *)&serv_addr, sizeof(struct sockaddr_in));
 
     if (response < 0)
@@ -238,7 +171,7 @@ int ServerSocket::sendPacket(Packet pkt)
     return response;
 }
 
-void ServerSocket::bindAndListen()
+void ServerSocket::bindServer()
 {
     int n;
     char buf[256];
@@ -251,8 +184,8 @@ void ServerSocket::bindAndListen()
     }
 
     while (1)
-    {   
-        cout << "Starting to receive messages:" << endl; 
+    {
+        
         /* receive from socket */
         n = recvfrom(socketfd, buf, 256, 0, (struct sockaddr *)&cli_addr, &clilen);
         if (n < 0)
@@ -265,7 +198,13 @@ void ServerSocket::bindAndListen()
         if (n < 0)
             cout << "ERROR on sendto" << endl;
     }
+}
 
-    //listen(this->getSocketfd(), MAX_TCP_CONNECTIONS);
-    //std::cout << "Server is running" << endl ;
+void ServerSocket::startListener()
+{ 
+    cout << "Starting to receive messages:" << endl;
+    while (1)
+    {
+        readPacket();
+    }
 }

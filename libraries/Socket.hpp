@@ -47,7 +47,6 @@ public:
 
 	void connectToServer(const char *serverAddress, int serverPort);
 	Packet *readPacket();
-	static Packet *readPacket(int socketfd);
 	int sendPacket(Packet pkt, int socketfd);
 	int sendPacket(Packet pkt);
 
@@ -66,10 +65,9 @@ public:
 	ServerSocket();
 	~ServerSocket();
 
-	void bindAndListen();
-	//void connectNewClient(pthread_t *threadID, Server *server);
+	void bindServer();
+	void startListener();
 	Packet *readPacket();
-	static Packet *readPacket(int socketfd);
 	int sendPacket(Packet pkt, int socketfd);
 	int sendPacket(Packet pkt);
 };
