@@ -144,7 +144,7 @@ string Notification::toString()
     return str_id + ";" + str_timestamp + ";" + str_length + ";" + str_pending + ";" + this->getSenderId() + ";" + this->getMessage();
 }
 
-vector<string> splitPacketString(string stringObject, char delimiter)
+vector<string> splitNotification(string stringObject, char delimiter)
 {
     vector<string> brokedString;
     if ((stringObject.find(delimiter) == string::npos) && (stringObject.find_first_not_of(delimiter) == string::npos))
@@ -193,7 +193,7 @@ vector<string> splitPacketString(string stringObject, char delimiter)
 
 Notification Notification::fromString(string stringObject)
 {
-    vector<string> results = splitPacketString(stringObject, ';');
+    vector<string> results = splitNotification(stringObject, ';');
 
     uint32_t input_id;
     time_t input_timestamp;

@@ -28,7 +28,7 @@ Packet::Packet(uint16_t type, string input_payload)
     input_payload.erase(std::remove(input_payload.begin(), input_payload.end(), '\0'), input_payload.end());
     input_payload.erase(std::remove(input_payload.begin(), input_payload.end(), '\n'), input_payload.end());
 
-    this->payload = input_payload;
+    this->payload.assign(input_payload);
 }
 
 Packet::Packet(uint16_t type, time_t timestamp, string input_payload)
@@ -52,7 +52,7 @@ Packet::Packet(uint16_t type, time_t timestamp, string input_payload)
     //remove end of file markers from the input payload.
     input_payload.erase(std::remove(input_payload.begin(), input_payload.end(), '\0'), input_payload.end());
     input_payload.erase(std::remove(input_payload.begin(), input_payload.end(), '\n'), input_payload.end());
-    this->payload = input_payload;
+    this->payload.assign(input_payload);
 }
 
 uint16_t Packet::getType()
@@ -106,7 +106,7 @@ void Packet::setPayload(string payload)
         exit(1);
     }
 
-    this->payload, payload;
+    this->payload.assign(payload);
     this->length = payloadSize;
 }
 
