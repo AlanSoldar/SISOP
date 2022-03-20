@@ -90,7 +90,7 @@ string Packet::toString()
 {
     string str_type = to_string(this->getType());
 
-    return str_type + ";" + this->getPayload();
+    return this->getUser() + ";" + str_type + ";" + this->getPayload();
 }
 
 vector<string> split(string stringObject, char delimiter)

@@ -23,6 +23,7 @@ private:
     uint16_t length;  // Payload length
     time_t timestamp; // Data timestamp
     string payload;   // Content included at the payload
+    string user;      // Logged user sending the packet
 
 public:
     Packet();
@@ -33,6 +34,7 @@ public:
     uint16_t getLength();
     time_t getTimestamp();
     string getPayload();
+    string getUser();
 
     void setType(uint16_t type);
     void setSeqn(uint16_t seqn);

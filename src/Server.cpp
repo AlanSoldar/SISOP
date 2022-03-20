@@ -86,6 +86,8 @@ void *Server::communicationHandler(void *handlerArgs)
     {
         Packet *receivedPacket = args->connectedSocket->readPacket();
 
+        cout << receivedPacket->getType() << endl;
+
         if (receivedPacket)
         {
             switch (receivedPacket->getType())
@@ -95,20 +97,19 @@ void *Server::communicationHandler(void *handlerArgs)
                 //userToFollow = receivedPacket->getPayload();
                 //response = "Followed " + userToFollow + "!";
 
+                args->server->database.saveNewFollow(args->user, receivedPacket->getPayload());
                 cout << "following new user" << endl;
-
-                //args->server->database.saveNewFollow(args->user, userToFollow);
 
                 //args->connectedSocket->sendPacket(Packet(ERROR, response.c_str()));
                 break;
 
             case SEND_NOTIFICATION:
                 //message = receivedPacket->getPayload();
-                //args->server->database.saveNotification(args->user, message);
+                args->server->database.saveNotification(args->user, receivedPacket->getPayload());
 
                 cout << "new notification" << endl;
 
-                //args->connectedSocket->sendPacket(Packet(ERROR, "Notification sent!"));
+                args->connectedSocket->sendPacket(Packet(RECEIVE_NOTIFICATION, "Notification sent!"));
                 break;
 
             default:

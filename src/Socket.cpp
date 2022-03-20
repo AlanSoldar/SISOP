@@ -125,15 +125,17 @@ Packet *ServerSocket::readPacket()
 
     Packet packet = Packet::fromString(response);
 
-    cout << packet.getPayload() << endl;
+    pkt = &packet;
 
-    if (buffer < 0)
-    {
-        cout << "ERROR reading from server socket: " << socketfd << endl;
-        return NULL;
-    }
+    cout << packet.getPayload() << packet.getType() << endl;
 
-    else if (buffer == 0)
+    // if (buffer < 0)
+    // {
+    //     cout << "ERROR reading from server socket: " << socketfd << endl;
+    //     return NULL;
+    // }
+
+    if (buffer == 0)
     {
         std::cout << "Connection closed." << std::endl;
         return NULL;
