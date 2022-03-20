@@ -71,9 +71,8 @@ void Client::follow(string userName)
 	this->socket.sendPacket(Packet(FOLLOW_USER, userName.c_str()));
 }
 
-void Client::sendNotification(string message)
+void Client::sendNotification(char *message)
 {
-
 	int answer = this->socket.sendPacket(Packet(SEND_NOTIFICATION, message));
 	if (answer < 0)
 	{
@@ -130,20 +129,20 @@ void *Client::commandThread(void *arg)
 		pthread_mutex_lock(&(user->mutex_receive_notification));
 
 		string command = "";
-		string commandParameter = "";
+		char commandParameter[128];
 		cin >> command;
 
 		if (command == "FOLLOW")
 		{
 			cout << "Request received for a FOLLOW command:\n" << endl;
-			cin >> commandParameter;
+			cin.getline(commandParameter,128);
 			user->follow(commandParameter);
 		}
 		else if (command == "SEND")
 		{
 			cout << "Request received for a SEND command:\n" << endl;
-			cin >> commandParameter;
-			user->sendNotification(commandParameter.substr(0, 128));
+			cin.getline(commandParameter,128);
+			user->sendNotification(commandParameter);
 		}
 		else
 		{

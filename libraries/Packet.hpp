@@ -2,6 +2,7 @@
 #define PACKET_HEADER
 
 #include <iostream>
+#include <algorithm>
 #include <stdint.h>
 #include <string.h>
 #include <string>
