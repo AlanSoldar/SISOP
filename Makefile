@@ -19,10 +19,10 @@ SERVER_EXE=./bin/server
 CLIENT_EXE=./bin/client
 
 server: $(SERVER_OBJ)
-	g++ -pthread -o $(SERVER_EXE) $(SERVER_OBJ) -luuid
+	g++ -pthread -Wall -g -std=c++11 $(SERVER_SRC) -o $(SERVER_EXE) -luuid
 
 client: $(CLIENT_OBJ)
-	g++ -pthread -o $(CLIENT_EXE)  $(CLIENT_OBJ) -luuid
+	g++ -pthread -Wall -g -std=c++11 $(CLIENT_SRC) -o $(CLIENT_EXE) -luuid
 
 ./bin/%.o: ./src/%.cpp
 	@mkdir -p $(BIN_FOLDER)
