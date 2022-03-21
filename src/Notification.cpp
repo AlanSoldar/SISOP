@@ -149,41 +149,35 @@ string Notification::toString()
     string str_length = to_string(this->getLength());
     string str_pending = to_string(this->getPending());
 
-    return str_id + "&" + this->getTimestamp() + "&" + str_pending + "&" + this->getSenderId() + "&" + this->getMessage();
+    return str_id + " $" + this->getTimestamp() + "$" + str_pending + "$" + this->getSenderId() + "$" + this->getMessage() + "$" + "a";
 }
 
 vector<string> splitNotification(string s, char delimiter)
 {
-    // size_t pos = 0;
-    // string token;
+    size_t pos = 0;
+    string token;
     vector<string> brokedString;
     
-    // while ((pos = s.find(delimiter)) != string::npos)
-    // {
-    //     token = s.substr(0, pos);
-    //     brokedString.push_back(token);
-    //     s.erase(0, pos + delimiter.length());
-    // }
+    cout <<"A STRING EH: "<< s << '\n';
 
-    // cout << s << endl;
+     while ((pos = s.find(delimiter)) != string::npos)
+     {
+         token = s.substr(0, pos);
+         brokedString.push_back(token);
+         s.erase(0, pos + 1);
+     }
+     brokedString.push_back(s);
 
-    stringstream ss(s);
-    string tmp;
+     for(int i = 0; i<brokedString.size(); i++) {
+        cout << brokedString[i] << '\n';
+     }
 
-    while(getline(ss, tmp, '&')){
-        brokedString.push_back(tmp);
-    }
-
-    brokedString.push_back("b");
-    brokedString.push_back("c");
-    brokedString.push_back("d");
-    brokedString.push_back("e");
     return brokedString;
 }
 
 Notification Notification::fromString(string stringObject)
 {
-    vector<string> results = splitNotification(stringObject, '&');
+    vector<string> results = splitNotification(stringObject, '$');
 
     for (int i = 0; i < sizeof(results); i++)
     {

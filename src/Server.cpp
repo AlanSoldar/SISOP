@@ -67,7 +67,7 @@ void *Server::communicationHandler(void *handlerArgs)
                 break;
 
             case SEND_NOTIFICATION:
-                cout << "new notification" << endl;
+                cout << "new notification: " << payload << endl;
                 args->server->database.saveNotification(user, payload);
 
                 break;

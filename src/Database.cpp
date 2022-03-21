@@ -59,7 +59,7 @@ void Database::saveNewFollow(string followerId, string userId)
 
 void Database::saveNotification(string senderId, string message)
 {
-
+    cout << "message: " << message << endl;
     Notification notification = Notification::fromString(message);
 
     cout << notification.getId() << endl;

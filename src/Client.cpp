@@ -54,6 +54,7 @@ void Client::follow(string userToFollow)
 void Client::sendNotification(string message)
 {
 	Notification notification = Notification(userName, message);
+	cout << "teste: " << notification.toString() << '\n';
 	int answer = this->socket.sendPacket(Packet(this->userName, SEND_NOTIFICATION, notification.toString()));
 	if (answer < 0)
 	{
