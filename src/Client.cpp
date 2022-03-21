@@ -13,13 +13,6 @@ Client::Client(string userName, string serverAddress, int serverPort)
 	pthread_mutex_init(&mutex_main, NULL);
 }
 
-void Client::connect()
-{
-	cout << "trying to connect" << endl;
-	this->socket.connectToServer(this->getServerAddress().c_str(), this->getServerPort());
-
-}
-
 string Client::getUserName()
 {
 	return this->userName;
@@ -57,11 +50,22 @@ void Client::sendNotification(string message)
 	int answer = this->socket.sendPacket(Packet(this->userName, SEND_NOTIFICATION, notification.toString()));
 	if (answer < 0)
 	{
-		cout << "Error trying to send your message, please try again." << endl;
 		exit(1);
 	}
 
 	cout << "Message Sent Successfully!" << endl;
+}
+
+void Client::receiveNotification()
+{
+	Packet *response;
+	cout << "requesting notifications" << endl;
+	socket.sendPacket(Packet(this->getUserName(), RECEIVE_NOTIFICATION, "notification request"));
+
+	cout << "waiting for server response" << endl;
+
+	response = socket.readPacket();
+	cout << "response received" << endl;
 }
 
 void *Client::mainThread(void *arg)
@@ -112,25 +116,27 @@ void *Client::commandThread(void *arg)
 		string command = "";
 		string commandParameter;
 		cin >> command;
-
+		cout << "test" << endl;
 		if (command == "FOLLOW")
 		{
-			cout << "Request received for a FOLLOW command:\n" << endl;
+			cout << "Request received for a FOLLOW command:\n"
+				 << endl;
 			getline(cin, commandParameter);
-			user->follow(commandParameter.erase(0,1));
+			user->follow(commandParameter.erase(0, 1));
 		}
 		else if (command == "SEND")
 		{
-			cout << "Request received for a SEND command:\n" << endl;
+			cout << "Request received for a SEND command:\n"
+				 << endl;
 			getline(cin, commandParameter);
-			user->sendNotification(commandParameter.erase(0,1));
+			user->sendNotification(commandParameter.erase(0, 1));
 		}
 		else
 		{
 			cout << "This is not a valid command please use <FOLLOW> <userName> || <SEND> <yourMessage>" << command << endl;
 		}
 
-		pthread_mutex_unlock(&(user->mutex_command));
+		pthread_mutex_lock(&(user->mutex_command));
 		pthread_mutex_unlock(&(user->mutex_main));
 		pthread_mutex_unlock(&(user->mutex_receive_notification));
 	}
@@ -139,18 +145,15 @@ void *Client::commandThread(void *arg)
 void *Client::receiveNotificationThread(void *arg)
 {
 	Client *user = (Client *)arg;
-	ServerSocket serverSocket;
+	ClientSocket socket;
 	Packet *notification;
 	int i;
 	while (true)
 	{
-		notification = serverSocket.readPacket();
-		if (notification == NULL)
-		{
-			exit(1);
-		}
-
 		pthread_mutex_lock(&(user->mutex_receive_notification));
+
+		user->receiveNotification();
+
 		pthread_mutex_unlock(&(user->mutex_receive_notification));
 	}
 }

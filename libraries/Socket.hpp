@@ -11,6 +11,8 @@
 #include <iostream>
 #include <pthread.h>
 #include <string>
+#include <stdlib.h>
+#include <cerrno>
 #include "Packet.hpp"
 using namespace std;
 
@@ -66,7 +68,6 @@ public:
 	~ServerSocket();
 
 	void bindServer();
-	void startListener();
 	Packet *readPacket();
 	int sendPacket(Packet pkt, int socketfd);
 	int sendPacket(Packet pkt);

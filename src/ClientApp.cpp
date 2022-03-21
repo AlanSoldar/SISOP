@@ -19,13 +19,13 @@ int main(int argc, char *argv[])
 	user = new Client(argv[1], argv[2], stoi(argv[3]));
 
 	//cout<< user->getUserName() << ' ' << user->getServerAdress() << ' ' << user->getServerPort() << '\n';
-	pthread_create(&mainThread, NULL, Client::mainThread, (void *)user);
+	//pthread_create(&mainThread, NULL, Client::mainThread, (void *)user);
 	pthread_create(&receiveNotificationThread, NULL, Client::receiveNotificationThread, (void *)user);
-	pthread_create(&commandThread, NULL, Client::commandThread, (void *)user);
+	//pthread_create(&commandThread, NULL, Client::commandThread, (void *)user);
 
-	pthread_join(mainThread, NULL);
+	//pthread_join(mainThread, NULL);
 	pthread_join(receiveNotificationThread, NULL);
-	pthread_join(commandThread, NULL);
+	//pthread_join(commandThread, NULL);
 
 	return 0;
 }

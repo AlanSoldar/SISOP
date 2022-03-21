@@ -44,6 +44,6 @@ public:
     void setTimestamp(string timestamp);
     void setPayload(string payload);
     string toString();
-    static Packet fromString(string stringObject);
+    static Packet* fromString(string stringObject);
 };
 #endif

@@ -155,7 +155,7 @@ vector<string> split(string stringObject, char delimiter)
     return brokedString;
 }
 
-Packet Packet::fromString(string stringObject)
+Packet* Packet::fromString(string stringObject)
 {
     vector<string> results = split(stringObject, '&');
 
@@ -169,5 +169,5 @@ Packet Packet::fromString(string stringObject)
 
     input_payload.assign(results[2].c_str());
 
-    return Packet(input_user, input_type, input_payload);
+    return new Packet(input_user, input_type, input_payload);
 }
