@@ -68,6 +68,8 @@ Packet *ClientSocket::readPacket()
     Packet *pkt = new Packet();
     memset(pkt, 0, sizeof(Packet));
 
+    cout << "tst0" << endl;
+
     int rsp = recvfrom(socketfd, buf, PAYLOAD_MAX_SIZE, 0, (struct sockaddr *)&from, &clilen);
 
     cout << "tst" << endl;
@@ -125,22 +127,20 @@ Packet *ServerSocket::readPacket()
     memset(pkt, 0, sizeof(Packet));
 
     recvfrom(socketfd, buf, PAYLOAD_MAX_SIZE, 0, (struct sockaddr *)&cli_addrr, &clilen);
-    //cout << cli_addrr << endl;
-    cout << sendto(socketfd, "test", 4, 0, (struct sockaddr *)&cli_addrr, sizeof(struct sockaddr_in)) << endl;
+    cout << "test serv" << endl;
+    cout << sendto(socketfd, "test", 4, 0, (struct sockaddr *)&cli_addrr, clilen) << endl;
 
     string response(buf);
 
-    Packet packet = Packet::fromString(response);
+    pkt = Packet::fromString(response);
 
-    pkt = &packet;
-
-    if (packet.getPayload().length() < 0)
+    if (pkt->getPayload().length() < 0)
     {
         cout << "ERROR reading from server socket: " << socketfd << endl;
         return NULL;
     }
 
-    else if (packet.getPayload().length() == 0)
+    else if (pkt->getPayload().length() == 0)
     {
         std::cout << "Connection closed." << std::endl;
         return NULL;
