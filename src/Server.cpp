@@ -48,7 +48,7 @@ void *Server::communicationHandler(void *handlerArgs)
     {
         Packet *receivedPacket = args->connectedSocket->readPacket();
 
-        if (1 == 2)
+        if (receivedPacket)
         {
             user = receivedPacket->getUser();
             type = receivedPacket->getType();

@@ -60,7 +60,6 @@ void Database::saveNewFollow(string followerId, string userId)
 void Database::saveNotification(string senderId, string payload)
 {
     Notification notification = Notification::fromString(payload);
-    cout << "aiaiaiaiai: " << notification.toString() << '\n';
     ofstream notificationFile;
     notificationFile.open("tables/Notification.txt", ios_base::app);
     notificationFile << notification.toString() << endl;

@@ -180,10 +180,6 @@ Notification Notification::fromString(string stringObject)
     string input_senderId;
     string input_message;
 
-    for(int i =0 ; i< results.size(); i++) {
-        cout << "resultado " << i << " = " << results[i] << '\n';
-    }
-
     input_length = strtoul(results[1].c_str(), NULL, 10);
     input_pending = strtoul(results[2].c_str(), NULL, 10);
 

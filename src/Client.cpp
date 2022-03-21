@@ -30,7 +30,6 @@ int Client::getServerPort()
 
 void Client::follow(string userToFollow)
 {
-	cout << userToFollow << endl;
 	if (userToFollow.find(' ') != string::npos)
 	{
 		cout << "Invalid username please remove any whitespace\n";
@@ -116,11 +115,9 @@ void *Client::commandThread(void *arg)
 		string command = "";
 		string commandParameter;
 		cin >> command;
-		cout << "test" << endl;
 		if (command == "FOLLOW")
 		{
-			cout << "Request received for a FOLLOW command:\n"
-				 << endl;
+			cout << "Request received for a FOLLOW command\n" << endl;
 			getline(cin, commandParameter);
 			user->follow(commandParameter.erase(0, 1));
 		}
@@ -152,7 +149,7 @@ void *Client::receiveNotificationThread(void *arg)
 	{
 		pthread_mutex_lock(&(user->mutex_receive_notification));
 
-		user->receiveNotification();
+		//user->receiveNotification();
 
 		pthread_mutex_unlock(&(user->mutex_receive_notification));
 	}

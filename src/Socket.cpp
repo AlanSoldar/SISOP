@@ -68,29 +68,23 @@ Packet *ClientSocket::readPacket()
     Packet *pkt = new Packet();
     memset(pkt, 0, sizeof(Packet));
 
-    cout << "tst0" << endl;
-
     int rsp = recvfrom(socketfd, buf, PAYLOAD_MAX_SIZE, 0, NULL, NULL);
 
-    cout << "tst" << endl;
+    string response(buf);
 
-    // string response(buf);
+    pkt = Packet::fromString(response);
 
-    // Packet packet = Packet::fromString(response);
+    if (rsp < 0)
+    {
+        cout << "ERROR reading from server socket: " << socketfd << endl;
+        return NULL;
+    }
 
-    // pkt = &packet;
-
-    // if (rsp < 0)
-    // {
-    //     cout << "ERROR reading from server socket: " << socketfd << endl;
-    //     return NULL;
-    // }
-
-    // else if (rsp == 0)
-    // {
-    //     std::cout << "Connection closed." << std::endl;
-    //     return NULL;
-    // }
+    else if (rsp == 0)
+    {
+        std::cout << "Connection closed." << std::endl;
+        return NULL;
+    }
 
     return pkt;
 }
@@ -122,13 +116,13 @@ Packet *ServerSocket::readPacket()
 
     char buf[PAYLOAD_MAX_SIZE];
     socklen_t clilen;
-    sockaddr_in cli_addrr;
     Packet *pkt = new Packet();
     memset(pkt, 0, sizeof(Packet));
 
-    recvfrom(socketfd, buf, PAYLOAD_MAX_SIZE, 0, (struct sockaddr *)&cli_addrr, &clilen);
-    cout << "test serv" << endl;
-    cout << sendto(socketfd, "test", 4, 0, (struct sockaddr *)&cli_addrr, clilen) << endl;
+    recvfrom(socketfd, buf, PAYLOAD_MAX_SIZE, 0, (struct sockaddr *)&cli_addr, &clilen);
+    //cout << sendto(socketfd, "test", 4, 0, (struct sockaddr *)&cli_addrr, clilen) << endl;
+
+    cout << "message received" << endl;
 
     string response(buf);
 
@@ -155,7 +149,7 @@ int ServerSocket::sendPacket(Packet pkt)
     cout << "send notifications" << endl;
     char buffer[PAYLOAD_MAX_SIZE];
     strcpy(buffer, pkt.toString().c_str());
-    int response = sendto(socketfd, buffer, PAYLOAD_MAX_SIZE, 0, (struct sockaddr *)&this->cli_addr, sizeof(struct sockaddr));
+    int response = sendto(socketfd, buffer, PAYLOAD_MAX_SIZE, 0, (struct sockaddr *)&cli_addr, sizeof(struct sockaddr));
 
     if (response < -100)
         std::cout << "ERROR writing to socket: " << socketfd << std::endl;
