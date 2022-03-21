@@ -1,6 +1,5 @@
 #include "../libraries/Socket.hpp"
 #include "../libraries/Defines.hpp"
-#include <stdlib.h>
 
 ClientSocket::~ClientSocket()
 {
@@ -40,11 +39,6 @@ void ClientSocket::connectToServer(const char *serverAddress, int serverPort)
         exit(1);
     }
 
-    // if (connect(this->getSocketfd(), (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0)
-    // {
-    // 	cout <<
-    // 	exit(1);
-    // }
 }
 
 int ClientSocket::getSocketfd()
@@ -57,12 +51,46 @@ int ClientSocket::sendPacket(Packet pkt)
 {
     char buffer[PAYLOAD_MAX_SIZE];
     strcpy(buffer, pkt.toString().c_str());
-    int response = sendto(socketfd, buffer, PAYLOAD_MAX_SIZE, MSG_NOSIGNAL, (struct sockaddr *)&serv_addr, sizeof(struct sockaddr));
+    int response = sendto(socketfd, buffer, PAYLOAD_MAX_SIZE, 0, (struct sockaddr *)&serv_addr, sizeof(struct sockaddr_in));
 
     if (response < 0)
         std::cout << "ERROR writing to socket: " << socketfd << std::endl;
 
     return response;
+}
+
+Packet *ClientSocket::readPacket()
+{
+
+    char buf[PAYLOAD_MAX_SIZE];
+    socklen_t clilen;
+    struct sockaddr_in from;
+    Packet *pkt = new Packet();
+    memset(pkt, 0, sizeof(Packet));
+
+    int rsp = recvfrom(socketfd, buf, PAYLOAD_MAX_SIZE, 0, (struct sockaddr *)&from, &clilen);
+
+    cout << "tst" << endl;
+
+    // string response(buf);
+
+    // Packet packet = Packet::fromString(response);
+
+    // pkt = &packet;
+
+    // if (rsp < 0)
+    // {
+    //     cout << "ERROR reading from server socket: " << socketfd << endl;
+    //     return NULL;
+    // }
+
+    // else if (rsp == 0)
+    // {
+    //     std::cout << "Connection closed." << std::endl;
+    //     return NULL;
+    // }
+
+    return pkt;
 }
 
 ServerSocket::ServerSocket()
@@ -78,6 +106,7 @@ ServerSocket::ServerSocket()
     this->serv_addr.sin_port = htons(PORT);
     this->serv_addr.sin_addr.s_addr = INADDR_ANY;
     bzero(&(this->serv_addr.sin_zero), 8);
+    
 }
 
 ServerSocket::~ServerSocket()
@@ -91,10 +120,13 @@ Packet *ServerSocket::readPacket()
 
     char buf[PAYLOAD_MAX_SIZE];
     socklen_t clilen;
+    sockaddr_in cli_addrr;
     Packet *pkt = new Packet();
     memset(pkt, 0, sizeof(Packet));
 
-    recvfrom(socketfd, buf, PAYLOAD_MAX_SIZE, 0, (struct sockaddr *)&cli_addr, &clilen);
+    recvfrom(socketfd, buf, PAYLOAD_MAX_SIZE, 0, (struct sockaddr *)&cli_addrr, &clilen);
+    //cout << cli_addrr << endl;
+    cout << sendto(socketfd, "test", 4, 0, (struct sockaddr *)&cli_addrr, sizeof(struct sockaddr_in)) << endl;
 
     string response(buf);
 
@@ -119,33 +151,24 @@ Packet *ServerSocket::readPacket()
 
 int ServerSocket::sendPacket(Packet pkt)
 {
-    char buffer[PAYLOAD_MAX_SIZE];
-    strcpy(buffer, pkt.getPayload().c_str());
-    int response = sendto(this->socketfd, buffer, strlen(buffer), 0, (const struct sockaddr *)&serv_addr, sizeof(struct sockaddr_in));
 
-    if (response < 0)
-        std::cout << "ERROR writing to socket: " << this->socketfd << std::endl;
+    cout << "send notifications" << endl;
+    char buffer[PAYLOAD_MAX_SIZE];
+    strcpy(buffer, pkt.toString().c_str());
+    int response = sendto(socketfd, buffer, PAYLOAD_MAX_SIZE, 0, (struct sockaddr *)&this->cli_addr, sizeof(struct sockaddr));
+
+    if (response < -100)
+        std::cout << "ERROR writing to socket: " << socketfd << std::endl;
+
     return response;
 }
 
 void ServerSocket::bindServer()
 {
-    int n;
-    char buf[PAYLOAD_MAX_SIZE];
-    socklen_t clilen;
 
     if (bind(socketfd, (struct sockaddr *)&serv_addr, sizeof(struct sockaddr)) < 0)
     {
         cout << "ERROR on binding" << endl;
         exit(1);
-    }
-}
-
-void ServerSocket::startListener()
-{ 
-    cout << "Starting to receive messages:" << endl;
-    while (1)
-    {
-        readPacket();
     }
 }

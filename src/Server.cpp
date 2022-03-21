@@ -48,7 +48,7 @@ void *Server::communicationHandler(void *handlerArgs)
     {
         Packet *receivedPacket = args->connectedSocket->readPacket();
 
-        if (receivedPacket)
+        if (1 == 2)
         {
             user = receivedPacket->getUser();
             type = receivedPacket->getType();
@@ -70,6 +70,10 @@ void *Server::communicationHandler(void *handlerArgs)
                 cout << "new notification" << endl;
                 args->server->database.saveNotification(user, payload);
 
+                break;
+
+            case RECEIVE_NOTIFICATION:
+                args->connectedSocket->sendPacket(Packet("server", SEND_NOTIFICATION, payload));
                 break;
 
             default:

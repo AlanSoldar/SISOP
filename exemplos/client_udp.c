@@ -47,7 +47,7 @@ int main(int argc, char *argv[])
 		printf("ERROR sendto");
 	
 	length = sizeof(struct sockaddr_in);
-	n = recvfrom(sockfd, buffer, 256, 0, (struct sockaddr *) &from, &length);
+	n = recvfrom(sockfd, buffer, 17, 0, (struct sockaddr *) &from, &length);
 	if (n < 0)
 		printf("ERROR recvfrom");
 
