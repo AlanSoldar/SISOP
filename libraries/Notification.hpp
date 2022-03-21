@@ -11,6 +11,7 @@
 #include <time.h>
 #include <uuid/uuid.h>
 #include <sstream>
+#include <iomanip>
 #include <chrono>
 #include <ctime>
 #include "Defines.hpp"
@@ -31,7 +32,7 @@ private:
 public:
     Notification();
     Notification(string senderId, string message);
-    Notification(uint32_t id, string timestamp, uint16_t length, uint16_t pending, string senderId, string message);
+    Notification(uint16_t length, uint16_t pending, string senderId, string message);
 
     uint32_t getId();
     string getTimestamp();

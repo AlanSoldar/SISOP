@@ -25,10 +25,6 @@ Notification::Notification(string const senderId, string input_message)
         exit(1);
     }
 
-    //remove end of file markers from the input payload.
-    input_message.erase(std::remove(input_message.begin(), input_message.end(), '\0'), input_message.end());
-    input_message.erase(std::remove(input_message.begin(), input_message.end(), '\n'), input_message.end());
-
     uuid_t uuid;
     uuid_generate(uuid);
 
@@ -44,7 +40,7 @@ Notification::Notification(string const senderId, string input_message)
     this->timestamp.assign(str);
 }
 
-Notification::Notification(uint32_t id, string timestamp, uint16_t length, uint16_t pending, string senderId, string input_message)
+Notification::Notification(uint16_t length, uint16_t pending, string senderId, string input_message)
 {
     uint32_t messageSize = input_message.length();
     if (messageSize > NOTIFICATION_MAX_SIZE)
@@ -62,16 +58,21 @@ Notification::Notification(uint32_t id, string timestamp, uint16_t length, uint1
         exit(1);
     }
 
-    //remove end of file markers from the input payload.
-    input_message.erase(std::remove(input_message.begin(), input_message.end(), '\0'), input_message.end());
-    input_message.erase(std::remove(input_message.begin(), input_message.end(), '\n'), input_message.end());
+    uuid_t uuid;
+    uuid_generate(uuid);
 
-    this->id = id;
+    this->id = *(uint32_t *)&uuid;
     this->length = length;
     this->pending = pending;
     this->senderId.assign(senderId);
     this->message.assign(input_message);
-    this->timestamp.assign(timestamp);
+
+    const chrono::time_point<chrono::system_clock> now = chrono::system_clock::now();
+    time_t input_time = chrono::system_clock::to_time_t(now);
+
+    const char *s = ctime(&input_time);
+    string str(s);
+    this->timestamp.assign(str);
 }
 
 uint32_t Notification::getId()
@@ -149,60 +150,41 @@ string Notification::toString()
     string str_length = to_string(this->getLength());
     string str_pending = to_string(this->getPending());
 
-    return str_id + "&" + this->getTimestamp() + "&" + str_pending + "&" + this->getSenderId() + "&" + this->getMessage();
+    return str_id + "$" + this->getTimestamp() + "$" + str_length + "$" + str_pending + "$" + this->getSenderId() + "$" + this->getMessage() + "$";
 }
 
-vector<string> splitNotification(string s, char delimiter)
+vector<string> splitNotification(string s, string delimiter)
 {
-    // size_t pos = 0;
-    // string token;
+    size_t pos = 0;
+    string token;
     vector<string> brokedString;
     
-    // while ((pos = s.find(delimiter)) != string::npos)
-    // {
-    //     token = s.substr(0, pos);
-    //     brokedString.push_back(token);
-    //     s.erase(0, pos + delimiter.length());
-    // }
-
-    // cout << s << endl;
-
-    stringstream ss(s);
-    string tmp;
-
-    while(getline(ss, tmp, '&')){
-        brokedString.push_back(tmp);
+    while ((pos = s.find(delimiter)) != string::npos)
+    {
+        token = s.substr(0, pos);
+        brokedString.push_back(token);
+        s.erase(0, pos + 1);
     }
 
-    brokedString.push_back("b");
-    brokedString.push_back("c");
-    brokedString.push_back("d");
-    brokedString.push_back("e");
+    brokedString.push_back(s);
+
     return brokedString;
 }
 
 Notification Notification::fromString(string stringObject)
 {
-    vector<string> results = splitNotification(stringObject, '&');
+    vector<string> results = splitNotification(stringObject, "$");
 
-    for (int i = 0; i < sizeof(results); i++)
-    {
-        cout << "result[" << i << "]" << endl;
-        cout << results[i] << endl;
-    }
-
-    uint32_t input_id;
+    uint16_t input_length;
     uint16_t input_pending;
-    string input_timestamp;
     string input_senderId;
     string input_message;
 
-    input_id = strtoul(results[0].c_str(), NULL, 10);
-    input_pending = strtoul(results[2].c_str(), NULL, 10);
+    input_length = strtoul(results[0].c_str(), NULL, 10);
+    input_pending = strtoul(results[1].c_str(), NULL, 10);
 
-    input_timestamp.assign(results[1]);
-    input_senderId.assign(results[3]);
-    input_message.assign(results[4]);
+    input_senderId.assign(results[2]);
+    input_message.assign(results[3]);
 
-    return Notification(input_id, input_timestamp, input_message.length(), input_pending, input_senderId, input_message);
+    return Notification(input_length, input_pending, input_senderId, input_message);
 }

@@ -57,21 +57,15 @@ void Database::saveNewFollow(string followerId, string userId)
     cout << followerId << " is now following: " << userId << endl;
 }
 
-void Database::saveNotification(string senderId, string message)
+void Database::saveNotification(string senderId, string payload)
 {
-
-    Notification notification = Notification::fromString(message);
-
-    cout << notification.getId() << endl;
-    cout << notification.getMessage() << endl;
-    cout << notification.getSenderId() << endl;
-    cout << notification.getTimestamp() << endl;
-
+    Notification notification = Notification::fromString(payload);
+    
     ofstream notificationFile;
     notificationFile.open("tables/Notification.txt", ios_base::app);
     notificationFile << notification.toString() << endl;
     notificationFile.close();
-    cout << senderId << " has posted a new notification: " << message << endl;
+    cout << senderId << " has posted a new notification: " << payload << endl;
 }
 
 void Database::loadUsers()
