@@ -70,7 +70,7 @@ Packet *ClientSocket::readPacket()
 
     cout << "tst0" << endl;
 
-    int rsp = recvfrom(socketfd, buf, PAYLOAD_MAX_SIZE, 0, (struct sockaddr *)&from, &clilen);
+    int rsp = recvfrom(socketfd, buf, PAYLOAD_MAX_SIZE, 0, NULL, NULL);
 
     cout << "tst" << endl;
 

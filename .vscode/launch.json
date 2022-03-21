@@ -5,25 +5,40 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "g++-9 - Build and debug active file",
-            "type": "cppdbg",
+            "name": "server",
+            "type": "lldb",
             "request": "launch",
-            "program": "${fileDirname}/${fileBasenameNoExtension}",
+            "program": "${fileDirname}/bin/server",
             "args": [],
-            "stopAtEntry": true,
+            "stopAtEntry": false,
             "cwd": "${fileDirname}",
             "environment": [],
             "externalConsole": false,
-            "MIMode": "gdb",
             "setupCommands": [
                 {
                     "description": "Enable pretty-printing for gdb",
                     "text": "-enable-pretty-printing",
                     "ignoreFailures": true
                 }
-            ],
-            "preLaunchTask": "C/C++: g++-9 build active file",
-            "miDebuggerPath": "/usr/bin/gdb"
+            ]
+        },
+        {
+            "name": "client",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${fileDirname}/../bin/client",
+            "args": ["@gab","localhost","4040"],
+            "stopAtEntry": false,
+            "cwd": "${fileDirname}",
+            "environment": [],
+            "externalConsole": false,
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ]
         }
     ]
 }
