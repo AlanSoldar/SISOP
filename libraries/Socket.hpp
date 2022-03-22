@@ -42,12 +42,9 @@ private:
 
 public:
 	int getSocketfd();
+	ClientSocket() = default;
+	ClientSocket(const char *serverAddress, int serverPort);
 
-	~ClientSocket();
-	ClientSocket();
-	ClientSocket(int socketfd);
-
-	void connectToServer(const char *serverAddress, int serverPort);
 	Packet *readPacket();
 	int sendPacket(Packet pkt, int socketfd);
 	int sendPacket(Packet pkt);
@@ -65,7 +62,6 @@ private:
 public:
 	int getSocketfd();
 	ServerSocket();
-	~ServerSocket();
 
 	void bindServer();
 	Packet *readPacket();

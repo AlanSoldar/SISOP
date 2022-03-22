@@ -30,10 +30,10 @@ int main(int argc, char *argv[])
         exit(0);
     }	
 	
-	if ((sockfd = socket(AF_INET, SOCK_DGRAM, 0)) == -1)
+	if ((sockfd = socket(PF_INET, SOCK_DGRAM, 0)) == -1)
 		printf("ERROR opening socket");
 	
-	serv_addr.sin_family = AF_INET;     
+	serv_addr.sin_family = PF_INET;     
 	serv_addr.sin_port = htons(PORT);    
 	serv_addr.sin_addr = *((struct in_addr *)server->h_addr);
 	bzero(&(serv_addr.sin_zero), 8);  

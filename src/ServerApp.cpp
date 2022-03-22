@@ -9,7 +9,6 @@ int main(){
 
 	ServerSocket serverSocket = ServerSocket();
 	Server* server = new Server();
-	serverSocket.bindServer();
 
 	communiction_handler_args *args = (communiction_handler_args *) calloc(1, sizeof(communiction_handler_args));
     args->connectedSocket = &serverSocket;

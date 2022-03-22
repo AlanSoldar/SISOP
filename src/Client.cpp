@@ -7,7 +7,7 @@ Client::Client(string userName, string serverAddress, int serverPort)
 	this->userName = userName;
 	this->serverAddress = serverAddress;
 	this->serverPort = serverPort;
-	this->socket.connectToServer(serverAddress.c_str(), serverPort);
+	this->socket = ClientSocket(serverAddress.c_str(), serverPort);
 	pthread_mutex_init(&mutex_command, NULL);
 	pthread_mutex_init(&mutex_receive_notification, NULL);
 	pthread_mutex_init(&mutex_main, NULL);
@@ -64,7 +64,7 @@ void Client::receiveNotification()
 	cout << "waiting for server response" << endl;
 
 	response = socket.readPacket();
-	cout << "response received" << endl;
+	cout << "response received: " << response->getPayload() << endl << endl;
 }
 
 void *Client::mainThread(void *arg)
@@ -142,14 +142,13 @@ void *Client::commandThread(void *arg)
 void *Client::receiveNotificationThread(void *arg)
 {
 	Client *user = (Client *)arg;
-	ClientSocket socket;
 	Packet *notification;
-	int i;
 	while (true)
 	{
 		pthread_mutex_lock(&(user->mutex_receive_notification));
 
-		//user->receiveNotification();
+		user->receiveNotification();
+		sleep(2);
 
 		pthread_mutex_unlock(&(user->mutex_receive_notification));
 	}

@@ -56,6 +56,7 @@ void *Server::communicationHandler(void *handlerArgs)
 
             args->server->login(user);
 
+
             switch (type)
             {
 
@@ -74,10 +75,12 @@ void *Server::communicationHandler(void *handlerArgs)
                 break;
 
             case RECEIVE_NOTIFICATION:
-                args->connectedSocket->sendPacket(Packet("server", SEND_NOTIFICATION, payload));
+                cout << "sending notifications to: " << receivedPacket->getUser() << endl;
+                args->connectedSocket->sendPacket(Packet("server", SEND_NOTIFICATION, "you have 10 notifications"));
                 break;
 
             default:
+                cout << "Invalid operation" << endl;
                 break;
             }
         }

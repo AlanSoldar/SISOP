@@ -72,7 +72,7 @@ void Database::loadUsers()
     ifstream userFile;
     userFile.open("tables/User.txt");
     string line;
-    cout << "loading users:" << endl;
+    //cout << "loading users:" << endl;
     while (getline(userFile, line))
     {
         users.insert(pair<string, string>(line, line));
@@ -84,7 +84,7 @@ void Database::loadFollows()
     ifstream followFile;
     followFile.open("tables/Follower.txt");
     string line;
-    cout << "loading follows:" << endl;
+    //cout << "loading follows:" << endl;
     while (getline(followFile, line))
     {
         cout << line << endl;
@@ -96,7 +96,7 @@ void Database::loadNotifications()
     ifstream notificationFile;
     notificationFile.open("tables/Notification.txt");
     string line;
-    cout << "loading notifications:" << endl;
+    //cout << "loading notifications:" << endl;
     while (getline(notificationFile, line))
     {
         Notification notification = Notification::fromString(line);

@@ -16,10 +16,10 @@ int main(int argc, char *argv[])
 	char buffer[256];
 	struct sockaddr_in serv_addr, cli_addr;
 	
-	if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) == -1) 
+	if ((sockfd = socket(PF_INET, SOCK_STREAM, 0)) == -1) 
         printf("ERROR opening socket");
 	
-	serv_addr.sin_family = AF_INET;
+	serv_addr.sin_family = PF_INET;
 	serv_addr.sin_port = htons(PORT);
 	serv_addr.sin_addr.s_addr = INADDR_ANY;
 	bzero(&(serv_addr.sin_zero), 8);     
