@@ -15,26 +15,29 @@ Database::Database(string name)
     this->loggedUserAddresses = {};
 }
 
-list<pair<string,struct sockaddr>> Database::getLoggedUsers() {
+list<pair<string,struct sockaddr*>> Database::getLoggedUsers() {
     return this->loggedUserAddresses;
 }
 
 int Database::getUserSessionCount(string userId) {
-    list<pair<string,struct sockaddr>> loggedUsers = this->getLoggedUsers();
-    int count = 0
-    for(list<pair<string, struct sockaddr>>::iterator it = loggedUsers.begin(); it!= data.end(); ++it) {
-        if(it.first == userId) {
+    list<pair<string,struct sockaddr*>> loggedUsers = this->getLoggedUsers();
+    int count = 0;
+    for(pair<string, struct sockaddr*> user : loggedUsers) {
+        if(user.first == userId) {
             count++;
         }
     }
     return count;
 }
 
-void addUserSession(string id, struct sockaddr adrr) {
-    this->loggedUserAdresses.push_back(pair<string, struct sockaddr>(id, adrr));
+void Database::addUserSession(string id, struct sockaddr* addr) {
+    pair<string, struct sockaddr*> user;
+    user.first = id;
+    user.second = addr;
+    this->loggedUserAddresses.push_back(user);
 }
 
-int Database::userConnect(string userId, struct sockaddr adrr) {
+int Database::userConnect(string userId, struct sockaddr* adrr) {
     if(this->getUserSessionCount(userId) <2) {
         this->addUserSession(userId, adrr);
         return 1;
@@ -62,9 +65,16 @@ list<string> Database::getFollowersByUserId(string id)
     return this->followers.find(id)->second;
 }
 
-sockaddr Database::getClientAddressByUserId(string id)
+list<struct sockaddr*> Database::getClientAddressByUserId(string id)
 {
-    return this->loggedUserAddresses.find(id)->second;
+    list<pair<string,struct sockaddr*>> users = this->getLoggedUsers();
+    list<struct sockaddr*> addresses;
+    for(pair<string, struct sockaddr*> pair : users) {
+        if(pair.first  == id) {
+            addresses.push_back(pair.second);
+        }
+    }
+    return addresses;
 }
 
 list<string> Database::getNotificationsByUserId(string id)

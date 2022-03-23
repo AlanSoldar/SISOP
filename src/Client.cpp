@@ -41,7 +41,7 @@ void Client::connect() {
 	}
 
 	response = socket.readPacket();
-	if(response.getType() == OPEN_SESSION_SUCCESS) {
+	if(response->getType() == OPEN_SESSION_SUCCESS) {
 		cout << "connection established succesfully" << endl;
 		return;
 	}
