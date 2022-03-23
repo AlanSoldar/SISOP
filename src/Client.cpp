@@ -8,6 +8,9 @@ Client::Client(string userName, string serverAddress, int serverPort)
 	this->serverAddress = serverAddress;
 	this->serverPort = serverPort;
 	this->socket = ClientSocket(serverAddress.c_str(), serverPort);
+
+	this->connect();
+
 	pthread_mutex_init(&mutex_command, NULL);
 	pthread_mutex_init(&mutex_receive_notification, NULL);
 	pthread_mutex_init(&mutex_main, NULL);
@@ -26,6 +29,26 @@ string Client::getServerAddress()
 int Client::getServerPort()
 {
 	return this->serverPort;
+}
+
+void Client::connect() {
+	Packet *response;
+	cout << "Connecting to server..." << endl;
+	int answer = socket.sendPacket(Packet(this->getUserName(), USER_CONNECT, ""));
+	if(answer<0) {
+		cout << "connection failed" << endl;
+		exit(1);
+	}
+
+	response = socket.readPacket();
+	if(response.getType() == OPEN_SESSION_SUCCESS) {
+		cout << "connection established succesfully" << endl;
+		return;
+	}
+	else {
+		cout << "to many sessions for this user, try again later" << endl;
+		exit(1);
+	}
 }
 
 void Client::follow(string userToFollow)

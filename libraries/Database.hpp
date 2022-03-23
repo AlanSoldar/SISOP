@@ -15,10 +15,17 @@ public:
     Database(string name);
 
     string getUserByid(string id);
-    bool userExists(string userId);
-    sockaddr getClientAddressByUserId(string id);
+    bool userExists(string userId);]
+
+    struct sockaddr* getClientAddressByUserId(string id);
     list<string> getNotificationsByUserId(string id);
     list<string> getFollowersByUserId(string id);
+    int getUserSessionCount(string id);
+    void addUserSession(string id, struct sockaddr* adrr);
+
+    List<Pair<string,struct sockaddr*>> getLoggedUsers();
+
+    int userConnect(string userId);
 
     void saveUser(string id);
     void saveNotification(string senderId, string message);
@@ -26,7 +33,7 @@ public:
 
 private:
     string name;
-    map<string, sockaddr> loggedUserAddresses;
+    list<pair<string,struct sockaddr*>> loggedUserAddresses;
     map<string, string> users;
     map<string, list<string>> followers;
     map<string, list<string>> notifications;

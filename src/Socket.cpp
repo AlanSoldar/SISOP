@@ -120,7 +120,7 @@ Packet *ServerSocket::readPacket()
         std::cout << "Connection closed." << std::endl;
         return NULL;
     }
-
+    pkt->setSocket((struct sockaddr *)&cli_addr);
     return pkt;
 }
 

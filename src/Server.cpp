@@ -59,6 +59,16 @@ void *Server::communicationHandler(void *handlerArgs)
 
             switch (type)
             {
+            case USER_CONNECT:
+                if(args->server->database.userConnect(user, *receivedPacket->getsocket()) == 0) {
+                    //failed too many sessions for the user
+                    args->connectedSocket->sendPacket(Packet("server", OPEN_SESSION_FAIL, ""));
+                } else {
+                    //success
+                    args->connectedSocket->sendPacket(Packet("server", OPEN_SESSION_SUCCESS, ""));
+                }
+
+                break;
 
             case FOLLOW_USER:
 

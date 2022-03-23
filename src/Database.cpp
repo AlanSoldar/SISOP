@@ -15,6 +15,34 @@ Database::Database(string name)
     this->loggedUserAddresses = {};
 }
 
+list<pair<string,struct sockaddr>> Database::getLoggedUsers() {
+    return this->loggedUserAddresses;
+}
+
+int Database::getUserSessionCount(string userId) {
+    list<pair<string,struct sockaddr>> loggedUsers = this->getLoggedUsers();
+    int count = 0
+    for(list<pair<string, struct sockaddr>>::iterator it = loggedUsers.begin(); it!= data.end(); ++it) {
+        if(it.first == userId) {
+            count++;
+        }
+    }
+    return count;
+}
+
+void addUserSession(string id, struct sockaddr adrr) {
+    this->loggedUserAdresses.push_back(pair<string, struct sockaddr>(id, adrr));
+}
+
+int Database::userConnect(string userId, struct sockaddr adrr) {
+    if(this->getUserSessionCount(userId) <2) {
+        this->addUserSession(userId, adrr);
+        return 1;
+    } else {
+        return 0;
+    }
+}
+
 string Database::getUserByid(string id)
 {
     loadUsers();

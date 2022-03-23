@@ -66,6 +66,14 @@ string Packet::getPayload()
     return this->payload;
 }
 
+sockaddr* Packet::getSocket() {
+    return this->socket;
+}
+
+void Packet::setSocket(sockaddr* sock) {
+    this->socket = sock;
+}
+
 void Packet::setType(uint16_t type)
 {
     this->type = type;
