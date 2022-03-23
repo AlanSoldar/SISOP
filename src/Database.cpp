@@ -12,6 +12,7 @@ Database::Database(string name)
     this->users = {};
     this->followers = {};
     this->notifications = {};
+    this->loggedUserAddresses = {};
 }
 
 string Database::getUserByid(string id)
@@ -31,6 +32,11 @@ list<string> Database::getFollowersByUserId(string id)
 {
     loadFollows();
     return this->followers.find(id)->second;
+}
+
+sockaddr Database::getClientAddressByUserId(string id)
+{
+    return this->loggedUserAddresses.find(id)->second;
 }
 
 list<string> Database::getNotificationsByUserId(string id)
