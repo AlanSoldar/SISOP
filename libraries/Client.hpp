@@ -30,6 +30,8 @@ private:
 	string serverAddress;
 	int serverPort;
 
+	void connect();
+
 	void sendNotification(string message);
 	void follow(string userName);
 	void receiveNotification();
