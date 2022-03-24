@@ -46,7 +46,6 @@ public:
 	ClientSocket(const char *serverAddress, int serverPort);
 
 	Packet *readPacket();
-	int sendPacket(Packet pkt, int socketfd);
 	int sendPacket(Packet pkt);
 
 };
@@ -65,8 +64,7 @@ public:
 
 	void bindServer();
 	Packet *readPacket();
-	int sendPacket(Packet pkt, int socketfd);
-	int sendPacket(Packet pkt);
+	int sendPacket(Packet pkt, sockaddr clientAddress);
 };
 
 #endif

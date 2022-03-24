@@ -124,12 +124,12 @@ Packet *ServerSocket::readPacket()
     return pkt;
 }
 
-int ServerSocket::sendPacket(Packet pkt)
+int ServerSocket::sendPacket(Packet pkt, sockaddr clientAddress)
 {
 
     char buffer[PAYLOAD_MAX_SIZE];
     strcpy(buffer, pkt.toString().c_str());
-    int response = sendto(socketfd, buffer, PAYLOAD_MAX_SIZE, 0, (struct sockaddr *)&cli_addr, sizeof(struct sockaddr));
+    int response = sendto(socketfd, buffer, PAYLOAD_MAX_SIZE, 0, (struct sockaddr *)&clientAddress, sizeof(struct sockaddr));
 
     if (response < 0)
         std::cout << "ERROR writing to socket: " << socketfd << std::endl;

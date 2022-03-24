@@ -4,15 +4,14 @@ using namespace std;
 
 Database::Database()
 {
-}
-
-Database::Database(string name)
-{
-    this->name = name;
     this->users = {};
     this->followers = {};
     this->notifications = {};
     this->loggedUserAddresses = {};
+
+    loadFollows();
+    loadUsers();
+    loadNotifications();
 }
 
 string Database::getUserByid(string id)
@@ -58,19 +57,18 @@ void Database::saveNewFollow(string followerId, string userId)
 {
     ofstream followerFile;
     followerFile.open("tables/Follower.txt", ios_base::app);
-    followerFile << followerId << " " << userId;
+    followerFile << followerId << " " << userId << endl;
     followerFile.close();
     cout << followerId << " is now following: " << userId << endl;
 }
 
-void Database::saveNotification(string senderId, string payload)
+void Database::saveNotification(string senderId, Notification notification)
 {
-    Notification notification = Notification::fromString(payload);
     ofstream notificationFile;
     notificationFile.open("tables/Notification.txt", ios_base::app);
     notificationFile << notification.toString() << endl;
     notificationFile.close();
-    cout << senderId << " has posted a new notification: " << payload << endl;
+    cout << senderId << " has posted a new notification: " << notification.getMessage() << endl;
 }
 
 void Database::loadUsers()
@@ -87,13 +85,19 @@ void Database::loadUsers()
 
 void Database::loadFollows()
 {
+    followers = {};
+
     ifstream followFile;
+    vector<string> follow;
+    list<string> tst;
+    list<string>::iterator it;
     followFile.open("tables/Follower.txt");
     string line;
-    //cout << "loading follows:" << endl;
     while (getline(followFile, line))
     {
-        cout << line << endl;
+        follow = split(line, " ");
+        followers[follow[0]].push_back(follow[1]);
+        cout << follow[0] << " : " << follow[1] << endl;
     }
 }
 
@@ -110,4 +114,22 @@ void Database::loadNotifications()
         cout << notification.getTimestamp() << endl;
         cout << notification.getMessage() << endl;
     }
+}
+
+vector<string> Database::split(string s, string delimiter)
+{
+    size_t pos = 0;
+    string token;
+    vector<string> brokedString;
+    
+    while ((pos = s.find(delimiter)) != string::npos)
+    {
+        token = s.substr(0, pos);
+        brokedString.push_back(token);
+        s.erase(0, pos + 1);
+    }
+
+    brokedString.push_back(s);
+
+    return brokedString;
 }

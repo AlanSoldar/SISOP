@@ -12,7 +12,6 @@ class Database
 {
 public:
     Database();
-    Database(string name);
 
     string getUserByid(string id);
     bool userExists(string userId);
@@ -21,7 +20,7 @@ public:
     list<string> getFollowersByUserId(string id);
 
     void saveUser(string id);
-    void saveNotification(string senderId, string message);
+    void saveNotification(string senderId, Notification notification);
     void saveNewFollow(string followerId, string userId);
 
 private:
@@ -34,4 +33,5 @@ private:
     void loadUsers();
     void loadNotifications();
     void loadFollows();
+    vector<string> split(string s, string delimiter);
 };

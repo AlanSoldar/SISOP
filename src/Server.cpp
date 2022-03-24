@@ -68,15 +68,8 @@ void *Server::communicationHandler(void *handlerArgs)
                 break;
 
             case SEND_NOTIFICATION:
-                cout << "new notification" << endl;
-                cout << payload << endl;
-                args->server->database.saveNotification(user, payload);
+                args->server->manageNotifications(user, Notification::fromString(payload));
 
-                break;
-
-            case RECEIVE_NOTIFICATION:
-                cout << "sending notifications to: " << receivedPacket->getUser() << endl;
-                args->connectedSocket->sendPacket(Packet("server", SEND_NOTIFICATION, "you have 10 notifications"));
                 break;
 
             default:
@@ -93,5 +86,15 @@ void Server::login(string user)
     if (!database.userExists(user))
     {
         database.saveUser(user);
+    }
+}
+
+void Server::manageNotifications(string user, Notification notification) {
+    this->database.saveNotification(user, notification);
+    list<string> followers = this->database.getFollowersByUserId(user);
+    if (!followers.empty()) {
+        for (string follower : followers) {
+            sockaddr followerAddress = this->database.getClientAddressByUserId(follower);
+        }
     }
 }
