@@ -28,7 +28,7 @@ private:
     uint16_t length;  // Payload length
     string timestamp; // Data timestamp
     string payload;   // Content included at the payload
-    struct sockaddr* socket;
+    sockaddr socket;
 
 public:
     Packet();
@@ -40,9 +40,9 @@ public:
     uint16_t getLength();
     string getTimestamp();
     string getPayload();
-    sockaddr* getSocket();
+    sockaddr getSocket();
 
-    void setSocket(sockaddr* socket);
+    void setSocket(sockaddr socket);
     void setType(uint16_t type);
     void setUser(string user);
     void setSeqn(uint16_t seqn);

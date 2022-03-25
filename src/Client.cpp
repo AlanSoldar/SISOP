@@ -97,7 +97,7 @@ void Client::sendNotification(string message)
 void Client::receiveNotification()
 {
 	Packet *response;
-
+	cout << "awaiting response" << endl;
 	response = socket.readPacket();
 	cout << "response received: " << response->getPayload() << endl
 		 << endl;
@@ -133,6 +133,7 @@ void *Client::mainThread(void *arg)
 
 		pthread_mutex_unlock(&(user->mutex_main));
 	}
+	return NULL;
 }
 
 void *Client::commandThread(void *arg)
@@ -180,6 +181,7 @@ void *Client::commandThread(void *arg)
 		pthread_mutex_unlock(&(user->mutex_main));
 		pthread_mutex_unlock(&(user->mutex_receive_notification));
 	}
+	return NULL;
 }
 
 void *Client::receiveNotificationThread(void *arg)
@@ -195,4 +197,6 @@ void *Client::receiveNotificationThread(void *arg)
 
 		pthread_mutex_unlock(&(user->mutex_receive_notification));
 	}
+
+	return NULL;
 }

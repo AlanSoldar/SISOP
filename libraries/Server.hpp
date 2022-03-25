@@ -42,7 +42,7 @@ private:
     map< string, list< host_address > > sessions;
     Database database;
 
-    void manageNotifications(string sender, Notification notification);
+    void manageNotifications(ServerSocket* socket, string sender, Notification notification);
     bool userExists(string user);
     bool isUserActive(string user);
 

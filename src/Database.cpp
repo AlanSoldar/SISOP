@@ -14,16 +14,16 @@ Database::Database()
     loadNotifications();
 }
 
-list<pair<string, struct sockaddr *>> Database::getLoggedUsers()
+list<pair<string, struct sockaddr>> Database::getLoggedUsers()
 {
     return this->loggedUserAddresses;
 }
 
 int Database::getUserSessionCount(string userId)
 {
-    list<pair<string, struct sockaddr *>> loggedUsers = this->getLoggedUsers();
+    list<pair<string, struct sockaddr>> loggedUsers = getLoggedUsers();
     int count = 0;
-    for (pair<string, struct sockaddr *> user : loggedUsers)
+    for (pair<string, struct sockaddr> user : loggedUsers)
     {
         if (user.first == userId)
         {
@@ -33,15 +33,15 @@ int Database::getUserSessionCount(string userId)
     return count;
 }
 
-void Database::addUserSession(string id, struct sockaddr *addr)
+void Database::addUserSession(string id, struct sockaddr addr)
 {
-    pair<string, struct sockaddr *> user;
+    pair<string, struct sockaddr> user;
     user.first = id;
     user.second = addr;
     this->loggedUserAddresses.push_back(user);
 }
 
-int Database::userConnect(string userId, struct sockaddr *addr)
+int Database::userConnect(string userId, struct sockaddr addr)
 {
     if (this->getUserSessionCount(userId) < 2)
     {
@@ -54,13 +54,14 @@ int Database::userConnect(string userId, struct sockaddr *addr)
     }
 }
 
-int Database::userCloseConnection(string userId, struct sockaddr *addr)
+int Database::userCloseConnection(string userId, sockaddr addr)
 {
-    pair<string, sockaddr *> p = pair<string, sockaddr *>(userId, addr);
+    pair<string, sockaddr> p = pair<string, sockaddr>(userId, addr);
 
-    for (list<pair<string, struct sockaddr *>>::iterator it = this->loggedUserAddresses.begin(); it != this->loggedUserAddresses.end(); it++)
+    for (list<pair<string, sockaddr>>::iterator it = this->loggedUserAddresses.begin(); it != this->loggedUserAddresses.end(); it++)
     {
-        if (it->first == userId && it->second == addr)
+        //TODO adicionar check de endereco no second
+        if (it->first == userId)
         {
             this->loggedUserAddresses.erase(it);
             return 1;
@@ -89,12 +90,14 @@ list<string> Database::getFollowersByUserId(string id)
     return this->followers.find(id)->second;
 }
 
-list<struct sockaddr *> Database::getClientAddressByUserId(string id)
+list<sockaddr> Database::getClientAddressByUserId(string id)
 {
-    list<pair<string, struct sockaddr *>> users = this->getLoggedUsers();
-    list<struct sockaddr *> addresses;
-    for (pair<string, struct sockaddr *> pair : users)
+    list<pair<string, sockaddr>> users = this->getLoggedUsers();
+    list<sockaddr> addresses;
+    cout << "searching logged users" << endl;
+    for (pair<string, struct sockaddr> pair : users)
     {
+        cout << "looking at: " << pair.first << endl;
         if (pair.first == id)
         {
             addresses.push_back(pair.second);

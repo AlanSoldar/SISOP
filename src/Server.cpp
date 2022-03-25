@@ -46,7 +46,8 @@ void *Server::communicationHandler(void *handlerArgs)
 
     while (1)
     {
-        Packet *receivedPacket = args->connectedSocket->readPacket();
+        sockaddr clientAddress;
+        Packet *receivedPacket = args->connectedSocket->readPacket(&clientAddress);
 
         if (receivedPacket)
         {
@@ -59,23 +60,23 @@ void *Server::communicationHandler(void *handlerArgs)
             switch (type)
             {
             case USER_CONNECT:
-                if (args->server->database.userConnect(user, receivedPacket->getSocket()) != 0)
+                if (args->server->database.userConnect(user, clientAddress) != 0)
                 {
                     // success
-                    args->connectedSocket->sendPacket(Packet("server", OPEN_SESSION_SUCCESS, "connection successful"));
+                    args->connectedSocket->sendPacket(Packet("server", OPEN_SESSION_SUCCESS, "connection successful"), &clientAddress);
                 }
                 else
                 {
                     // failed too many sessions for the user
-                    args->connectedSocket->sendPacket(Packet("server", OPEN_SESSION_FAIL, "connection failed"));
+                    args->connectedSocket->sendPacket(Packet("server", OPEN_SESSION_FAIL, "connection failed"), &clientAddress);
                 }
                 break;
 
             case USER_CLOSE_CONNECTION:
-                if (args->server->database.userCloseConnection(user, receivedPacket->getSocket()) != 0)
+                if (args->server->database.userCloseConnection(user, clientAddress) != 0)
                 {
                     // success
-                    args->connectedSocket->sendPacket(Packet("server", CLOSE_SESSION_SUCCESS, "close connection successful"));
+                    args->connectedSocket->sendPacket(Packet("server", CLOSE_SESSION_SUCCESS, "close connection successful"), &clientAddress);
                 }
                 break;
 
@@ -87,7 +88,7 @@ void *Server::communicationHandler(void *handlerArgs)
                 break;
 
             case SEND_NOTIFICATION:
-                args->server->manageNotifications(user, Notification::fromString(payload));
+                args->server->manageNotifications(args->connectedSocket, user, Notification::fromString(payload));
 
                 break;
 
@@ -108,12 +109,20 @@ void Server::login(string user)
     }
 }
 
-void Server::manageNotifications(string user, Notification notification) {
+void Server::manageNotifications(ServerSocket* socket, string user, Notification notification)
+{
     this->database.saveNotification(user, notification);
     list<string> followers = this->database.getFollowersByUserId(user);
-    if (!followers.empty()) {
-        for (string follower : followers) {
-            sockaddr followerAddress = this->database.getClientAddressByUserId(follower);
+    if (!followers.empty())
+    {
+        cout << "followers are not empty" << endl;
+        for (string follower : followers)
+        {
+            cout << "looking at follower: " << follower << endl;
+            for (sockaddr clientAddress : this->database.getClientAddressByUserId(follower))
+            {
+                socket->sendPacket(Packet("server", RECEIVE_NOTIFICATION, notification.toString()), &clientAddress);
+            }
         }
     }
 }
