@@ -10,6 +10,7 @@ Client::Client(string userName, string serverAddress, int serverPort)
 	this->socket = ClientSocket(serverAddress.c_str(), serverPort);
 
 	this->connect();
+	this->isConnected = true;
 
 	pthread_mutex_init(&mutex_command, NULL);
 	pthread_mutex_init(&mutex_receive_notification, NULL);
@@ -57,14 +58,13 @@ void Client::connect()
 
 void Client::closeConnection()
 {
-	Packet *response;
-	cout << "closing connection to server..." << endl;
-	int answer = socket.sendPacket(Packet(this->getUserName(), USER_CLOSE_CONNECTION, "close connection request"));
+	int answer = this->socket.sendPacket(Packet(this->userName, USER_CLOSE_CONNECTION, "close connection request"));
 	if (answer < 0)
 	{
-		cout << "connection failed to close" << endl;
 		exit(1);
 	}
+	cout << "Message Sent Successfully!" << endl;
+	this->isConnected = false;
 }
 
 void Client::follow(string userToFollow)
@@ -86,17 +86,6 @@ void Client::sendNotification(string message)
 {
 	Notification notification = Notification(userName, message);
 	int answer = this->socket.sendPacket(Packet(this->userName, SEND_NOTIFICATION, notification.toString()));
-	if (answer < 0)
-	{
-		exit(1);
-	}
-
-	cout << "Message Sent Successfully!" << endl;
-}
-
-void Client::sendCloseConnectionRequest()
-{
-	int answer = this->socket.sendPacket(Packet(this->userName, USER_CLOSE_CONNECTION, "close connection request"));
 	if (answer < 0)
 	{
 		exit(1);
@@ -127,7 +116,7 @@ void *Client::mainThread(void *arg)
 	tv.tv_sec = 0;
 	tv.tv_usec = 0;
 
-	while (true)
+	while (user->isConnected)
 	{
 		pthread_mutex_lock(&(user->mutex_main));
 		rfds = save_rfds;
@@ -152,7 +141,7 @@ void *Client::commandThread(void *arg)
 
 	cout << "User " + user->userName + " started a list of commands:" << endl;
 
-	while (true)
+	while (user->isConnected)
 	{
 
 		pthread_mutex_lock(&(user->mutex_command));
@@ -176,11 +165,11 @@ void *Client::commandThread(void *arg)
 			getline(cin, commandParameter);
 			user->sendNotification(commandParameter.erase(0, 1));
 		}
-		else if (command == "CLOSE")
+		else if (command == "CLOSE" || command == "EXIT")
 		{
 			cout << "closing connection with server" << endl;
 			getline(cin, commandParameter);
-			user->sendCloseConnectionRequest();
+			user->closeConnection();
 		}
 		else
 		{
@@ -197,7 +186,7 @@ void *Client::receiveNotificationThread(void *arg)
 {
 	Client *user = (Client *)arg;
 	Packet *notification;
-	while (true)
+	while (user->isConnected)
 	{
 		pthread_mutex_lock(&(user->mutex_receive_notification));
 

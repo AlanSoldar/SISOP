@@ -59,17 +59,16 @@ void *Server::communicationHandler(void *handlerArgs)
             switch (type)
             {
             case USER_CONNECT:
-                if (args->server->database.userConnect(user, receivedPacket->getSocket()) == 0)
-                {
-                    // failed too many sessions for the user
-                    args->connectedSocket->sendPacket(Packet("server", OPEN_SESSION_FAIL, "connection failed"));
-                }
-                else
+                if (args->server->database.userConnect(user, receivedPacket->getSocket()) != 0)
                 {
                     // success
                     args->connectedSocket->sendPacket(Packet("server", OPEN_SESSION_SUCCESS, "connection successful"));
                 }
-
+                else
+                {
+                    // failed too many sessions for the user
+                    args->connectedSocket->sendPacket(Packet("server", OPEN_SESSION_FAIL, "connection failed"));
+                }
                 break;
 
             case USER_CLOSE_CONNECTION:
@@ -78,7 +77,6 @@ void *Server::communicationHandler(void *handlerArgs)
                     // success
                     args->connectedSocket->sendPacket(Packet("server", CLOSE_SESSION_SUCCESS, "close connection successful"));
                 }
-
                 break;
 
             case FOLLOW_USER:

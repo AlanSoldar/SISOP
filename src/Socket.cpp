@@ -126,7 +126,6 @@ Packet *ServerSocket::readPacket()
 
 int ServerSocket::sendPacket(Packet pkt)
 {
-
     char buffer[PAYLOAD_MAX_SIZE];
     strcpy(buffer, pkt.toString().c_str());
     int response = sendto(socketfd, buffer, PAYLOAD_MAX_SIZE, 0, (struct sockaddr *)&cli_addr, sizeof(struct sockaddr));

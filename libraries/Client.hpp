@@ -28,6 +28,7 @@ public:
 private:
 	string userName;
 	string serverAddress;
+	bool isConnected;
 	int serverPort;
 
 	void connect();
@@ -35,6 +36,5 @@ private:
 
 	void sendNotification(string message);
 	void follow(string userName);
-	void sendCloseConnectionRequest();
 	void receiveNotification();
 };
