@@ -8,6 +8,10 @@ Client::Client(string userName, string serverAddress, int serverPort)
 	this->serverAddress = serverAddress;
 	this->serverPort = serverPort;
 	this->socket = ClientSocket(serverAddress.c_str(), serverPort);
+
+	this->connect();
+	this->isConnected = true;
+
 	pthread_mutex_init(&mutex_command, NULL);
 	pthread_mutex_init(&mutex_receive_notification, NULL);
 	pthread_mutex_init(&mutex_main, NULL);
@@ -26,6 +30,41 @@ string Client::getServerAddress()
 int Client::getServerPort()
 {
 	return this->serverPort;
+}
+
+void Client::connect()
+{
+	Packet *response;
+	cout << "Connecting to server..." << endl;
+	int answer = socket.sendPacket(Packet(this->getUserName(), USER_CONNECT, "connection request"));
+	if (answer < 0)
+	{
+		cout << "connection failed" << endl;
+		exit(1);
+	}
+
+	response = socket.readPacket();
+	if (response->getType() == OPEN_SESSION_SUCCESS)
+	{
+		cout << "connection established succesfully" << endl;
+		return;
+	}
+	else
+	{
+		cout << "to many sessions for this user, try again later" << endl;
+		exit(1);
+	}
+}
+
+void Client::closeConnection()
+{
+	int answer = this->socket.sendPacket(Packet(this->userName, USER_CLOSE_CONNECTION, "close connection request"));
+	if (answer < 0)
+	{
+		exit(1);
+	}
+	cout << "Message Sent Successfully!" << endl;
+	this->isConnected = false;
 }
 
 void Client::follow(string userToFollow)
@@ -58,13 +97,10 @@ void Client::sendNotification(string message)
 void Client::receiveNotification()
 {
 	Packet *response;
-	cout << "requesting notifications" << endl;
-	socket.sendPacket(Packet(this->getUserName(), RECEIVE_NOTIFICATION, "notification request"));
-
-	cout << "waiting for server response" << endl;
 
 	response = socket.readPacket();
-	cout << "response received: " << response->getPayload() << endl << endl;
+	cout << "response received: " << response->getPayload() << endl
+		 << endl;
 }
 
 void *Client::mainThread(void *arg)
@@ -80,7 +116,7 @@ void *Client::mainThread(void *arg)
 	tv.tv_sec = 0;
 	tv.tv_usec = 0;
 
-	while (true)
+	while (user->isConnected)
 	{
 		pthread_mutex_lock(&(user->mutex_main));
 		rfds = save_rfds;
@@ -105,7 +141,7 @@ void *Client::commandThread(void *arg)
 
 	cout << "User " + user->userName + " started a list of commands:" << endl;
 
-	while (true)
+	while (user->isConnected)
 	{
 
 		pthread_mutex_lock(&(user->mutex_command));
@@ -115,25 +151,32 @@ void *Client::commandThread(void *arg)
 		string command = "";
 		string commandParameter;
 		cin >> command;
+
+		cout << "command received: " << command << endl;
 		if (command == "FOLLOW")
 		{
-			cout << "Request received for a FOLLOW command\n" << endl;
+			cout << "Request received for a FOLLOW command" << endl;
 			getline(cin, commandParameter);
 			user->follow(commandParameter.erase(0, 1));
 		}
 		else if (command == "SEND")
 		{
-			cout << "Request received for a SEND command:\n"
-				 << endl;
+			cout << "Request received for a SEND command" << endl;
 			getline(cin, commandParameter);
 			user->sendNotification(commandParameter.erase(0, 1));
+		}
+		else if (command == "CLOSE" || command == "EXIT")
+		{
+			cout << "closing connection with server" << endl;
+			getline(cin, commandParameter);
+			user->closeConnection();
 		}
 		else
 		{
 			cout << "This is not a valid command please use <FOLLOW> <userName> || <SEND> <yourMessage>" << command << endl;
 		}
 
-		pthread_mutex_lock(&(user->mutex_command));
+		pthread_mutex_unlock(&(user->mutex_command));
 		pthread_mutex_unlock(&(user->mutex_main));
 		pthread_mutex_unlock(&(user->mutex_receive_notification));
 	}
@@ -143,7 +186,7 @@ void *Client::receiveNotificationThread(void *arg)
 {
 	Client *user = (Client *)arg;
 	Packet *notification;
-	while (true)
+	while (user->isConnected)
 	{
 		pthread_mutex_lock(&(user->mutex_receive_notification));
 

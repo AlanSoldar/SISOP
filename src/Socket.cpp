@@ -52,7 +52,7 @@ Packet *ClientSocket::readPacket()
     Packet *pkt = new Packet();
     memset(pkt, 0, sizeof(Packet));
 
-    int rsp = recvfrom(socketfd, buf, PAYLOAD_MAX_SIZE, 0, NULL, NULL);
+    int rsp = recvfrom(socketfd, buf, PAYLOAD_MAX_SIZE, 0, NULL, NULL);;
 
     string response(buf);
 
@@ -120,13 +120,12 @@ Packet *ServerSocket::readPacket()
         std::cout << "Connection closed." << std::endl;
         return NULL;
     }
-
+    pkt->setSocket((struct sockaddr *)&cli_addr);
     return pkt;
 }
 
 int ServerSocket::sendPacket(Packet pkt, sockaddr clientAddress)
 {
-
     char buffer[PAYLOAD_MAX_SIZE];
     strcpy(buffer, pkt.toString().c_str());
     int response = sendto(socketfd, buffer, PAYLOAD_MAX_SIZE, 0, (struct sockaddr *)&clientAddress, sizeof(struct sockaddr));

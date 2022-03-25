@@ -7,8 +7,10 @@ enum
     SEND_NOTIFICATION,                    // Packet type used when the user wants to send a notification
     OPEN_SESSION_SUCCESS,                 // Packet type used when the server connects the client to a session
     OPEN_SESSION_FAIL,                    // Packet type used when the server couldn't connect the client to a session
+    CLOSE_SESSION_SUCCESS,                // Packet type used when the server sucessfully closes user connection
     ERROR,                                // Packet type used when we need to comunicate errors
-    USER_CONNECT                          // Packet type used when we send user name to connect
+    USER_CONNECT,                         // Packet type used when we send user name to connect
+    USER_CLOSE_CONNECTION                 // Packet type used when we send user name to close connection
 };
 #endif
 

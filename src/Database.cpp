@@ -14,6 +14,62 @@ Database::Database()
     loadNotifications();
 }
 
+list<pair<string, struct sockaddr *>> Database::getLoggedUsers()
+{
+    return this->loggedUserAddresses;
+}
+
+int Database::getUserSessionCount(string userId)
+{
+    list<pair<string, struct sockaddr *>> loggedUsers = this->getLoggedUsers();
+    int count = 0;
+    for (pair<string, struct sockaddr *> user : loggedUsers)
+    {
+        if (user.first == userId)
+        {
+            count++;
+        }
+    }
+    return count;
+}
+
+void Database::addUserSession(string id, struct sockaddr *addr)
+{
+    pair<string, struct sockaddr *> user;
+    user.first = id;
+    user.second = addr;
+    this->loggedUserAddresses.push_back(user);
+}
+
+int Database::userConnect(string userId, struct sockaddr *addr)
+{
+    if (this->getUserSessionCount(userId) < 2)
+    {
+        this->addUserSession(userId, addr);
+        return 1;
+    }
+    else
+    {
+        return 0;
+    }
+}
+
+int Database::userCloseConnection(string userId, struct sockaddr *addr)
+{
+    pair<string, sockaddr *> p = pair<string, sockaddr *>(userId, addr);
+
+    for (list<pair<string, struct sockaddr *>>::iterator it = this->loggedUserAddresses.begin(); it != this->loggedUserAddresses.end(); it++)
+    {
+        if (it->first == userId && it->second == addr)
+        {
+            this->loggedUserAddresses.erase(it);
+            return 1;
+        }
+    }
+
+    return 0;
+}
+
 string Database::getUserByid(string id)
 {
     loadUsers();
@@ -33,9 +89,18 @@ list<string> Database::getFollowersByUserId(string id)
     return this->followers.find(id)->second;
 }
 
-sockaddr Database::getClientAddressByUserId(string id)
+list<struct sockaddr *> Database::getClientAddressByUserId(string id)
 {
-    return this->loggedUserAddresses.find(id)->second;
+    list<pair<string, struct sockaddr *>> users = this->getLoggedUsers();
+    list<struct sockaddr *> addresses;
+    for (pair<string, struct sockaddr *> pair : users)
+    {
+        if (pair.first == id)
+        {
+            addresses.push_back(pair.second);
+        }
+    }
+    return addresses;
 }
 
 list<string> Database::getNotificationsByUserId(string id)
@@ -76,7 +141,7 @@ void Database::loadUsers()
     ifstream userFile;
     userFile.open("tables/User.txt");
     string line;
-    //cout << "loading users:" << endl;
+    // cout << "loading users:" << endl;
     while (getline(userFile, line))
     {
         users.insert(pair<string, string>(line, line));
@@ -93,6 +158,7 @@ void Database::loadFollows()
     list<string>::iterator it;
     followFile.open("tables/Follower.txt");
     string line;
+    // cout << "loading follows:" << endl;
     while (getline(followFile, line))
     {
         follow = split(line, " ");
@@ -106,7 +172,7 @@ void Database::loadNotifications()
     ifstream notificationFile;
     notificationFile.open("tables/Notification.txt");
     string line;
-    //cout << "loading notifications:" << endl;
+    // cout << "loading notifications:" << endl;
     while (getline(notificationFile, line))
     {
         Notification notification = Notification::fromString(line);
