@@ -50,6 +50,7 @@ int Database::userCloseConnection(string userId, struct sockaddr* addr) {
     int isSuccess = 0;
     pair<string, sockaddr*> p = pair<string, sockaddr*>(userId, addr);
     for(pair<string, struct sockaddr*> pair : this->loggedUserAddresses) {
+        cout << pair.first << endl;
         if(pair.first  == userId && pair.second == addr) {
             this->loggedUserAddresses.remove(p);
             isSuccess = 0;

@@ -76,7 +76,7 @@ void *Server::communicationHandler(void *handlerArgs)
                 if (args->server->database.userCloseConnection(user, receivedPacket->getSocket()) != 0)
                 {
                     // success
-                    args->connectedSocket->sendPacket(Packet("server", OPEN_SESSION_SUCCESS, "close connection successful"));
+                    args->connectedSocket->sendPacket(Packet("server", CLOSE_SESSION_SUCCESS, "close connection successful"));
                 }
 
                 break;
