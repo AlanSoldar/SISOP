@@ -4,31 +4,33 @@ using namespace std;
 
 Server::Server()
 {
+    this->thread = UDPThread();
     this->database = Database();
-    this->notificationIdCounter = 0;
-    mutexSession = PTHREAD_MUTEX_INITIALIZER;
-    followMutex = PTHREAD_MUTEX_INITIALIZER;
-    mutexCommunication = PTHREAD_MUTEX_INITIALIZER;
+    // this->notificationIdCounter = 0;
+    // mutexSession = PTHREAD_MUTEX_INITIALIZER;
+    // followMutex = PTHREAD_MUTEX_INITIALIZER;
+    // mutexCommunication = PTHREAD_MUTEX_INITIALIZER;
 
-    pthread_cond_init(&condNotificationEmpty, NULL);
-    pthread_cond_init(&condNotificationFull, NULL);
-    pthread_mutex_init(&mutexNotificationSender, NULL);
+    // pthread_cond_init(&condNotificationEmpty, NULL);
+    // pthread_cond_init(&condNotificationFull, NULL);
+    // pthread_mutex_init(&mutexNotificationSender, NULL);
 }
 
 Server::Server(host_address address)
 {
+    this->thread = UDPThread();
     this->database = Database();
-    this->notificationIdCounter = 0;
-    this->ip = address.ipv4;
-    this->port = address.port;
+    // this->notificationIdCounter = 0;
+    // this->ip = address.ipv4;
+    // this->port = address.port;
 
-    mutexSession = PTHREAD_MUTEX_INITIALIZER;
-    followMutex = PTHREAD_MUTEX_INITIALIZER;
-    mutexCommunication = PTHREAD_MUTEX_INITIALIZER;
+    // mutexSession = PTHREAD_MUTEX_INITIALIZER;
+    // followMutex = PTHREAD_MUTEX_INITIALIZER;
+    // mutexCommunication = PTHREAD_MUTEX_INITIALIZER;
 
-    pthread_cond_init(&condNotificationEmpty, NULL);
-    pthread_cond_init(&condNotificationFull, NULL);
-    pthread_mutex_init(&mutexNotificationSender, NULL);
+    // pthread_cond_init(&condNotificationEmpty, NULL);
+    // pthread_cond_init(&condNotificationFull, NULL);
+    // pthread_mutex_init(&mutexNotificationSender, NULL);
 }
 
 void *Server::communicationHandler(void *handlerArgs)
@@ -56,36 +58,48 @@ void *Server::communicationHandler(void *handlerArgs)
 
             args->server->login(user);
 
-
-            switch (type)
+            if (args->server->thread.StartInternalThread())
             {
-
-            case FOLLOW_USER:
-
-                args->server->database.saveNewFollow(user, payload);
-                cout << "following new user" << endl;
-
-                break;
-
-            case SEND_NOTIFICATION:
-                cout << "new notification" << endl;
-                cout << payload << endl;
-                args->server->database.saveNotification(user, payload);
-
-                break;
-
-            case RECEIVE_NOTIFICATION:
-                cout << "sending notifications to: " << receivedPacket->getUser() << endl;
-                args->connectedSocket->sendPacket(Packet("server", SEND_NOTIFICATION, "you have 10 notifications"));
-                break;
-
-            default:
-                cout << "Invalid operation" << endl;
-                break;
+                cout << "Internal Server Thread has started..." << endl;
+                processPacket(type, args, user, payload, receivedPacket);
+                args->server->thread.WaitForInternalThreadToExit();
+                cout << "Internal Server Thread has finished..." << endl;
+                args->server->thread.~UDPThread();
             }
+            
         }
     }
     return NULL;
+}
+
+void Server::processPacket(int type, struct communiction_handler_args *args, string user, string payload, Packet *receivedPacket)
+{
+    switch (type)
+    {
+
+    case FOLLOW_USER:
+
+        args->server->database.saveNewFollow(user, payload);
+        cout << "following new user" << endl;
+
+        break;
+
+    case SEND_NOTIFICATION:
+        cout << "new notification" << endl;
+        cout << payload << endl;
+        args->server->database.saveNotification(user, payload);
+
+        break;
+
+    case RECEIVE_NOTIFICATION:
+        cout << "sending notifications to: " << receivedPacket->getUser() << endl;
+        args->connectedSocket->sendPacket(Packet("server", SEND_NOTIFICATION, "you have 10 notifications"));
+        break;
+
+    default:
+        cout << "Invalid operation" << endl;
+        break;
+    }
 }
 
 void Server::login(string user)

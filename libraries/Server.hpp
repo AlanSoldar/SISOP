@@ -11,47 +11,50 @@
 #include <algorithm>
 #include <stdlib.h>
 #include <stdio.h>
+#include <sstream>
+#include <sys/socket.h>
+#include <netinet/in.h>
 #include "Socket.hpp"
 #include "Database.hpp"
 #include "Notification.hpp"
+#include "UDPThread.hpp"
 using namespace std;
-
 
 class Server
 {
 public:
     Server();
     Server(host_address addr);
-    string ip; 
+    string ip;
     int port;
 
     void login(string user);
     static void *communicationHandler(void *handlerArgs);
-    
-private: 
+    static void processPacket(int type, struct communiction_handler_args *args, string user, string payload, Packet *receivedPacket);
+
+private:
     pthread_mutex_t mutexSession;
     pthread_mutex_t followMutex;
     pthread_mutex_t mutexCommunication;
 
-    pthread_cond_t 	condNotificationEmpty, condNotificationFull;
+    pthread_cond_t condNotificationEmpty, condNotificationFull;
     pthread_mutex_t mutexNotificationSender;
 
     uint32_t notificationIdCounter;
 
     map<string, sem_t> userSessionsSemaphore;
-    map< string, list< host_address > > sessions; // {user, [<ip, port>]}
+    map<string, list<host_address>> sessions; // {user, [<ip, port>]}
     Database database;
+    UDPThread thread;
 
     bool userExists(string user);
     bool isUserActive(string user);
-
-
 };
 
-
-struct communiction_handler_args {
-	ServerSocket* connectedSocket;
-	host_address clientAddress; 
-	string user;
-    Server* server;
+struct communiction_handler_args
+{
+    ServerSocket *connectedSocket;
+    host_address clientAddress;
+    string user;
+    Server *server;
 };

@@ -158,7 +158,7 @@ vector<string> splitNotification(string s, string delimiter)
     size_t pos = 0;
     string token;
     vector<string> brokedString;
-    
+
     while ((pos = s.find(delimiter)) != string::npos)
     {
         token = s.substr(0, pos);
@@ -180,11 +180,18 @@ Notification Notification::fromString(string stringObject)
     string input_senderId;
     string input_message;
 
-    input_length = strtoul(results[1].c_str(), NULL, 10);
-    input_pending = strtoul(results[2].c_str(), NULL, 10);
+    input_length = strtoul(results[2].c_str(), NULL, 10);
+    input_pending = strtoul(results[3].c_str(), NULL, 10);
 
-    input_senderId.assign(results[3]);
-    input_message.assign(results[4]);
+    input_senderId.assign(results[4]);
+    input_message.assign(results[5]);
+
+    // cout << "NEW RESULTS" << endl;
+    // for (int i = 0; i < sizeof(results); i++)
+    // {
+    //     cout << "result "<< i << endl;
+    //     cout << results[i] << endl;
+    // }
 
     return Notification(input_length, input_pending, input_senderId, input_message);
 }
