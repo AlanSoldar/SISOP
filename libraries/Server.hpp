@@ -17,7 +17,6 @@
 #include "Socket.hpp"
 #include "Database.hpp"
 #include "Notification.hpp"
-#include "UDPThread.hpp"
 using namespace std;
 
 class Server
@@ -29,26 +28,17 @@ public:
     int port;
 
     void login(string user);
-    static void *communicationHandler(void *handlerArgs);
+    static void* communicationHandler(void *handlerArgs);
     static void processPacket(int type, struct communiction_handler_args *args, string user, string payload, Packet *receivedPacket);
 
 private:
-    pthread_mutex_t mutexSession;
-    pthread_mutex_t followMutex;
-    pthread_mutex_t mutexCommunication;
-
-    pthread_cond_t condNotificationEmpty, condNotificationFull;
-    pthread_mutex_t mutexNotificationSender;
-
-    uint32_t notificationIdCounter;
-
-    map<string, sem_t> userSessionsSemaphore;
-    map<string, list<host_address>> sessions; // {user, [<ip, port>]}
     Database database;
-    UDPThread thread;
 
     bool userExists(string user);
     bool isUserActive(string user);
+    static void* followOperation(void *handlerArgs);
+    static void* receiveNotificationOperation(void *handlerArgs);
+    static void* sendNotificationOperation(void *handlerArgs);
 };
 
 struct communiction_handler_args
@@ -57,4 +47,12 @@ struct communiction_handler_args
     host_address clientAddress;
     string user;
     Server *server;
+};
+
+struct func_args
+{
+    Database db;
+    string payload;
+    string user;
+    ServerSocket *socket;
 };
