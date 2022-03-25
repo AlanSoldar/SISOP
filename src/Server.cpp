@@ -46,7 +46,6 @@ void *Server::communicationHandler(void *handlerArgs)
 
     while (1)
     {
-        cout << "chegou aqui";
         Packet *receivedPacket = args->connectedSocket->readPacket();
 
         if (receivedPacket)
@@ -57,17 +56,27 @@ void *Server::communicationHandler(void *handlerArgs)
 
             args->server->login(user);
 
-
             switch (type)
             {
             case USER_CONNECT:
-            cout << "chegou aqui";
-                if(args->server->database.userConnect(user, receivedPacket->getSocket()) == 0) {
-                    //failed too many sessions for the user
-                    args->connectedSocket->sendPacket(Packet("server", OPEN_SESSION_FAIL, ""));
-                } else {
-                    //success
-                    args->connectedSocket->sendPacket(Packet("server", OPEN_SESSION_SUCCESS, ""));
+                if (args->server->database.userConnect(user, receivedPacket->getSocket()) == 0)
+                {
+                    // failed too many sessions for the user
+                    args->connectedSocket->sendPacket(Packet("server", OPEN_SESSION_FAIL, "connection failed"));
+                }
+                else
+                {
+                    // success
+                    args->connectedSocket->sendPacket(Packet("server", OPEN_SESSION_SUCCESS, "connection successful"));
+                }
+
+                break;
+
+            case USER_CLOSE_CONNECTION:
+                if (args->server->database.userCloseConnection(user, receivedPacket->getSocket()) != 0)
+                {
+                    // success
+                    args->connectedSocket->sendPacket(Packet("server", OPEN_SESSION_SUCCESS, "close connection successful"));
                 }
 
                 break;
@@ -81,7 +90,6 @@ void *Server::communicationHandler(void *handlerArgs)
 
             case SEND_NOTIFICATION:
                 cout << "new notification" << endl;
-                cout << payload << endl;
                 args->server->database.saveNotification(user, payload);
 
                 break;

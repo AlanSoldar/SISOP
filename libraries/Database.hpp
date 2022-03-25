@@ -26,6 +26,7 @@ public:
     list<pair<string,struct sockaddr*>> getLoggedUsers();
 
     int userConnect(string userId, struct sockaddr* sock);
+    int userCloseConnection(string userId, struct sockaddr* sock);
 
     void saveUser(string id);
     void saveNotification(string senderId, string message);

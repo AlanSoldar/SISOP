@@ -52,7 +52,7 @@ Packet *ClientSocket::readPacket()
     Packet *pkt = new Packet();
     memset(pkt, 0, sizeof(Packet));
 
-    int rsp = recvfrom(socketfd, buf, PAYLOAD_MAX_SIZE, 0, NULL, NULL);
+    int rsp = recvfrom(socketfd, buf, PAYLOAD_MAX_SIZE, 0, NULL, NULL);;
 
     string response(buf);
 

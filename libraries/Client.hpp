@@ -31,8 +31,10 @@ private:
 	int serverPort;
 
 	void connect();
+	void closeConnection();
 
 	void sendNotification(string message);
 	void follow(string userName);
+	void sendCloseConnectionRequest();
 	void receiveNotification();
 };

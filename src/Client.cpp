@@ -31,22 +31,38 @@ int Client::getServerPort()
 	return this->serverPort;
 }
 
-void Client::connect() {
+void Client::connect()
+{
 	Packet *response;
 	cout << "Connecting to server..." << endl;
-	int answer = socket.sendPacket(Packet(this->getUserName(), USER_CONNECT, ""));
-	if(answer<0) {
+	int answer = socket.sendPacket(Packet(this->getUserName(), USER_CONNECT, "connection request"));
+	if (answer < 0)
+	{
 		cout << "connection failed" << endl;
 		exit(1);
 	}
 
 	response = socket.readPacket();
-	if(response->getType() == OPEN_SESSION_SUCCESS) {
+	if (response->getType() == OPEN_SESSION_SUCCESS)
+	{
 		cout << "connection established succesfully" << endl;
 		return;
 	}
-	else {
+	else
+	{
 		cout << "to many sessions for this user, try again later" << endl;
+		exit(1);
+	}
+}
+
+void Client::closeConnection()
+{
+	Packet *response;
+	cout << "closing connection to server..." << endl;
+	int answer = socket.sendPacket(Packet(this->getUserName(), USER_CLOSE_CONNECTION, "close connection request"));
+	if (answer < 0)
+	{
+		cout << "connection failed to close" << endl;
 		exit(1);
 	}
 }
@@ -78,16 +94,24 @@ void Client::sendNotification(string message)
 	cout << "Message Sent Successfully!" << endl;
 }
 
+void Client::sendCloseConnectionRequest()
+{
+	int answer = this->socket.sendPacket(Packet(this->userName, USER_CLOSE_CONNECTION, "close connection request"));
+	if (answer < 0)
+	{
+		exit(1);
+	}
+
+	cout << "Message Sent Successfully!" << endl;
+}
+
 void Client::receiveNotification()
 {
 	Packet *response;
-	cout << "requesting notifications" << endl;
-	socket.sendPacket(Packet(this->getUserName(), RECEIVE_NOTIFICATION, "notification request"));
-
-	cout << "waiting for server response" << endl;
 
 	response = socket.readPacket();
-	cout << "response received: " << response->getPayload() << endl << endl;
+	cout << "response received: " << response->getPayload() << endl
+		 << endl;
 }
 
 void *Client::mainThread(void *arg)
@@ -138,25 +162,32 @@ void *Client::commandThread(void *arg)
 		string command = "";
 		string commandParameter;
 		cin >> command;
+
+		cout << "command received: " << command << endl;
 		if (command == "FOLLOW")
 		{
-			cout << "Request received for a FOLLOW command\n" << endl;
+			cout << "Request received for a FOLLOW command" << endl;
 			getline(cin, commandParameter);
 			user->follow(commandParameter.erase(0, 1));
 		}
 		else if (command == "SEND")
 		{
-			cout << "Request received for a SEND command:\n"
-				 << endl;
+			cout << "Request received for a SEND command" << endl;
 			getline(cin, commandParameter);
 			user->sendNotification(commandParameter.erase(0, 1));
+		}
+		else if (command == "CLOSE")
+		{
+			cout << "closing connection with server" << endl;
+			getline(cin, commandParameter);
+			user->sendCloseConnectionRequest();
 		}
 		else
 		{
 			cout << "This is not a valid command please use <FOLLOW> <userName> || <SEND> <yourMessage>" << command << endl;
 		}
 
-		pthread_mutex_lock(&(user->mutex_command));
+		pthread_mutex_unlock(&(user->mutex_command));
 		pthread_mutex_unlock(&(user->mutex_main));
 		pthread_mutex_unlock(&(user->mutex_receive_notification));
 	}

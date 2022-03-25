@@ -37,13 +37,25 @@ void Database::addUserSession(string id, struct sockaddr* addr) {
     this->loggedUserAddresses.push_back(user);
 }
 
-int Database::userConnect(string userId, struct sockaddr* adrr) {
-    if(this->getUserSessionCount(userId) <2) {
-        this->addUserSession(userId, adrr);
+int Database::userConnect(string userId, struct sockaddr* addr) {
+    if(this->getUserSessionCount(userId) < 2) {
+        this->addUserSession(userId, addr);
         return 1;
     } else {
         return 0;
     }
+}
+
+int Database::userCloseConnection(string userId, struct sockaddr* addr) {
+    int isSuccess = 0;
+    pair<string, sockaddr*> p = pair<string, sockaddr*>(userId, addr);
+    for(pair<string, struct sockaddr*> pair : this->loggedUserAddresses) {
+        if(pair.first  == userId && pair.second == addr) {
+            this->loggedUserAddresses.remove(p);
+            isSuccess = 0;
+        }
+    }
+    return isSuccess;
 }
 
 string Database::getUserByid(string id)
