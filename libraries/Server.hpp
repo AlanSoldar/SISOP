@@ -33,12 +33,7 @@ public:
     
 private: 
     bool isRunning;
-    pthread_mutex_t mutexSession;
-    pthread_mutex_t followMutex;
-    pthread_mutex_t mutexCommunication;
-
-    pthread_cond_t 	condNotificationEmpty, condNotificationFull;
-    pthread_mutex_t mutexNotificationSender;
+    pthread_mutex_t criticalSectionMutex;
 
     uint32_t notificationIdCounter;
 

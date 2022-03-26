@@ -7,13 +7,8 @@ Server::Server()
     this->isRunning = true;
     this->database = Database();
     this->notificationIdCounter = 0;
-    mutexSession = PTHREAD_MUTEX_INITIALIZER;
-    followMutex = PTHREAD_MUTEX_INITIALIZER;
-    mutexCommunication = PTHREAD_MUTEX_INITIALIZER;
 
-    pthread_cond_init(&condNotificationEmpty, NULL);
-    pthread_cond_init(&condNotificationFull, NULL);
-    pthread_mutex_init(&mutexNotificationSender, NULL);
+    pthread_mutex_init(&criticalSectionMutex, NULL);
 }
 
 Server::Server(host_address address)
@@ -24,13 +19,7 @@ Server::Server(host_address address)
     this->ip = address.ipv4;
     this->port = address.port;
 
-    mutexSession = PTHREAD_MUTEX_INITIALIZER;
-    followMutex = PTHREAD_MUTEX_INITIALIZER;
-    mutexCommunication = PTHREAD_MUTEX_INITIALIZER;
-
-    pthread_cond_init(&condNotificationEmpty, NULL);
-    pthread_cond_init(&condNotificationFull, NULL);
-    pthread_mutex_init(&mutexNotificationSender, NULL);
+    pthread_mutex_init(&criticalSectionMutex, NULL);
 }
 
 bool Server::isServerRunning()
@@ -128,6 +117,9 @@ void *Server::packetHandler(void *handlerArgs)
     int type = receivedPacket->getType();
     string payload = receivedPacket->getPayload();
 
+    //locking critical section of the code
+    pthread_mutex_lock(&(args->server->criticalSectionMutex));
+
     switch (type)
     {
     case USER_CONNECT:
@@ -167,6 +159,7 @@ void *Server::packetHandler(void *handlerArgs)
         cout << "Invalid operation" << endl;
         break;
     }
+    pthread_mutex_unlock(&(args->server->criticalSectionMutex));
     //sleep(100);
     return NULL;
 }
