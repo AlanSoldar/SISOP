@@ -30,48 +30,16 @@ Notification::Notification(string const senderId, string input_message)
 
     this->id = *(uint32_t *)&uuid;
     this->senderId.assign(senderId);
+    this->targetId.assign("unasigned");
     this->message.assign(input_message);
+    this->pending = false;
 
     auto time = chrono::system_clock::now();
     const time_t input_time = chrono::system_clock::to_time_t(time);
 
     const char *s = ctime(&input_time);
     string str(s);
-    this->timestamp.assign(str);
-}
-
-Notification::Notification(uint16_t length, uint16_t pending, string senderId, string input_message)
-{
-    uint32_t messageSize = input_message.length();
-    if (messageSize > NOTIFICATION_MAX_SIZE)
-    {
-        std::cout << "ERROR Occured !! The message has exceeded his maximum size\n"
-                  << input_message << std::endl;
-        exit(1);
-    }
-
-    uint32_t senderIdSize = senderId.length();
-    if (senderIdSize > SENDER_ID_SIZE)
-    {
-        std::cout << "ERROR Occured !! The sender id has exceeded his maximum size\n"
-                  << senderId << std::endl;
-        exit(1);
-    }
-
-    uuid_t uuid;
-    uuid_generate(uuid);
-
-    this->id = *(uint32_t *)&uuid;
-    this->length = length;
-    this->pending = pending;
-    this->senderId.assign(senderId);
-    this->message.assign(input_message);
-
-    const chrono::time_point<chrono::system_clock> now = chrono::system_clock::now();
-    time_t input_time = chrono::system_clock::to_time_t(now);
-
-    const char *s = ctime(&input_time);
-    string str(s);
+    str.pop_back();
     this->timestamp.assign(str);
 }
 
@@ -80,12 +48,12 @@ uint32_t Notification::getId()
     return this->id;
 }
 
-uint16_t Notification::getLength()
+string Notification::getTargetId()
 {
-    return this->length;
+    return this->targetId;
 }
 
-uint16_t Notification::getPending()
+bool Notification::getPending()
 {
     return this->pending;
 }
@@ -105,12 +73,17 @@ string Notification::getMessage()
     return this->message;
 }
 
+void Notification::setTargetId(string targetId)
+{
+    this->targetId = targetId;
+}
+
 void Notification::setTimestamp(string timestamp)
 {
     this->timestamp = timestamp;
 }
 
-void Notification::setPending(uint16_t pending)
+void Notification::setPending(bool pending)
 {
     this->pending = pending;
 }
@@ -127,7 +100,6 @@ void Notification::setMessage(string input_message)
     }
 
     this->message.assign(input_message);
-    this->length = messageSize;
 }
 
 void Notification::setSenderId(string input_senderId)
@@ -147,10 +119,9 @@ void Notification::setSenderId(string input_senderId)
 string Notification::toString()
 {
     string str_id = to_string(this->getId());
-    string str_length = to_string(this->getLength());
     string str_pending = to_string(this->getPending());
 
-    return str_id + "$" + this->getTimestamp() + "$" + str_length + "$" + str_pending + "$" + this->getSenderId() + "$" + this->getMessage() + "$";
+    return str_id + "$" + this->getSenderId() + "$" + targetId + "$" + str_pending + "$" + this->getTimestamp() + "$" + this->getMessage() + "$";
 }
 
 vector<string> splitNotification(string s, string delimiter)
@@ -175,16 +146,22 @@ Notification Notification::fromString(string stringObject)
 {
     vector<string> results = splitNotification(stringObject, "$");
 
-    uint16_t input_length;
-    uint16_t input_pending;
+    string input_targetId;
     string input_senderId;
+    uint16_t input_pending;
     string input_message;
+    string input_timestamp;
 
-    input_length = strtoul(results[1].c_str(), NULL, 10);
-    input_pending = strtoul(results[2].c_str(), NULL, 10);
+    input_targetId.assign(results[1]);
+    input_senderId.assign(results[2]);
+    input_pending = strtoul(results[3].c_str(), NULL, 10);
+    input_timestamp.assign(results[4]);
+    input_message.assign(results[5]);
 
-    input_senderId.assign(results[3]);
-    input_message.assign(results[4]);
+    Notification notification = Notification(input_senderId, input_message);
+    notification.setTimestamp(input_timestamp);
+    notification.setPending(input_pending);
+    notification.setTargetId(input_targetId);
 
-    return Notification(input_length, input_pending, input_senderId, input_message);
+    return notification;
 }

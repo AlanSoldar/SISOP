@@ -4,6 +4,15 @@ using namespace std;
 
 Database::Database()
 {
+    this->name = "Database";
+    this->users = {};
+    this->followers = {};
+    this->notifications = {};
+    this->loggedUserAddresses = {};
+
+    loadUsers();
+    loadFollows();
+    loadNotifications();
 }
 
 Database::Database(string name)
@@ -13,6 +22,10 @@ Database::Database(string name)
     this->followers = {};
     this->notifications = {};
     this->loggedUserAddresses = {};
+
+    loadUsers();
+    loadFollows();
+    loadNotifications();
 }
 
 list<pair<string, struct sockaddr *>> Database::getLoggedUsers()
@@ -130,10 +143,10 @@ void Database::saveNewFollow(string followerId, string userId)
 
 void Database::saveNotification(string senderId, string payload)
 {
-    Notification notification = Notification::fromString(payload);
+    //Notification notification = Notification::fromString(payload);
     ofstream notificationFile;
     notificationFile.open("tables/Notification.txt", ios_base::app);
-    notificationFile << notification.toString() << endl;
+    notificationFile << payload << endl;
     notificationFile.close();
     cout << senderId << " has posted a new notification: " << payload << endl;
 }
@@ -167,12 +180,10 @@ void Database::loadNotifications()
     ifstream notificationFile;
     notificationFile.open("tables/Notification.txt");
     string line;
-    // cout << "loading notifications:" << endl;
     while (getline(notificationFile, line))
     {
         Notification notification = Notification::fromString(line);
-        cout << line << endl;
-        cout << notification.getTimestamp() << endl;
-        cout << notification.getMessage() << endl;
+        cout << "timestamp: " << notification.getTimestamp() << endl;
+        cout << "message: " << notification.getMessage() << endl;
     }
 }

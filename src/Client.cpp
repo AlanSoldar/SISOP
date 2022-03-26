@@ -99,8 +99,7 @@ void Client::receiveNotification()
 	Packet *response;
 
 	response = socket.readPacket();
-	cout << "response received: " << response->getPayload() << endl
-		 << endl;
+	cout << "response received: " << response->getPayload() << endl;
 }
 
 void *Client::mainThread(void *arg)
@@ -133,6 +132,7 @@ void *Client::mainThread(void *arg)
 
 		pthread_mutex_unlock(&(user->mutex_main));
 	}
+	return NULL;
 }
 
 void *Client::commandThread(void *arg)
@@ -144,9 +144,9 @@ void *Client::commandThread(void *arg)
 	while (user->isConnected)
 	{
 
-		pthread_mutex_lock(&(user->mutex_command));
-		pthread_mutex_lock(&(user->mutex_main));
-		pthread_mutex_lock(&(user->mutex_receive_notification));
+		//pthread_mutex_lock(&(user->mutex_command));
+		//pthread_mutex_lock(&(user->mutex_main));
+		//pthread_mutex_lock(&(user->mutex_receive_notification));
 
 		string command = "";
 		string commandParameter;
@@ -176,10 +176,11 @@ void *Client::commandThread(void *arg)
 			cout << "This is not a valid command please use <FOLLOW> <userName> || <SEND> <yourMessage>" << command << endl;
 		}
 
-		pthread_mutex_unlock(&(user->mutex_command));
-		pthread_mutex_unlock(&(user->mutex_main));
-		pthread_mutex_unlock(&(user->mutex_receive_notification));
+		//pthread_mutex_unlock(&(user->mutex_command));
+		//pthread_mutex_unlock(&(user->mutex_main));
+		//pthread_mutex_unlock(&(user->mutex_receive_notification));
 	}
+	return NULL;
 }
 
 void *Client::receiveNotificationThread(void *arg)
@@ -188,11 +189,12 @@ void *Client::receiveNotificationThread(void *arg)
 	Packet *notification;
 	while (user->isConnected)
 	{
-		pthread_mutex_lock(&(user->mutex_receive_notification));
+		//pthread_mutex_lock(&(user->mutex_receive_notification));
 
 		user->receiveNotification();
 		sleep(2);
 
-		pthread_mutex_unlock(&(user->mutex_receive_notification));
+		//pthread_mutex_unlock(&(user->mutex_receive_notification));
 	}
+	return NULL;
 }
