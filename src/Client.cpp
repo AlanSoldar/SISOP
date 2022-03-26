@@ -97,7 +97,7 @@ void Client::sendNotification(string message)
 void Client::receiveNotification()
 {
 	Packet *response;
-
+	cout << "awaiting response" << endl;
 	response = socket.readPacket();
 	cout << "response received: " << response->getPayload() << endl;
 }

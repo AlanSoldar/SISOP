@@ -52,7 +52,9 @@ Packet *ClientSocket::readPacket()
     Packet *pkt = new Packet();
     memset(pkt, 0, sizeof(Packet));
 
-    int rsp = recvfrom(socketfd, buf, PAYLOAD_MAX_SIZE, 0, NULL, NULL);;
+    int rsp = recvfrom(socketfd, buf, PAYLOAD_MAX_SIZE, 0, NULL, NULL);
+
+    cout << "message received" << endl;
 
     string response(buf);
 
@@ -76,7 +78,7 @@ Packet *ClientSocket::readPacket()
 ServerSocket::ServerSocket()
 {
     int sockfd, n;
-    struct sockaddr_in serv_addr, cli_addr;
+    struct sockaddr_in serv_addr;
 
     if ((sockfd = socket(PF_INET, SOCK_DGRAM, 0)) == -1)
         cout << "ERROR opening socket" << endl;
@@ -92,18 +94,19 @@ ServerSocket::ServerSocket()
     this->socketfd = sockfd;
 }
 
-Packet *ServerSocket::readPacket()
+Packet *ServerSocket::readPacket(sockaddr* clientAddress)
 {
 
     int respCode;
     char buf[PAYLOAD_MAX_SIZE];
     socklen_t clilen;
+    //sockaddr cli_addr;
     Packet *pkt = new Packet();
     memset(pkt, 0, sizeof(Packet));
 
     clilen = sizeof(struct sockaddr_in);
 
-    recvfrom(socketfd, buf, PAYLOAD_MAX_SIZE, 0, (struct sockaddr *)&cli_addr, &clilen);
+    recvfrom(socketfd, buf, PAYLOAD_MAX_SIZE, 0, clientAddress, &clilen);
 
     string response(buf);
 
@@ -120,15 +123,18 @@ Packet *ServerSocket::readPacket()
         std::cout << "Connection closed." << std::endl;
         return NULL;
     }
-    pkt->setSocket((struct sockaddr *)&cli_addr);
+    //pkt->setSocket(cli_addr);
     return pkt;
 }
 
-int ServerSocket::sendPacket(Packet pkt)
+int ServerSocket::sendPacket(Packet pkt, sockaddr* clientAddress)
 {
     char buffer[PAYLOAD_MAX_SIZE];
     strcpy(buffer, pkt.toString().c_str());
-    int response = sendto(socketfd, buffer, PAYLOAD_MAX_SIZE, 0, (struct sockaddr *)&cli_addr, sizeof(struct sockaddr));
+
+    int response = sendto(socketfd, buffer, PAYLOAD_MAX_SIZE, 0, clientAddress, sizeof(struct sockaddr));
+
+    cout << "message sent" << endl;
 
     if (response < 0)
         std::cout << "ERROR writing to socket: " << socketfd << std::endl;

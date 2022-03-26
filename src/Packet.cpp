@@ -66,11 +66,11 @@ string Packet::getPayload()
     return this->payload;
 }
 
-sockaddr* Packet::getSocket() {
+sockaddr Packet::getSocket() {
     return this->socket;
 }
 
-void Packet::setSocket(sockaddr* sock) {
+void Packet::setSocket(sockaddr sock) {
     this->socket = sock;
 }
 
