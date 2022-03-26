@@ -4,13 +4,27 @@ using namespace std;
 
 Database::Database()
 {
+    this->name = "Database";
     this->users = {};
     this->followers = {};
     this->notifications = {};
     this->loggedUserAddresses = {};
 
-    loadFollows();
     loadUsers();
+    loadFollows();
+    loadNotifications();
+}
+
+Database::Database(string name)
+{
+    this->name = name;
+    this->users = {};
+    this->followers = {};
+    this->notifications = {};
+    this->loggedUserAddresses = {};
+
+    loadUsers();
+    loadFollows();
     loadNotifications();
 }
 
@@ -132,9 +146,10 @@ void Database::saveNewFollow(string followerId, string userId)
 
 void Database::saveNotification(string senderId, Notification notification)
 {
+    //Notification notification = Notification::fromString(payload);
     ofstream notificationFile;
     notificationFile.open("tables/Notification.txt", ios_base::app);
-    notificationFile << notification.toString() << endl;
+    notificationFile << payload << endl;
     notificationFile.close();
     cout << senderId << " has posted a new notification: " << notification.getMessage() << endl;
 }
@@ -175,13 +190,11 @@ void Database::loadNotifications()
     ifstream notificationFile;
     notificationFile.open("tables/Notification.txt");
     string line;
-    // cout << "loading notifications:" << endl;
     while (getline(notificationFile, line))
     {
         Notification notification = Notification::fromString(line);
-        cout << line << endl;
-        cout << notification.getTimestamp() << endl;
-        cout << notification.getMessage() << endl;
+        cout << "timestamp: " << notification.getTimestamp() << endl;
+        cout << "message: " << notification.getMessage() << endl;
     }
 }
 

@@ -23,28 +23,28 @@ class Notification
 
 private:
     uint32_t id;      // Notification identifier
-    string timestamp; // Notification timestamp
-    uint16_t length;  // Notification LENGHT
-    uint16_t pending; // Number of users pending to receive the notification
+    string targetId;  // Target id
     string senderId;  // Sender Id
+    string timestamp; // Notification timestamp
+    bool pending;     // was message seen by target
     string message;   // Content of the notification message
 
 public:
     Notification();
     Notification(string senderId, string message);
-    Notification(uint16_t length, uint16_t pending, string senderId, string message);
 
     uint32_t getId();
-    string getTimestamp();
-    uint16_t getLength();
-    uint16_t getPending();
+    string getTargetId();
     string getSenderId();
+    string getTimestamp();
+    bool getPending();
     string getMessage();
 
     void setTimestamp(string timestamp);
     void setSenderId(string senderId);
+    void setTargetId(string targetId);
     void setMessage(string message);
-    void setPending(uint16_t pending);
+    void setPending(bool pending);
     string toString();
     static Notification fromString(string stringObject);
 };
