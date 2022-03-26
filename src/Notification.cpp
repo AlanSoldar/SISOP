@@ -32,7 +32,7 @@ Notification::Notification(string const senderId, string input_message)
     this->senderId.assign(senderId);
     this->targetId.assign("unasigned");
     this->message.assign(input_message);
-    this->pending = false;
+    this->pending = true;
 
     auto time = chrono::system_clock::now();
     const time_t input_time = chrono::system_clock::to_time_t(time);
@@ -121,7 +121,7 @@ string Notification::toString()
     string str_id = to_string(this->getId());
     string str_pending = to_string(this->getPending());
 
-    return str_id + "$" + this->getSenderId() + "$" + targetId + "$" + str_pending + "$" + this->getTimestamp() + "$" + this->getMessage() + "$";
+    return str_id + "$" + this->getSenderId() + "$" + this->getTargetId() + "$" + str_pending + "$" + this->getTimestamp() + "$" + this->getMessage() + "$";
 }
 
 vector<string> splitNotification(string s, string delimiter)
@@ -152,8 +152,8 @@ Notification Notification::fromString(string stringObject)
     string input_message;
     string input_timestamp;
 
-    input_targetId.assign(results[1]);
-    input_senderId.assign(results[2]);
+    input_senderId.assign(results[1]);
+    input_targetId.assign(results[2]);
     input_pending = strtoul(results[3].c_str(), NULL, 10);
     input_timestamp.assign(results[4]);
     input_message.assign(results[5]);
@@ -164,4 +164,10 @@ Notification Notification::fromString(string stringObject)
     notification.setTargetId(input_targetId);
 
     return notification;
+}
+
+void Notification::printNotification(Notification notification) {
+    cout << "from : " << notification.getSenderId() << endl;
+    cout << notification.getMessage() << endl;
+    cout << "sent : " << notification.getTimestamp() << endl;
 }

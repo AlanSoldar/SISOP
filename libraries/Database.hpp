@@ -12,34 +12,34 @@ class Database
 {
 public:
     Database();
-
-    string getUserByid(string id);
-    bool userExists(string userId);
+    void closeDatabase();
 
     list<struct sockaddr> getClientAddressByUserId(string id);
-    list<string> getNotificationsByUserId(string id);
+    list<Notification> getNotificationsByUserId(string id);
     list<string> getFollowersByUserId(string id);
+
     int getUserSessionCount(string id);
     void addUserSession(string id, struct sockaddr adrr);
+    void setNotificationAsSeen(Notification notification);
 
     list<pair<string,struct sockaddr>> getLoggedUsers();
 
     int userConnect(string userId, struct sockaddr sock);
     int userCloseConnection(string userId, struct sockaddr sock);
 
-    void saveUser(string id);
-    void saveNotification(string senderId, Notification notification);
+    void saveNotification(Notification notification);
     void saveNewFollow(string followerId, string userId);
 
 private:
     string name;
     list<pair<string,struct sockaddr>> loggedUserAddresses;
-    map<string, string> users;
     map<string, list<string>> followers;
-    map<string, list<string>> notifications;
+    map<string, list<Notification>> notifications;
 
-    void loadUsers();
     void loadNotifications();
     void loadFollows();
+
+    void stashNotifications();
+    void stashFollows();
     vector<string> split(string s, string delimiter);
 };

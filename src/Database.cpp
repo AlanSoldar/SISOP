@@ -5,14 +5,18 @@ using namespace std;
 Database::Database()
 {
     this->name = "Database";
-    this->users = {};
     this->followers = {};
     this->notifications = {};
     this->loggedUserAddresses = {};
 
-    loadUsers();
     loadFollows();
     loadNotifications();
+}
+
+void Database::closeDatabase()
+{
+    stashFollows();
+    stashNotifications();
 }
 
 list<pair<string, struct sockaddr>> Database::getLoggedUsers()
@@ -42,6 +46,21 @@ void Database::addUserSession(string id, struct sockaddr addr)
     this->loggedUserAddresses.push_back(user);
 }
 
+void Database::setNotificationAsSeen(Notification notification)
+{
+    if (this->notifications.find(notification.getTargetId()) != this->notifications.end())
+    {
+        list<Notification> newList;
+        list<Notification> list = this->notifications.find(notification.getTargetId())->second;
+        for (Notification n : list)
+        {
+            n.setPending(false);
+            newList.push_front(n);
+        }
+        this->notifications[notification.getTargetId()] = newList;
+    }
+}
+
 int Database::userConnect(string userId, struct sockaddr addr)
 {
     if (this->getUserSessionCount(userId) < 2)
@@ -61,7 +80,7 @@ int Database::userCloseConnection(string userId, sockaddr addr)
 
     for (list<pair<string, sockaddr>>::iterator it = this->loggedUserAddresses.begin(); it != this->loggedUserAddresses.end(); it++)
     {
-        //TODO adicionar check de endereco no second
+        // TODO adicionar check de endereco no second
         if (it->first == userId)
         {
             this->loggedUserAddresses.erase(it);
@@ -72,23 +91,13 @@ int Database::userCloseConnection(string userId, sockaddr addr)
     return 0;
 }
 
-string Database::getUserByid(string id)
-{
-    loadUsers();
-    return this->users.find(id)->second;
-}
-
-bool Database::userExists(string userId)
-{
-    loadUsers();
-    map<string, string>::iterator it = users.find(userId);
-    return it != users.end();
-}
-
 list<string> Database::getFollowersByUserId(string id)
 {
-    loadFollows();
-    return this->followers.find(id)->second;
+    if (this->followers.find(id) != this->followers.end())
+    {
+        return this->followers.find(id)->second;
+    }
+    return {};
 }
 
 list<sockaddr> Database::getClientAddressByUserId(string id)
@@ -107,49 +116,35 @@ list<sockaddr> Database::getClientAddressByUserId(string id)
     return addresses;
 }
 
-list<string> Database::getNotificationsByUserId(string id)
+list<Notification> Database::getNotificationsByUserId(string id)
 {
-    loadNotifications();
-    return this->notifications.find(id)->second;
-}
-
-void Database::saveUser(string id)
-{
-    ofstream userFile;
-    userFile.open("tables/User.txt", ios_base::app);
-    userFile << id << endl;
-    userFile.close();
-    cout << id << " was created as a new user " << endl;
+    if (this->notifications.find(id) != this->notifications.end())
+    {
+        return this->notifications.find(id)->second;
+    }
+    return {};
 }
 
 void Database::saveNewFollow(string followerId, string userId)
 {
     ofstream followerFile;
     followerFile.open("tables/Follower.txt", ios_base::app);
-    followerFile << followerId << " " << userId << endl;
+    followerFile << userId << " " << followerId << endl;
     followerFile.close();
+
+    followers[userId].push_front(followerId);
     cout << followerId << " is now following: " << userId << endl;
 }
 
-void Database::saveNotification(string senderId, Notification notification)
+void Database::saveNotification(Notification notification)
 {
     ofstream notificationFile;
     notificationFile.open("tables/Notification.txt", ios_base::app);
     notificationFile << notification.toString() << endl;
     notificationFile.close();
-    cout << senderId << " has posted a new notification: " << notification.getMessage() << endl;
-}
 
-void Database::loadUsers()
-{
-    ifstream userFile;
-    userFile.open("tables/User.txt");
-    string line;
-    // cout << "loading users:" << endl;
-    while (getline(userFile, line))
-    {
-        users.insert(pair<string, string>(line, line));
-    }
+    notifications[notification.getTargetId()].push_front(notification);
+    cout << notification.getTargetId() << " has received a new notification: " << notification.getMessage() << endl;
 }
 
 void Database::loadFollows()
@@ -162,12 +157,10 @@ void Database::loadFollows()
     list<string>::iterator it;
     followFile.open("tables/Follower.txt");
     string line;
-    // cout << "loading follows:" << endl;
     while (getline(followFile, line))
     {
         follow = split(line, " ");
         followers[follow[0]].push_back(follow[1]);
-        cout << follow[0] << " : " << follow[1] << endl;
     }
 }
 
@@ -179,9 +172,41 @@ void Database::loadNotifications()
     while (getline(notificationFile, line))
     {
         Notification notification = Notification::fromString(line);
-        cout << "timestamp: " << notification.getTimestamp() << endl;
-        cout << "message: " << notification.getMessage() << endl;
+        // cout << "timestamp: " << notification.getTimestamp() << endl;
+        // cout << "message: " << notification.getMessage() << endl;
     }
+}
+
+void Database::stashFollows()
+{
+    ofstream followerFile;
+    followerFile.open("tables/Follower.txt");
+
+    for (pair<string, list<string>> tuple : followers)
+    {
+        string userId = tuple.first;
+        for (string followerId : tuple.second)
+        {
+            followerFile << userId << " " << followerId << endl;
+        }
+    }
+    followerFile.close();
+}
+
+void Database::stashNotifications()
+{
+    ofstream notificationFile;
+    notificationFile.open("tables/Notification.txt");
+
+    for (pair<string, list<Notification>> tuple : notifications)
+    {
+        string userId = tuple.first;
+        for (Notification notification : tuple.second)
+        {
+            notificationFile << notification.toString() << endl;
+        }
+    }
+    notificationFile.close();
 }
 
 vector<string> Database::split(string s, string delimiter)
@@ -189,7 +214,7 @@ vector<string> Database::split(string s, string delimiter)
     size_t pos = 0;
     string token;
     vector<string> brokedString;
-    
+
     while ((pos = s.find(delimiter)) != string::npos)
     {
         token = s.substr(0, pos);

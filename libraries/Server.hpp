@@ -25,10 +25,14 @@ public:
     string ip; 
     int port;
 
-    void login(string user);
-    static void *communicationHandler(void *handlerArgs);
+    bool isServerRunning();
+    void closeServer();
+    static void* communicationHandler(void *handlerArgs);
+    static void* commandHandler(void *handlerArgs);
+    static void* packetHandler(void *handlerArgs);
     
 private: 
+    bool isRunning;
     pthread_mutex_t mutexSession;
     pthread_mutex_t followMutex;
     pthread_mutex_t mutexCommunication;
@@ -43,7 +47,7 @@ private:
     Database database;
 
     void manageNotifications(ServerSocket* socket, string sender, Notification notification);
-    bool userExists(string user);
+    void sendInitialNotifications(ServerSocket* socket, string sender, sockaddr* senderAddress);
     bool isUserActive(string user);
 
 
@@ -52,7 +56,8 @@ private:
 
 struct communiction_handler_args {
 	ServerSocket* connectedSocket;
-	host_address clientAddress; 
 	string user;
     Server* server;
+    Packet* packet;
+    sockaddr clientAddress;
 };

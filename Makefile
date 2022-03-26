@@ -36,3 +36,15 @@ serverrun:
 
 clientrun:
 	./bin/client @gab localhost 4040
+
+clientrungab:
+	./bin/client @gab localhost 4040
+
+clientrunalan:
+	./bin/client @alan localhost 4040
+
+clientruncarlos:
+	./bin/client @carlos localhost 4040
+
+clientrunleo:
+	./bin/client @leo localhost 4040

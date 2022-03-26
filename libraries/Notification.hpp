@@ -47,6 +47,7 @@ public:
     void setPending(bool pending);
     string toString();
     static Notification fromString(string stringObject);
+    static void printNotification(Notification notification);
 };
 
 #endif

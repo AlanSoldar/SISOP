@@ -4,7 +4,7 @@
 
 int main(){
 
-    pthread_t threadConnection;
+    pthread_t communicationThreadConnection, commandThreadConnection;
 	int i = 0;
 
 	ServerSocket serverSocket = ServerSocket();
@@ -14,8 +14,11 @@ int main(){
     args->connectedSocket = &serverSocket;
     args->server = server;
 
-	pthread_create(&threadConnection, NULL, Server::communicationHandler, (void *)args);
-	pthread_join(threadConnection, NULL);
+	pthread_create(&communicationThreadConnection, NULL, Server::communicationHandler, (void *)args);
+	pthread_create(&commandThreadConnection, NULL, Server::commandHandler, (void *)args);
+
+	pthread_join(communicationThreadConnection, NULL);
+	pthread_join(commandThreadConnection, NULL);
 
 	cout << "main end" << endl;
 

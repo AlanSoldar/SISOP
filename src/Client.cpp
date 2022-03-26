@@ -46,7 +46,9 @@ void Client::connect()
 	response = socket.readPacket();
 	if (response->getType() == OPEN_SESSION_SUCCESS)
 	{
-		cout << "connection established succesfully" << endl;
+		cout << "connection established succesfully" << endl
+			 << "Welcome " << userName << endl
+			 << endl;
 		return;
 	}
 	else
@@ -63,7 +65,7 @@ void Client::closeConnection()
 	{
 		exit(1);
 	}
-	cout << "Message Sent Successfully!" << endl;
+	cout << "Connection closed!" << endl;
 	this->isConnected = false;
 }
 
@@ -79,7 +81,12 @@ void Client::follow(string userToFollow)
 		cout << "Invalid username, note that usernames start with @\n";
 		return;
 	}
-	this->socket.sendPacket(Packet(this->userName, FOLLOW_USER, userToFollow.c_str()));
+	int answer = this->socket.sendPacket(Packet(this->userName, FOLLOW_USER, userToFollow.c_str()));
+	if (answer < 0)
+	{
+		exit(1);
+	}
+	cout << "Now you are following" << userToFollow << endl;
 }
 
 void Client::sendNotification(string message)
@@ -91,84 +98,48 @@ void Client::sendNotification(string message)
 		exit(1);
 	}
 
-	cout << "Message Sent Successfully!" << endl;
+	cout << "New notification sent to your followers!" << endl;
 }
 
 void Client::receiveNotification()
 {
 	Packet *response;
-	cout << "awaiting response" << endl;
 	response = socket.readPacket();
-	cout << "response received: " << response->getPayload() << endl;
-}
-
-void *Client::mainThread(void *arg)
-{
-	Client *user = (Client *)arg;
-
-	fd_set rfds, save_rfds;
-	struct timeval tv;
-	int retval;
-	FD_ZERO(&rfds);
-	FD_SET(0, &rfds);
-	save_rfds = rfds;
-	tv.tv_sec = 0;
-	tv.tv_usec = 0;
-
-	while (user->isConnected)
+	if (response->getType() == RECEIVE_NOTIFICATION)
 	{
-		pthread_mutex_lock(&(user->mutex_main));
-		rfds = save_rfds;
-		retval = select(1, &rfds, NULL, NULL, &tv);
-
-		if (retval)
-		{
-			pthread_mutex_unlock(&(user->mutex_main));
-			pthread_mutex_unlock(&(user->mutex_command));
-			sleep(2);
-
-			pthread_mutex_lock(&(user->mutex_main));
-		}
-
-		pthread_mutex_unlock(&(user->mutex_main));
+		Notification notification = Notification::fromString(response->getPayload());
+		cout << "you have a new notification: " << endl;
+		Notification::printNotification(notification);
 	}
-	return NULL;
 }
 
 void *Client::commandThread(void *arg)
 {
 	Client *user = (Client *)arg;
 
-	cout << "User " + user->userName + " started a list of commands:" << endl;
-
 	while (user->isConnected)
 	{
+		pthread_mutex_lock(&(user->mutex_command));
 
-		//pthread_mutex_lock(&(user->mutex_command));
-		//pthread_mutex_lock(&(user->mutex_main));
-		//pthread_mutex_lock(&(user->mutex_receive_notification));
+		cout << "Type your command:" << endl;
 
 		string command = "";
 		string commandParameter;
 		cin >> command;
 
-		cout << "command received: " << command << endl;
-		if (command == "FOLLOW")
+		if (command == "FOLLOW" || command == "follow")
 		{
-			cout << "Request received for a FOLLOW command" << endl;
 			getline(cin, commandParameter);
 			user->follow(commandParameter.erase(0, 1));
 		}
-		else if (command == "SEND")
+		else if (command == "SEND" || command == "send")
 		{
-			cout << "Request received for a SEND command" << endl;
 			getline(cin, commandParameter);
 			user->sendNotification(commandParameter.erase(0, 1));
 		}
-		else if (command == "CLOSE" || command == "EXIT")
+		else if (command == "CLOSE" || command == "EXIT" || command == "close" || command == "exit")
 		{
 			cout << "closing connection with server" << endl;
-			getline(cin, commandParameter);
 			user->closeConnection();
 		}
 		else
@@ -176,9 +147,7 @@ void *Client::commandThread(void *arg)
 			cout << "This is not a valid command please use <FOLLOW> <userName> || <SEND> <yourMessage>" << command << endl;
 		}
 
-		//pthread_mutex_unlock(&(user->mutex_command));
-		//pthread_mutex_unlock(&(user->mutex_main));
-		//pthread_mutex_unlock(&(user->mutex_receive_notification));
+		pthread_mutex_unlock(&(user->mutex_command));
 	}
 	return NULL;
 }
@@ -189,12 +158,12 @@ void *Client::receiveNotificationThread(void *arg)
 	Packet *notification;
 	while (user->isConnected)
 	{
-		//pthread_mutex_lock(&(user->mutex_receive_notification));
+		pthread_mutex_lock(&(user->mutex_receive_notification));
 
 		user->receiveNotification();
 		sleep(2);
 
-		//pthread_mutex_unlock(&(user->mutex_receive_notification));
+		pthread_mutex_unlock(&(user->mutex_receive_notification));
 	}
 	return NULL;
 }
