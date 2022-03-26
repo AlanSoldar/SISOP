@@ -15,19 +15,6 @@ Database::Database()
     loadNotifications();
 }
 
-Database::Database(string name)
-{
-    this->name = name;
-    this->users = {};
-    this->followers = {};
-    this->notifications = {};
-    this->loggedUserAddresses = {};
-
-    loadUsers();
-    loadFollows();
-    loadNotifications();
-}
-
 list<pair<string, struct sockaddr>> Database::getLoggedUsers()
 {
     return this->loggedUserAddresses;
@@ -146,10 +133,9 @@ void Database::saveNewFollow(string followerId, string userId)
 
 void Database::saveNotification(string senderId, Notification notification)
 {
-    //Notification notification = Notification::fromString(payload);
     ofstream notificationFile;
     notificationFile.open("tables/Notification.txt", ios_base::app);
-    notificationFile << payload << endl;
+    notificationFile << notification.toString() << endl;
     notificationFile.close();
     cout << senderId << " has posted a new notification: " << notification.getMessage() << endl;
 }
