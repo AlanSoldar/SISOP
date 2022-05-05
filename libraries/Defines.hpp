@@ -20,6 +20,10 @@ enum
 #define PORT 4040
 #endif
 
+#ifndef MAX_SERVER_INSTANCES
+#define MAX_SERVER_INSTANCES 4
+#endif
+
 #ifndef PAYLOAD_MAX_SIZE
 #define PAYLOAD_MAX_SIZE 512
 #endif

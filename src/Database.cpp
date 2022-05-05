@@ -134,10 +134,10 @@ list<Notification> Database::getNotificationsByUserId(string id)
 
 void Database::saveNewFollow(string followerId, string userId)
 {
-    ofstream followerFile;
-    followerFile.open("tables/Follower.txt", ios_base::app);
-    followerFile << userId << " " << followerId << endl;
-    followerFile.close();
+    // ofstream followerFile;
+    // followerFile.open("tables/Follower.txt", ios_base::app);
+    // followerFile << userId << " " << followerId << endl;
+    // followerFile.close();
 
     followers[userId].push_front(followerId);
     cout << followerId << " is now following: " << userId << endl;
@@ -145,10 +145,10 @@ void Database::saveNewFollow(string followerId, string userId)
 
 void Database::saveNotification(Notification notification)
 {
-    ofstream notificationFile;
-    notificationFile.open("tables/Notification.txt", ios_base::app);
-    notificationFile << notification.toString() << endl;
-    notificationFile.close();
+    // ofstream notificationFile;
+    // notificationFile.open("tables/Notification.txt", ios_base::app);
+    // notificationFile << notification.toString() << endl;
+    // notificationFile.close();
 
     notifications[notification.getTargetId()].push_front(notification);
     cout << notification.getTargetId() << " has received a new notification: " << notification.getMessage() << endl;
@@ -218,7 +218,7 @@ void Database::stashUsers()
 void Database::stashFollows()
 {
     ofstream followerFile;
-    followerFile.open("tables/Follower.txt");
+    followerFile.open("tables/Follower.txt", ofstream::out);
 
     for (pair<string, list<string>> tuple : followers)
     {
