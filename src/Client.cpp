@@ -100,6 +100,17 @@ void Client::wakeUpServer()
 	cout << "setting server as primary" << endl;
 }
 
+void Client::sendServerSleepCommand()
+{
+	int answer = this->socket.sendPacket(Packet(this->userName, SLEEP, to_string(this->socket.getSocketfd())));
+	if (answer < 0)
+	{
+		exit(1);
+	}
+
+	cout << "setting server as backup" << endl;
+}
+
 void Client::sendNotification(string message)
 {
 	Notification notification = Notification(userName, message);
@@ -151,6 +162,10 @@ void *Client::commandThread(void *arg)
 		else if (command == "WAKE" || command == "wake")
 		{
 			user->wakeUpServer();
+		}
+		else if (command == "SLEEP" || command == "sleep")
+		{
+			user->sendServerSleepCommand();
 		}
 		else if (command == "CLOSE" || command == "EXIT" || command == "close" || command == "exit")
 		{

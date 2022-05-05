@@ -190,6 +190,12 @@ void Server::processPacket(string user, int type, string payload, sockaddr_in cl
 
         break;
 
+    case SLEEP:
+        this->database.saveDatabaseState();
+        this->isPrimary = false;
+        cout << "Server is now active as backup." << endl;
+        break;
+
     default:
         cout << "Invalid operation" << endl;
         break;
