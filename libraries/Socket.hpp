@@ -62,8 +62,8 @@ public:
 	ServerSocket();
 
 	void bindServer();
-	Packet *readPacket(sockaddr* clientAddress);
-	int sendPacket(Packet pkt, sockaddr* clientAddress);
+	Packet *readPacket(sockaddr_in* clientAddress);
+	int sendPacket(Packet pkt, sockaddr_in* clientAddress);
 };
 
 #endif

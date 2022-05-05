@@ -94,7 +94,12 @@ ServerSocket::ServerSocket()
     this->socketfd = sockfd;
 }
 
-Packet *ServerSocket::readPacket(sockaddr* clientAddress)
+int ServerSocket::getSocketfd()
+{
+    return this->socketfd;
+}
+
+Packet *ServerSocket::readPacket(sockaddr_in* clientAddress)
 {
 
     int respCode;
@@ -106,7 +111,7 @@ Packet *ServerSocket::readPacket(sockaddr* clientAddress)
 
     clilen = sizeof(struct sockaddr_in);
 
-    recvfrom(socketfd, buf, PAYLOAD_MAX_SIZE, 0, clientAddress, &clilen);
+    recvfrom(socketfd, buf, PAYLOAD_MAX_SIZE, 0, (sockaddr*) clientAddress, &clilen);
 
     string response(buf);
 
@@ -127,12 +132,12 @@ Packet *ServerSocket::readPacket(sockaddr* clientAddress)
     return pkt;
 }
 
-int ServerSocket::sendPacket(Packet pkt, sockaddr* clientAddress)
+int ServerSocket::sendPacket(Packet pkt, sockaddr_in* clientAddress)
 {
     char buffer[PAYLOAD_MAX_SIZE];
     strcpy(buffer, pkt.toString().c_str());
 
-    int response = sendto(socketfd, buffer, PAYLOAD_MAX_SIZE, 0, clientAddress, sizeof(struct sockaddr));
+    int response = sendto(socketfd, buffer, PAYLOAD_MAX_SIZE, 0, (sockaddr*) clientAddress, sizeof(struct sockaddr));
 
     cout << "message sent" << endl;
 

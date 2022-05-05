@@ -89,6 +89,17 @@ void Client::follow(string userToFollow)
 	cout << "Now you are following" << userToFollow << endl;
 }
 
+void Client::wakeUpServer()
+{
+	int answer = this->socket.sendPacket(Packet(this->userName, WAKE_UP, to_string(this->socket.getSocketfd())));
+	if (answer < 0)
+	{
+		exit(1);
+	}
+
+	cout << "setting server as primary" << endl;
+}
+
 void Client::sendNotification(string message)
 {
 	Notification notification = Notification(userName, message);
@@ -136,6 +147,10 @@ void *Client::commandThread(void *arg)
 		{
 			getline(cin, commandParameter);
 			user->sendNotification(commandParameter.erase(0, 1));
+		}
+		else if (command == "WAKE" || command == "wake")
+		{
+			user->wakeUpServer();
 		}
 		else if (command == "CLOSE" || command == "EXIT" || command == "close" || command == "exit")
 		{

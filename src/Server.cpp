@@ -5,6 +5,7 @@ using namespace std;
 Server::Server()
 {
     this->isRunning = true;
+    this->isPrimary = true;
     this->database = Database();
     this->notificationIdCounter = 0;
 
@@ -14,6 +15,7 @@ Server::Server()
 Server::Server(host_address address)
 {
     this->isRunning = true;
+    this->isPrimary = true;
     this->database = Database();
     this->notificationIdCounter = 0;
     this->ip = address.ipv4;
@@ -32,7 +34,7 @@ void Server::closeServer()
     this->isRunning = false;
 }
 
-void *Server::commandHandler(void *handlerArgs)
+void *Server::terminalCommandHandler(void *handlerArgs)
 {
     struct communiction_handler_args *args = (struct communiction_handler_args *)handlerArgs;
 
@@ -44,7 +46,7 @@ void *Server::commandHandler(void *handlerArgs)
         if (command == "CLOSE" || command == "EXIT" || command == "close" || command == "exit")
         {
             cout << "closing connection with server" << endl;
-            args->server->database.closeDatabase();
+            args->server->database.saveDatabaseState();
             args->server->closeServer();
         }
         else
@@ -66,14 +68,14 @@ void *Server::communicationHandler(void *handlerArgs)
 
     while (args->server->isServerRunning())
     {
-        sockaddr clientAddress;
+        sockaddr_in clientAddress;
         Packet *receivedPacket = args->connectedSocket->readPacket(&clientAddress);
 
         if (receivedPacket)
         {
             args->packet = receivedPacket;
             args->clientAddress = clientAddress;
-            //cout << "thread n: " << threadController << endl;
+
             switch (threadController)
             {
             case 0:
@@ -98,10 +100,10 @@ void *Server::communicationHandler(void *handlerArgs)
                 break;
             }
             threadController++;
-            if (threadController > 3) {
+            if (threadController > 3)
+            {
                 threadController = 0;
             }
-            
         }
     }
     return NULL;
@@ -111,47 +113,80 @@ void *Server::packetHandler(void *handlerArgs)
 {
     struct communiction_handler_args *args = (struct communiction_handler_args *)handlerArgs;
     Packet *receivedPacket = args->packet;
-    sockaddr clientAddress = args->clientAddress;
+    sockaddr_in clientAddress = args->clientAddress;
+    ServerSocket *serverSocket = args->connectedSocket;
 
     string user = receivedPacket->getUser();
     int type = receivedPacket->getType();
     string payload = receivedPacket->getPayload();
 
-    //locking critical section of the code
-    pthread_mutex_lock(&(args->server->criticalSectionMutex));
-
-    switch (type)
+    if (args->server->isPrimary)
     {
-    case USER_CONNECT:
+        // locking critical section of the code
+        pthread_mutex_lock(&(args->server->criticalSectionMutex));
+        args->server->processPacket(user, type, payload, clientAddress, serverSocket);
+        pthread_mutex_unlock(&(args->server->criticalSectionMutex));
+
+        args->server->database.saveDatabaseState();
+    }
+    else if (type == WAKE_UP && stoi(receivedPacket->getPayload()) == serverSocket->getSocketfd())
+    {
+        args->server->database.loadDatabaseState();
+        args->server->isPrimary = true;
+        cout << "Server is now active as primary." << endl;
+    }
+    else if (type == USER_CONNECT)
+    {
         if (args->server->database.userConnect(user, clientAddress) != 0)
         {
             // success
-            args->connectedSocket->sendPacket(Packet("server", OPEN_SESSION_SUCCESS, "connection successful"), &clientAddress);
-            args->server->sendInitialNotifications(args->connectedSocket, user, &clientAddress);
+            serverSocket->sendPacket(Packet("server", OPEN_SESSION_SUCCESS, "connection successful"), &clientAddress);
+            args->server->sendInitialNotifications(serverSocket, user, &clientAddress);
         }
         else
         {
             // failed too many sessions for the user
-            args->connectedSocket->sendPacket(Packet("server", OPEN_SESSION_FAIL, "connection failed"), &clientAddress);
+            serverSocket->sendPacket(Packet("server", OPEN_SESSION_FAIL, "connection failed"), &clientAddress);
+        }
+    }
+    return NULL;
+}
+
+void Server::processPacket(string user, int type, string payload, sockaddr_in clientAddress, ServerSocket *serverSocket)
+{
+
+    switch (type)
+    {
+    case USER_CONNECT:
+        if (this->database.userConnect(user, clientAddress) != 0)
+        {
+            // success
+            serverSocket->sendPacket(Packet("server", OPEN_SESSION_SUCCESS, "connection successful"), &clientAddress);
+            this->sendInitialNotifications(serverSocket, user, &clientAddress);
+        }
+        else
+        {
+            // failed too many sessions for the user
+            serverSocket->sendPacket(Packet("server", OPEN_SESSION_FAIL, "connection failed"), &clientAddress);
         }
         break;
 
     case USER_CLOSE_CONNECTION:
-        if (args->server->database.userCloseConnection(user, clientAddress) != 0)
+        if (this->database.userCloseConnection(user, clientAddress) != 0)
         {
             // success
-            args->connectedSocket->sendPacket(Packet("server", CLOSE_SESSION_SUCCESS, "close connection successful"), &clientAddress);
+            serverSocket->sendPacket(Packet("server", CLOSE_SESSION_SUCCESS, "close connection successful"), &clientAddress);
         }
         break;
 
     case FOLLOW_USER:
 
-        args->server->database.saveNewFollow(user, payload);
+        this->database.saveNewFollow(user, payload);
 
         break;
 
     case SEND_NOTIFICATION:
-        args->server->manageNotifications(args->connectedSocket, user, Notification::fromString(payload));
+        this->manageNotifications(serverSocket, user, Notification::fromString(payload));
 
         break;
 
@@ -159,9 +194,8 @@ void *Server::packetHandler(void *handlerArgs)
         cout << "Invalid operation" << endl;
         break;
     }
-    pthread_mutex_unlock(&(args->server->criticalSectionMutex));
-    //sleep(100);
-    return NULL;
+
+    // sleep(100);
 }
 
 void Server::manageNotifications(ServerSocket *socket, string user, Notification notification)
@@ -177,7 +211,7 @@ void Server::manageNotifications(ServerSocket *socket, string user, Notification
             notification.setTargetId(follower);
             this->database.saveNotification(notification);
             // then look if there is any follower logged in
-            for (sockaddr clientAddress : this->database.getClientAddressByUserId(follower))
+            for (sockaddr_in clientAddress : this->database.getClientAddressByUserId(follower))
             {
                 // sends notification immediately
                 socket->sendPacket(Packet("server", RECEIVE_NOTIFICATION, notification.toString()), &clientAddress);
@@ -187,7 +221,7 @@ void Server::manageNotifications(ServerSocket *socket, string user, Notification
     }
 }
 
-void Server::sendInitialNotifications(ServerSocket *socket, string user, sockaddr *userAddress)
+void Server::sendInitialNotifications(ServerSocket *socket, string user, sockaddr_in *userAddress)
 {
     for (Notification notification : this->database.getNotificationsByUserId(user))
     {

@@ -28,11 +28,12 @@ public:
     bool isServerRunning();
     void closeServer();
     static void* communicationHandler(void *handlerArgs);
-    static void* commandHandler(void *handlerArgs);
+    static void* terminalCommandHandler(void *handlerArgs);
     static void* packetHandler(void *handlerArgs);
     
 private: 
     bool isRunning;
+    bool isPrimary;
     pthread_mutex_t criticalSectionMutex;
 
     uint32_t notificationIdCounter;
@@ -42,7 +43,8 @@ private:
     Database database;
 
     void manageNotifications(ServerSocket* socket, string sender, Notification notification);
-    void sendInitialNotifications(ServerSocket* socket, string sender, sockaddr* senderAddress);
+    void sendInitialNotifications(ServerSocket* socket, string sender, sockaddr_in* senderAddress);
+    void processPacket(string user, int type, string payload, sockaddr_in clientAddress, ServerSocket *serverSocket);
     bool isUserActive(string user);
 
 
@@ -54,5 +56,5 @@ struct communiction_handler_args {
 	string user;
     Server* server;
     Packet* packet;
-    sockaddr clientAddress;
+    sockaddr_in clientAddress;
 };

@@ -9,26 +9,33 @@ Database::Database()
     this->notifications = {};
     this->loggedUserAddresses = {};
 
-    loadFollows();
-    loadNotifications();
+    loadDatabaseState();
 }
 
-void Database::closeDatabase()
+void Database::saveDatabaseState()
 {
+    stashUsers();
     stashFollows();
     stashNotifications();
 }
 
-list<pair<string, struct sockaddr>> Database::getLoggedUsers()
+void Database::loadDatabaseState()
+{
+    loadUsers();
+    loadFollows();
+    loadNotifications();
+}
+
+list<pair<string, struct sockaddr_in>> Database::getLoggedUsers()
 {
     return this->loggedUserAddresses;
 }
 
 int Database::getUserSessionCount(string userId)
 {
-    list<pair<string, struct sockaddr>> loggedUsers = getLoggedUsers();
+    list<pair<string, struct sockaddr_in>> loggedUsers = getLoggedUsers();
     int count = 0;
-    for (pair<string, struct sockaddr> user : loggedUsers)
+    for (pair<string, struct sockaddr_in> user : loggedUsers)
     {
         if (user.first == userId)
         {
@@ -38,9 +45,9 @@ int Database::getUserSessionCount(string userId)
     return count;
 }
 
-void Database::addUserSession(string id, struct sockaddr addr)
+void Database::addUserSession(string id, struct sockaddr_in addr)
 {
-    pair<string, struct sockaddr> user;
+    pair<string, struct sockaddr_in> user;
     user.first = id;
     user.second = addr;
     this->loggedUserAddresses.push_back(user);
@@ -61,7 +68,7 @@ void Database::setNotificationAsSeen(Notification notification)
     }
 }
 
-int Database::userConnect(string userId, struct sockaddr addr)
+int Database::userConnect(string userId, struct sockaddr_in addr)
 {
     if (this->getUserSessionCount(userId) < 2)
     {
@@ -74,11 +81,11 @@ int Database::userConnect(string userId, struct sockaddr addr)
     }
 }
 
-int Database::userCloseConnection(string userId, sockaddr addr)
+int Database::userCloseConnection(string userId, sockaddr_in addr)
 {
-    pair<string, sockaddr> p = pair<string, sockaddr>(userId, addr);
+    pair<string, sockaddr_in> p = pair<string, sockaddr_in>(userId, addr);
 
-    for (list<pair<string, sockaddr>>::iterator it = this->loggedUserAddresses.begin(); it != this->loggedUserAddresses.end(); it++)
+    for (list<pair<string, sockaddr_in>>::iterator it = this->loggedUserAddresses.begin(); it != this->loggedUserAddresses.end(); it++)
     {
         // TODO adicionar check de endereco no second
         if (it->first == userId)
@@ -100,12 +107,12 @@ list<string> Database::getFollowersByUserId(string id)
     return {};
 }
 
-list<sockaddr> Database::getClientAddressByUserId(string id)
+list<sockaddr_in> Database::getClientAddressByUserId(string id)
 {
-    list<pair<string, sockaddr>> users = this->getLoggedUsers();
-    list<sockaddr> addresses;
+    list<pair<string, sockaddr_in>> users = this->getLoggedUsers();
+    list<sockaddr_in> addresses;
     cout << "searching logged users" << endl;
-    for (pair<string, struct sockaddr> pair : users)
+    for (pair<string, struct sockaddr_in> pair : users)
     {
         cout << "looking at: " << pair.first << endl;
         if (pair.first == id)
@@ -147,13 +154,32 @@ void Database::saveNotification(Notification notification)
     cout << notification.getTargetId() << " has received a new notification: " << notification.getMessage() << endl;
 }
 
+void Database::loadUsers()
+{
+    loggedUserAddresses = list<pair<string,struct sockaddr_in>>();
+
+    ifstream userFile;
+    vector<string> user;
+    list<string>::iterator it;
+    userFile.open("tables/User.txt");
+    string line;
+    while (getline(userFile, line))
+    {
+        user = split(line, " ");
+        sockaddr_in address;
+        address.sin_addr.s_addr = inet_addr(user[1].c_str());
+        address.sin_port = stoi(user[2]);
+        address.sin_family = AF_INET;
+        loggedUserAddresses.push_front(make_pair(user[0], address));
+    }
+}
+
 void Database::loadFollows()
 {
     followers = {};
 
     ifstream followFile;
     vector<string> follow;
-    list<string> tst;
     list<string>::iterator it;
     followFile.open("tables/Follower.txt");
     string line;
@@ -172,9 +198,21 @@ void Database::loadNotifications()
     while (getline(notificationFile, line))
     {
         Notification notification = Notification::fromString(line);
-        // cout << "timestamp: " << notification.getTimestamp() << endl;
-        // cout << "message: " << notification.getMessage() << endl;
     }
+}
+
+void Database::stashUsers()
+{
+    ofstream userFile;
+    userFile.open("tables/User.txt");
+
+    for (pair<string,struct sockaddr_in> tuple : loggedUserAddresses)
+    {
+        string userId = tuple.first;
+        userFile << userId << " " << inet_ntoa(tuple.second.sin_addr) << " " << tuple.second.sin_port << endl;
+        
+    }
+    userFile.close();
 }
 
 void Database::stashFollows()

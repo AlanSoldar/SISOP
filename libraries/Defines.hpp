@@ -10,7 +10,9 @@ enum
     CLOSE_SESSION_SUCCESS,                // Packet type used when the server sucessfully closes user connection
     ERROR,                                // Packet type used when we need to comunicate errors
     USER_CONNECT,                         // Packet type used when we send user name to connect
-    USER_CLOSE_CONNECTION                 // Packet type used when we send user name to close connection
+    USER_CLOSE_CONNECTION,                // Packet type used when we send user name to close connection
+    WAKE_UP,                              // Packet type used to set server as primary
+    SLEEP                                 // Packet type used to set server as backup
 };
 #endif
 
