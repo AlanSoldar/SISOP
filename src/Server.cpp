@@ -135,25 +135,12 @@ void *Server::packetHandler(void *handlerArgs)
         args->server->isPrimary = true;
         cout << "Server is now active as primary." << endl;
     }
-    else if (type == USER_CONNECT)
-    {
-        if (args->server->database.userConnect(user, clientAddress) != 0)
-        {
-            // success
-            serverSocket->sendPacket(Packet("server", OPEN_SESSION_SUCCESS, "connection successful"), &clientAddress);
-            args->server->sendInitialNotifications(serverSocket, user, &clientAddress);
-        }
-        else
-        {
-            // failed too many sessions for the user
-            serverSocket->sendPacket(Packet("server", OPEN_SESSION_FAIL, "connection failed"), &clientAddress);
-        }
-    }
     return NULL;
 }
 
 void Server::processPacket(string user, int type, string payload, sockaddr_in clientAddress, ServerSocket *serverSocket)
 {
+    cout<<"EH US GURILA"<<endl;
 
     switch (type)
     {

@@ -1,7 +1,5 @@
 #include "../libraries/Server.hpp"
 
-
-
 int main(){
 
     pthread_t communicationThreadConnection, terminalCommandThreadConnection;

@@ -53,7 +53,7 @@ void Client::connect()
 	}
 	else
 	{
-		cout << "to many sessions for this user, try again later" << endl;
+		cout << "too many sessions for this user, try again later" << endl;
 		exit(1);
 	}
 }

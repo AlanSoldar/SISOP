@@ -38,16 +38,15 @@ class ClientSocket
 
 private:
 	int socketfd;
-	struct sockaddr_in serv_addr;
 
 public:
+	struct sockaddr_in serv_addr;
 	int getSocketfd();
 	ClientSocket() = default;
 	ClientSocket(const char *serverAddress, int serverPort);
 
 	Packet *readPacket();
 	int sendPacket(Packet pkt);
-
 };
 
 class ServerSocket
@@ -62,8 +61,8 @@ public:
 	ServerSocket();
 
 	void bindServer();
-	Packet *readPacket(sockaddr_in* clientAddress);
-	int sendPacket(Packet pkt, sockaddr_in* clientAddress);
+	Packet *readPacket(sockaddr_in *clientAddress);
+	int sendPacket(Packet pkt, sockaddr_in *clientAddress);
 };
 
 #endif
