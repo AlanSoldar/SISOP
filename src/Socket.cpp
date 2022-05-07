@@ -14,7 +14,7 @@ ClientSocket::ClientSocket(const char *serverAddress, int serverPort)
         printf("ERROR opening socket");
 
     serv_addr.sin_family = PF_INET;
-    serv_addr.sin_port = htons(PORT);
+    serv_addr.sin_port = htons(serverPort);
     serv_addr.sin_addr = *((struct in_addr *)server->h_addr);
     bzero(&(serv_addr.sin_zero), 8);
 
@@ -74,6 +74,10 @@ Packet *ClientSocket::readPacket()
 
 ServerSocket::ServerSocket()
 {
+}
+
+ServerSocket::ServerSocket(int port)
+{
     int sockfd, n;
     int server_instance = 0;
     struct sockaddr_in serv_addr;
@@ -82,18 +86,19 @@ ServerSocket::ServerSocket()
         cout << "ERROR opening socket" << endl;
 
     serv_addr.sin_family = PF_INET;
-    serv_addr.sin_port = htons(PORT);
+    serv_addr.sin_port = htons(port);
     serv_addr.sin_addr.s_addr = INADDR_ANY;
     bzero(&(serv_addr.sin_zero), 8);
 
     while (bind(sockfd, (struct sockaddr *)&serv_addr, sizeof(struct sockaddr)) < 0 && server_instance < MAX_SERVER_INSTANCES)
     {
         server_instance++;
-        serv_addr.sin_port = htons(PORT + server_instance);
+        serv_addr.sin_port = htons(port + server_instance);
     }
     if (server_instance >= MAX_SERVER_INSTANCES)
         cout << "ERROR on binding" << endl;
 
+    cout << "port created: " << serv_addr.sin_port << endl;
     this->socketfd = sockfd;
 }
 
@@ -131,16 +136,22 @@ Packet *ServerSocket::readPacket(sockaddr_in *clientAddress)
         std::cout << "Connection closed." << std::endl;
         return NULL;
     }
-    // pkt->setSocket(cli_addr);
+
     return pkt;
 }
 
-int ServerSocket::sendPacket(Packet pkt, sockaddr_in *clientAddress)
+int ServerSocket::sendPacket(Packet pkt, sockaddr_in *routerAddress, sockaddr_in receiverAddress)
+{
+    pkt.setSocket(receiverAddress);
+    return this->sendPacket(pkt, routerAddress);
+}
+
+int ServerSocket::sendPacket(Packet pkt, sockaddr_in *receiverAddress)
 {
     char buffer[PAYLOAD_MAX_SIZE];
     strcpy(buffer, pkt.toString().c_str());
 
-    int response = sendto(socketfd, buffer, PAYLOAD_MAX_SIZE, 0, (sockaddr *)clientAddress, sizeof(struct sockaddr));
+    int response = sendto(socketfd, buffer, PAYLOAD_MAX_SIZE, 0, (sockaddr *)receiverAddress, sizeof(struct sockaddr));
 
     cout << "message sent" << endl;
 

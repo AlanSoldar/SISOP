@@ -59,10 +59,12 @@ private:
 public:
 	int getSocketfd();
 	ServerSocket();
+	ServerSocket(int port);
 
 	void bindServer();
 	Packet *readPacket(sockaddr_in *clientAddress);
-	int sendPacket(Packet pkt, sockaddr_in *clientAddress);
+	int sendPacket(Packet pkt, sockaddr_in *receiverAddress);
+	int sendPacket(Packet pkt, sockaddr_in *receiverAddress, sockaddr_in routerAddress);
 };
 
 #endif

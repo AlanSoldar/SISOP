@@ -16,8 +16,12 @@ enum
 };
 #endif
 
-#ifndef PORT
-#define PORT 4040
+#ifndef ROUTER_INITIAL_PORT
+#define ROUTER_INITIAL_PORT 4040
+#endif
+
+#ifndef SERVER_INITIAL_PORT
+#define SERVER_INITIAL_PORT 4042
 #endif
 
 #ifndef MAX_SERVER_INSTANCES

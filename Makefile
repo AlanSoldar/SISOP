@@ -9,9 +9,7 @@ RELEASEFLAGS=-O2
 
 
 SERVER_SRC=$(SRC_FOLDER)Notification.cpp $(SRC_FOLDER)Client.cpp $(SRC_FOLDER)Router.cpp $(SRC_FOLDER)Database.cpp $(SRC_FOLDER)Packet.cpp $(SRC_FOLDER)Server.cpp $(SRC_FOLDER)Socket.cpp $(SRC_FOLDER)ServerApp.cpp
-
 CLIENT_SRC=$(SRC_FOLDER)Notification.cpp $(SRC_FOLDER)Client.cpp $(SRC_FOLDER)Router.cpp $(SRC_FOLDER)Database.cpp $(SRC_FOLDER)Packet.cpp $(SRC_FOLDER)Server.cpp $(SRC_FOLDER)Socket.cpp $(SRC_FOLDER)ClientApp.cpp
-
 ROUTER_SRC=$(SRC_FOLDER)Notification.cpp $(SRC_FOLDER)Client.cpp $(SRC_FOLDER)Router.cpp $(SRC_FOLDER)Database.cpp $(SRC_FOLDER)Packet.cpp $(SRC_FOLDER)Server.cpp $(SRC_FOLDER)Socket.cpp $(SRC_FOLDER)RouterApp.cpp
 
 SERVER_OBJ=$(addprefix $(BIN_FOLDER),$(notdir $(SERVER_SRC:.cpp=.o)))
@@ -21,6 +19,11 @@ ROUTER_OBJ=$(addprefix $(BIN_FOLDER),$(notdir $(ROUTER_SRC:.cpp=.o)))
 SERVER_EXE=./bin/server
 CLIENT_EXE=./bin/client
 ROUTER_EXE=./bin/router
+
+build:
+	make server
+	make client
+	make router
 
 server: $(SERVER_OBJ)
 	g++ -pthread -g -std=c++11 $(SERVER_SRC) -o $(SERVER_EXE) -luuid

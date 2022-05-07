@@ -13,6 +13,8 @@
 #include <chrono>
 #include <ctime>
 #include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
 #include "Defines.hpp"
 
 
@@ -28,7 +30,7 @@ private:
     uint16_t length;  // Payload length
     string timestamp; // Data timestamp
     string payload;   // Content included at the payload
-    sockaddr socket;
+    sockaddr_in socket;
 
 public:
     Packet();
@@ -40,9 +42,9 @@ public:
     uint16_t getLength();
     string getTimestamp();
     string getPayload();
-    sockaddr getSocket();
+    sockaddr_in getSocket();
 
-    void setSocket(sockaddr socket);
+    void setSocket(sockaddr_in socket);
     void setType(uint16_t type);
     void setUser(string user);
     void setSeqn(uint16_t seqn);

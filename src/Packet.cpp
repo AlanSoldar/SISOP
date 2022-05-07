@@ -29,10 +29,6 @@ Packet::Packet(string user, uint16_t type, string input_payload)
     string str(s);
     this->timestamp = str;
 
-    // //remove end of file markers from the input payload.
-    // input_payload.erase(std::remove(input_payload.begin(), input_payload.end(), '\0'), input_payload.end());
-    // input_payload.erase(std::remove(input_payload.begin(), input_payload.end(), '\n'), input_payload.end());
-
     this->payload.assign(input_payload);
 }
 
@@ -66,11 +62,13 @@ string Packet::getPayload()
     return this->payload;
 }
 
-sockaddr Packet::getSocket() {
+sockaddr_in Packet::getSocket()
+{
     return this->socket;
 }
 
-void Packet::setSocket(sockaddr sock) {
+void Packet::setSocket(sockaddr_in sock)
+{
     this->socket = sock;
 }
 
@@ -107,13 +105,6 @@ void Packet::setPayload(string payload)
 
     this->payload.assign(payload);
     this->length = payloadSize;
-}
-
-string Packet::toString()
-{
-    string str_type = to_string(this->getType());
-
-    return this->getUser() + "&" + str_type + "&" + this->getPayload();
 }
 
 vector<string> split(string stringObject, char delimiter)
@@ -163,7 +154,16 @@ vector<string> split(string stringObject, char delimiter)
     return brokedString;
 }
 
-Packet* Packet::fromString(string stringObject)
+string Packet::toString()
+{
+    string str_type = to_string(this->getType());
+
+    string port = to_string(this->getSocket().sin_port);
+
+    return this->getUser() + "&" + port + "&" + str_type + "&" + this->getPayload();
+}
+
+Packet *Packet::fromString(string stringObject)
 {
     vector<string> results = split(stringObject, '&');
 
@@ -173,9 +173,19 @@ Packet* Packet::fromString(string stringObject)
 
     input_user.assign(results[0].c_str());
 
-    input_type = strtoul(results[1].c_str(), NULL, 10);
+    input_type = strtoul(results[2].c_str(), NULL, 10);
 
-    input_payload.assign(results[2].c_str());
+    input_payload.assign(results[3].c_str());
 
-    return new Packet(input_user, input_type, input_payload);
+    Packet *pkt = new Packet(input_user, input_type, input_payload);
+
+    sockaddr_in sockaddr;
+    sockaddr.sin_family = PF_INET;
+    sockaddr.sin_port = stoi(results[1]);
+    sockaddr.sin_addr.s_addr = INADDR_ANY;
+    bzero(&(sockaddr.sin_zero), 8);
+
+    pkt->setSocket(sockaddr);
+
+    return pkt;
 }

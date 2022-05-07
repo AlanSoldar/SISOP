@@ -21,33 +21,31 @@ class Router
 {
 public:
     Router();
-    Router(host_address addr);
-    string ip;
-    int port;
-    list<ClientSocket> sockets;
 
-    static void *RouteCommunication(void *handlerArgs);
+    static void *ClientServerCommunication(void *handlerArgs);
+    static void *ServerClientCommunication(void *handlerArgs);
     bool isRouterRunning();
 
 private:
     bool isRunning;
-    pthread_mutex_t criticalSectionMutex;
-
-    map<string, sem_t> userSessionsSemaphore;
-    ServerSocket serverSocket;
+    ServerSocket clientRouterSocket;
+    ServerSocket serverRouterSocket;
+    list<ClientSocket> serverList;
 
     void wakeUpServer();
     void sendServerSleepCommand();
     list<ClientSocket> getActiveSockets();
-    void processPacket(Packet *pkt, sockaddr_in clientAddress, ServerSocket *serverSocket);
-    static void *packetHandler(void *handlerArgs);
+    void processClientPacket(Packet *pkt, sockaddr_in serverAddress, ServerSocket *serverSocket);
+    void processServerPacket(Packet *pkt, sockaddr_in serverAddress, ServerSocket *serverSocket);
+    static void *clinetPacketHandler(void *handlerArgs);
+    static void *serverPacketHandler(void *handlerArgs);
 };
 
 struct router_handler_args
 {
-    ServerSocket *connectedSocket;
     string user;
     Router *router;
     Packet *packet;
+    sockaddr_in clientAddress;
     sockaddr_in serverAddress;
 };

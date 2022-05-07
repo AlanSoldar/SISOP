@@ -5,7 +5,7 @@ int main(){
     pthread_t communicationThreadConnection, terminalCommandThreadConnection;
 	int i = 0;
 
-	ServerSocket serverSocket = ServerSocket();
+	ServerSocket serverSocket = ServerSocket(SERVER_INITIAL_PORT);
 	Server* server = new Server();
 
 	communiction_handler_args *args = (communiction_handler_args *) calloc(1, sizeof(communiction_handler_args));

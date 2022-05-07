@@ -8,18 +8,12 @@ Server::Server()
     this->isPrimary = true;
     this->database = Database();
     this->notificationIdCounter = 0;
-
-    pthread_mutex_init(&criticalSectionMutex, NULL);
-}
-
-Server::Server(host_address address)
-{
-    this->isRunning = true;
-    this->isPrimary = true;
-    this->database = Database();
-    this->notificationIdCounter = 0;
-    this->ip = address.ipv4;
-    this->port = address.port;
+    this->routerAddress;
+    
+    routerAddress.sin_family = PF_INET;
+    routerAddress.sin_port = htons(ROUTER_INITIAL_PORT+1);
+    routerAddress.sin_addr.s_addr = INADDR_ANY;
+    bzero(&(routerAddress.sin_zero), 8);
 
     pthread_mutex_init(&criticalSectionMutex, NULL);
 }
@@ -113,12 +107,12 @@ void *Server::packetHandler(void *handlerArgs)
 {
     struct communiction_handler_args *args = (struct communiction_handler_args *)handlerArgs;
     Packet *receivedPacket = args->packet;
-    sockaddr_in clientAddress = args->clientAddress;
     ServerSocket *serverSocket = args->connectedSocket;
 
     string user = receivedPacket->getUser();
     int type = receivedPacket->getType();
     string payload = receivedPacket->getPayload();
+    sockaddr_in clientAddress = receivedPacket->getSocket();
 
     if (args->server->isPrimary)
     {
@@ -140,21 +134,19 @@ void *Server::packetHandler(void *handlerArgs)
 
 void Server::processPacket(string user, int type, string payload, sockaddr_in clientAddress, ServerSocket *serverSocket)
 {
-    cout<<"EH US GURILA"<<endl;
-
     switch (type)
     {
     case USER_CONNECT:
         if (this->database.userConnect(user, clientAddress) != 0)
         {
             // success
-            serverSocket->sendPacket(Packet("server", OPEN_SESSION_SUCCESS, "connection successful"), &clientAddress);
-            this->sendInitialNotifications(serverSocket, user, &clientAddress);
+            serverSocket->sendPacket(Packet("server", OPEN_SESSION_SUCCESS, "connection successful"), &this->routerAddress, clientAddress);
+            this->sendInitialNotifications(serverSocket, user, clientAddress);
         }
         else
         {
             // failed too many sessions for the user
-            serverSocket->sendPacket(Packet("server", OPEN_SESSION_FAIL, "connection failed"), &clientAddress);
+            serverSocket->sendPacket(Packet("server", OPEN_SESSION_FAIL, "connection failed"), &this->routerAddress, clientAddress);
         }
         break;
 
@@ -162,7 +154,7 @@ void Server::processPacket(string user, int type, string payload, sockaddr_in cl
         if (this->database.userCloseConnection(user, clientAddress) != 0)
         {
             // success
-            serverSocket->sendPacket(Packet("server", CLOSE_SESSION_SUCCESS, "close connection successful"), &clientAddress);
+            serverSocket->sendPacket(Packet("server", CLOSE_SESSION_SUCCESS, "close connection successful"), &this->routerAddress, clientAddress);
         }
         break;
 
@@ -184,7 +176,7 @@ void Server::processPacket(string user, int type, string payload, sockaddr_in cl
         break;
 
     default:
-        cout << "Invalid operation" << endl;
+        cout << "Invalid operation: " << type << endl;
         break;
     }
 
@@ -207,20 +199,20 @@ void Server::manageNotifications(ServerSocket *socket, string user, Notification
             for (sockaddr_in clientAddress : this->database.getClientAddressByUserId(follower))
             {
                 // sends notification immediately
-                socket->sendPacket(Packet("server", RECEIVE_NOTIFICATION, notification.toString()), &clientAddress);
+                socket->sendPacket(Packet("server", RECEIVE_NOTIFICATION, notification.toString()), &this->routerAddress, clientAddress);
                 this->database.setNotificationAsSeen(notification);
             }
         }
     }
 }
 
-void Server::sendInitialNotifications(ServerSocket *socket, string user, sockaddr_in *userAddress)
+void Server::sendInitialNotifications(ServerSocket *socket, string user, sockaddr_in userAddress)
 {
     for (Notification notification : this->database.getNotificationsByUserId(user))
     {
         if (notification.getPending())
         {
-            socket->sendPacket(Packet("server", RECEIVE_NOTIFICATION, notification.toString()), userAddress);
+            socket->sendPacket(Packet("server", RECEIVE_NOTIFICATION, notification.toString()), &this->routerAddress, userAddress);
             this->database.setNotificationAsSeen(notification);
         }
     }
