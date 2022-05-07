@@ -12,7 +12,8 @@ enum
     USER_CONNECT,                         // Packet type used when we send user name to connect
     USER_CLOSE_CONNECTION,                // Packet type used when we send user name to close connection
     WAKE_UP,                              // Packet type used to set server as primary
-    SLEEP                                 // Packet type used to set server as backup
+    SLEEP,                                // Packet type used to set server as backup
+    FAIL                                  // Packet type used to fail the server intentionally for testing purpose       
 };
 #endif
 

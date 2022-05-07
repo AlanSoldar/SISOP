@@ -5,13 +5,13 @@ using namespace std;
 Server::Server()
 {
     this->isRunning = true;
-    this->isPrimary = true;
+    this->isPrimary = false;
     this->database = Database();
     this->notificationIdCounter = 0;
     this->routerAddress;
-    
+
     routerAddress.sin_family = PF_INET;
-    routerAddress.sin_port = htons(ROUTER_INITIAL_PORT+1);
+    routerAddress.sin_port = htons(ROUTER_INITIAL_PORT + 1);
     routerAddress.sin_addr.s_addr = INADDR_ANY;
     bzero(&(routerAddress.sin_zero), 8);
 
@@ -114,6 +114,7 @@ void *Server::packetHandler(void *handlerArgs)
     string payload = receivedPacket->getPayload();
     sockaddr_in clientAddress = receivedPacket->getSocket();
 
+
     if (args->server->isPrimary)
     {
         // locking critical section of the code
@@ -129,6 +130,8 @@ void *Server::packetHandler(void *handlerArgs)
         args->server->isPrimary = true;
         cout << "Server is now active as primary." << endl;
     }
+
+    
     return NULL;
 }
 
@@ -173,6 +176,10 @@ void Server::processPacket(string user, int type, string payload, sockaddr_in cl
         this->database.saveDatabaseState();
         this->isPrimary = false;
         cout << "Server is now active as backup." << endl;
+        break;
+
+    case FAIL:
+        serverSocket->sendPacket(Packet("server", FAIL, "failing test"), &this->routerAddress, clientAddress);
         break;
 
     default:

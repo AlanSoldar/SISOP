@@ -36,7 +36,5 @@ private:
 
 	void sendNotification(string message);
 	void follow(string userName);
-	void wakeUpServer();
-	void sendServerSleepCommand();
 	void receiveNotification();
 };

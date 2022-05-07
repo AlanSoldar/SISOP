@@ -98,7 +98,6 @@ ServerSocket::ServerSocket(int port)
     if (server_instance >= MAX_SERVER_INSTANCES)
         cout << "ERROR on binding" << endl;
 
-    cout << "port created: " << serv_addr.sin_port << endl;
     this->socketfd = sockfd;
 }
 
@@ -153,7 +152,7 @@ int ServerSocket::sendPacket(Packet pkt, sockaddr_in *receiverAddress)
 
     int response = sendto(socketfd, buffer, PAYLOAD_MAX_SIZE, 0, (sockaddr *)receiverAddress, sizeof(struct sockaddr));
 
-    cout << "message sent" << endl;
+    cout << "message sent." << response << endl;
 
     if (response < 0)
         std::cout << "ERROR writing to socket: " << socketfd << std::endl;

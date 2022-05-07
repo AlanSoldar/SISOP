@@ -31,6 +31,7 @@ private:
     ServerSocket clientRouterSocket;
     ServerSocket serverRouterSocket;
     list<ClientSocket> serverList;
+    int activeServerIndex;
 
     void wakeUpServer();
     void sendServerSleepCommand();
@@ -39,6 +40,8 @@ private:
     void processServerPacket(Packet *pkt, sockaddr_in serverAddress, ServerSocket *serverSocket);
     static void *clinetPacketHandler(void *handlerArgs);
     static void *serverPacketHandler(void *handlerArgs);
+    void switchActiveServer();
+    sockaddr_in getActiveServer();
 };
 
 struct router_handler_args

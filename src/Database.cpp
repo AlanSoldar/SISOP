@@ -169,7 +169,7 @@ void Database::loadUsers()
         sockaddr_in address;
         address.sin_addr.s_addr = inet_addr(user[1].c_str());
         address.sin_port = stoi(user[2]);
-        address.sin_family = AF_INET;
+        address.sin_family = PF_INET;
         loggedUserAddresses.push_front(make_pair(user[0], address));
     }
 }

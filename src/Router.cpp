@@ -8,6 +8,8 @@ Router::Router()
     this->serverRouterSocket = ServerSocket(ROUTER_INITIAL_PORT + 1);
     this->serverList = getActiveSockets();
     this->isRunning = true;
+    this->activeServerIndex = MAX_SERVER_INSTANCES-1;
+    switchActiveServer();
 }
 
 list<ClientSocket> Router::getActiveSockets()
@@ -91,7 +93,7 @@ void *Router::clinetPacketHandler(void *handlerArgs)
     struct router_handler_args *args = (struct router_handler_args *)handlerArgs;
     Router *router = args->router;
     Packet *receivedPacket = args->packet;
-    sockaddr_in serverAddress = router->serverList.front().serv_addr;
+    sockaddr_in serverAddress = router->getActiveServer();
 
     args->router->processClientPacket(receivedPacket, serverAddress, &router->clientRouterSocket);
 
@@ -102,30 +104,22 @@ void Router::processClientPacket(Packet *packetPointer, sockaddr_in serverAddres
 {
     Packet pkt = Packet(packetPointer->getUser(), packetPointer->getType(), packetPointer->getPayload());
     pkt.setSocket(packetPointer->getSocket());
-    routerSocket->sendPacket(pkt, &serverAddress);
+    int attemptNum = 0;
+    int response;
+    do
+    {
+        response = routerSocket->sendPacket(pkt, &serverAddress);
+        if (response < 0)
+        {
+            switchActiveServer();
+        }
+    } while (response < 0 && attemptNum < MAX_SERVER_INSTANCES);
+
+    if (response < 0)
+    {
+        cout << "communication with server failed" << endl;
+    }
 }
-
-// void Router::wakeUpServer()
-// {
-//     int answer = this->socket.sendPacket(Packet(this->userName, WAKE_UP, to_string(this->socket.getSocketfd())));
-//     if (answer < 0)
-//     {
-//         exit(1);
-//     }
-
-//     cout << "setting server as primary" << endl;
-// }
-
-// void Router::sendServerSleepCommand()
-// {
-//     int answer = this->socket.sendPacket(Packet(this->userName, SLEEP, to_string(this->socket.getSocketfd())));
-//     if (answer < 0)
-//     {
-//         exit(1);
-//     }
-
-//     cout << "setting server as backup" << endl;
-// }
 
 void *Router::ServerClientCommunication(void *handlerArgs)
 {
@@ -189,9 +183,16 @@ void *Router::serverPacketHandler(void *handlerArgs)
     struct router_handler_args *args = (struct router_handler_args *)handlerArgs;
     Router *router = args->router;
     Packet *receivedPacket = args->packet;
-    sockaddr_in serverAddress = router->serverList.front().serv_addr;
+    sockaddr_in serverAddress = router->getActiveServer();
 
-    args->router->processServerPacket(receivedPacket, serverAddress, &router->serverRouterSocket);
+    if (receivedPacket->getType() == FAIL)
+    {
+        router->switchActiveServer();
+    }
+    else
+    {
+        router->processServerPacket(receivedPacket, serverAddress, &router->serverRouterSocket);
+    }
 
     return NULL;
 }
@@ -202,4 +203,45 @@ void Router::processServerPacket(Packet *packetPointer, sockaddr_in serverAddres
     pkt.setSocket(packetPointer->getSocket());
     sockaddr_in userAddress = pkt.getSocket();
     routerSocket->sendPacket(pkt, &userAddress);
+}
+
+void Router::switchActiveServer()
+{
+    sendServerSleepCommand();
+    this->activeServerIndex++;
+    if (activeServerIndex >= MAX_SERVER_INSTANCES)
+        this->activeServerIndex = 0;
+    wakeUpServer();
+}
+
+sockaddr_in Router::getActiveServer()
+{
+    list<ClientSocket>::iterator it = this->serverList.begin();
+    advance(it, this->activeServerIndex);
+
+    return it->serv_addr;
+}
+
+void Router::wakeUpServer()
+{
+    sockaddr_in serverAddress = getActiveServer();
+    int answer = this->clientRouterSocket.sendPacket(Packet("router", WAKE_UP, "time to wake up"), &serverAddress);
+    cout << "setting server as primary" << endl;
+
+    if (answer < 0)
+    {
+        exit(1);
+    }
+}
+
+void Router::sendServerSleepCommand()
+{
+    sockaddr_in serverAddress = getActiveServer();
+    int answer = this->clientRouterSocket.sendPacket(Packet("router", SLEEP, "time to sleep"), &serverAddress);
+    cout << "setting server as backup" << endl;
+
+    if (answer < 0)
+    {
+        exit(1);
+    }
 }

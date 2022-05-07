@@ -160,6 +160,10 @@ string Packet::toString()
 
     string port = to_string(this->getSocket().sin_port);
 
+    if (port == "") {
+        port = "0000";
+    }
+
     return this->getUser() + "&" + port + "&" + str_type + "&" + this->getPayload();
 }
 
