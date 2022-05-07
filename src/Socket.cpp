@@ -98,6 +98,8 @@ ServerSocket::ServerSocket(int port)
     if (server_instance >= MAX_SERVER_INSTANCES)
         cout << "ERROR on binding" << endl;
 
+    cout << "server socket created. port: " << serv_addr.sin_port << endl;
+    this->serv_addr = serv_addr;
     this->socketfd = sockfd;
 }
 
@@ -106,13 +108,17 @@ int ServerSocket::getSocketfd()
     return this->socketfd;
 }
 
+ sockaddr_in ServerSocket::getServAddr()
+{
+    return this->serv_addr;
+}
+
 Packet *ServerSocket::readPacket(sockaddr_in *clientAddress)
 {
 
     int respCode;
     char buf[PAYLOAD_MAX_SIZE];
     socklen_t clilen;
-    // sockaddr cli_addr;
     Packet *pkt = new Packet();
     memset(pkt, 0, sizeof(Packet));
 
@@ -152,7 +158,7 @@ int ServerSocket::sendPacket(Packet pkt, sockaddr_in *receiverAddress)
 
     int response = sendto(socketfd, buffer, PAYLOAD_MAX_SIZE, 0, (sockaddr *)receiverAddress, sizeof(struct sockaddr));
 
-    cout << "message sent." << response << endl;
+    cout << "message sent." << endl;
 
     if (response < 0)
         std::cout << "ERROR writing to socket: " << socketfd << std::endl;

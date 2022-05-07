@@ -55,7 +55,6 @@ void *Server::communicationHandler(void *handlerArgs)
 {
     struct communiction_handler_args *args = (struct communiction_handler_args *)handlerArgs;
     pthread_t t0, t1, t2, t3;
-    pthread_t currentThread;
     int threadController = 0;
 
     cout << "starting to listen to messages" << endl;
@@ -65,55 +64,55 @@ void *Server::communicationHandler(void *handlerArgs)
         sockaddr_in clientAddress;
         Packet *receivedPacket = args->connectedSocket->readPacket(&clientAddress);
 
-        if (receivedPacket)
-        {
-            args->packet = receivedPacket;
-            args->clientAddress = clientAddress;
+        args->packet = receivedPacket;
+        args->clientAddress = clientAddress;
 
-            switch (threadController)
-            {
-            case 0:
-                pthread_join(t0, NULL);
-                pthread_create(&t0, NULL, Server::packetHandler, (void *)args);
-                break;
-            case 1:
-                pthread_join(t1, NULL);
-                pthread_create(&t1, NULL, Server::packetHandler, (void *)args);
-                break;
-            case 2:
-                pthread_join(t2, NULL);
-                pthread_create(&t2, NULL, Server::packetHandler, (void *)args);
-                break;
-            case 3:
-                pthread_join(t3, NULL);
-                pthread_create(&t3, NULL, Server::packetHandler, (void *)args);
-                break;
-            default:
-                pthread_join(t0, NULL);
-                pthread_create(&t0, NULL, Server::packetHandler, (void *)args);
-                break;
-            }
-            threadController++;
-            if (threadController > 3)
-            {
-                threadController = 0;
-            }
+        switch (threadController)
+        {
+        case 0:
+            pthread_join(t0, NULL);
+            pthread_create(&t0, NULL, Server::packetHandler, (void *)args);
+            break;
+        case 1:
+            pthread_join(t1, NULL);
+            pthread_create(&t1, NULL, Server::packetHandler, (void *)args);
+            break;
+        case 2:
+            pthread_join(t2, NULL);
+            pthread_create(&t2, NULL, Server::packetHandler, (void *)args);
+            break;
+        case 3:
+            pthread_join(t3, NULL);
+            pthread_create(&t3, NULL, Server::packetHandler, (void *)args);
+            break;
+        default:
+            pthread_join(t0, NULL);
+            pthread_create(&t0, NULL, Server::packetHandler, (void *)args);
+            break;
+        }
+        threadController++;
+        if (threadController > 3)
+        {
+            threadController = 0;
         }
     }
+
     return NULL;
 }
 
 void *Server::packetHandler(void *handlerArgs)
 {
+    
     struct communiction_handler_args *args = (struct communiction_handler_args *)handlerArgs;
+    
     Packet *receivedPacket = args->packet;
+    
     ServerSocket *serverSocket = args->connectedSocket;
 
     string user = receivedPacket->getUser();
     int type = receivedPacket->getType();
     string payload = receivedPacket->getPayload();
     sockaddr_in clientAddress = receivedPacket->getSocket();
-
 
     if (args->server->isPrimary)
     {
@@ -124,14 +123,13 @@ void *Server::packetHandler(void *handlerArgs)
 
         args->server->database.saveDatabaseState();
     }
-    else if (type == WAKE_UP && stoi(receivedPacket->getPayload()) == serverSocket->getSocketfd())
+    else if (type == WAKE_UP && receivedPacket->getSocket().sin_port == serverSocket->getServAddr().sin_port)
     {
         args->server->database.loadDatabaseState();
         args->server->isPrimary = true;
         cout << "Server is now active as primary." << endl;
     }
 
-    
     return NULL;
 }
 

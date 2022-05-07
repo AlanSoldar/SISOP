@@ -8,8 +8,8 @@ Router::Router()
     this->serverRouterSocket = ServerSocket(ROUTER_INITIAL_PORT + 1);
     this->serverList = getActiveSockets();
     this->isRunning = true;
-    this->activeServerIndex = MAX_SERVER_INSTANCES-1;
-    switchActiveServer();
+    this->activeServerIndex = 0;
+    wakeUpServer();
 }
 
 list<ClientSocket> Router::getActiveSockets()
@@ -225,7 +225,10 @@ sockaddr_in Router::getActiveServer()
 void Router::wakeUpServer()
 {
     sockaddr_in serverAddress = getActiveServer();
-    int answer = this->clientRouterSocket.sendPacket(Packet("router", WAKE_UP, "time to wake up"), &serverAddress);
+    cout << "wake port " << serverAddress.sin_port << endl;
+    Packet pkt = Packet("router", WAKE_UP, "time to wake up");
+    pkt.setSocket(this->getActiveServer());
+    int answer = this->clientRouterSocket.sendPacket(pkt, &serverAddress);
     cout << "setting server as primary" << endl;
 
     if (answer < 0)

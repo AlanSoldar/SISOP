@@ -38,8 +38,6 @@ private:
 
     uint32_t notificationIdCounter;
 
-    map<string, sem_t> userSessionsSemaphore;
-    map<string, list<host_address>> sessions;
     Database database;
 
     void manageNotifications(ServerSocket *socket, string sender, Notification notification);

@@ -58,6 +58,7 @@ private:
 
 public:
 	int getSocketfd();
+	sockaddr_in getServAddr();
 	ServerSocket();
 	ServerSocket(int port);
 
